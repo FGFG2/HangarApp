@@ -1,15 +1,15 @@
 package com.tobyrich.dev.hangarapp.util;
 
+import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.rotation.Rotatable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Jonas on 10.06.2015.
- */
 public class BlueToothSmartPlaneConnection extends Connection {
+
+    @Inject PlaneData planeData;
 
     private List<Rotatable> rotatables = new ArrayList<>();
 
@@ -41,7 +41,6 @@ public class BlueToothSmartPlaneConnection extends Connection {
      * This function should be triggered when the BT connection with the Plane is set.
      */
     protected void onIncomingStatistics(Map<String, String> properties) {
-        PlaneData planeData = PlaneData.getInstance();
         planeData.setAccumulatedTime(extractInt(properties.get(Connection.ACCUMULATED_TIME)));
         planeData.setLastFlightCharge(extractDouble(properties.get(Connection.LAST_FLIGHT_CHARGE)));
         planeData.setLastG(extractInt(properties.get(Connection.LAST_G)));

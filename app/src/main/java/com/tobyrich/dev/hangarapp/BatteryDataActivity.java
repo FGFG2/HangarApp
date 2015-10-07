@@ -1,26 +1,36 @@
 package com.tobyrich.dev.hangarapp;
 
-import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.util.PlaneData;
 
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectResource;
+import roboguice.inject.InjectView;
 
-public class BatteryDataActivity extends Activity {
+@ContentView(R.layout.activity_battery_data)
+public class BatteryDataActivity extends RoboActivity {
 
-    private ProgressBar batteryProgressBar;
-
+    @InjectView(R.id.batteryProgressBar) ProgressBar batteryProgressBar;
+    @InjectView(R.id.currentChargeValue) TextView tvBatteryStatus;
+    @InjectView(R.id.timeRemainedValue) TextView tvBatteryRemain;
+    @InjectResource(R.drawable.green_progressbar) Drawable greenProgrssBar;
+    @InjectResource(R.drawable.yellow_progressbar) Drawable yellowProgrssBar;
+    @InjectResource(R.drawable.red_progressbar) Drawable redProgrssBar;
+    @Inject PlaneData planeData;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_battery_data);
-
-        PlaneData planeData = PlaneData.getInstance();
+        
         setCurrentBatteryCharge(planeData);
         setOperationalRemainedTime(planeData);
     }
@@ -52,20 +62,18 @@ public class BatteryDataActivity extends Activity {
      */
     public void setCurrentBatteryCharge(PlaneData planeData) {
         int batteryChargeInPercent = planeData.getCurrentBatteryCharge();
-        batteryProgressBar = (ProgressBar) findViewById(R.id.batteryProgressBar);
         batteryProgressBar.setProgress(batteryChargeInPercent);
-        TextView tv = (TextView) findViewById(R.id.currentChargeValue);
-        tv.setText(Integer.toString(batteryChargeInPercent) + "%");
+        tvBatteryStatus.setText(Integer.toString(batteryChargeInPercent) + "%");
 
         if(batteryChargeInPercent > 50) {
-            batteryProgressBar.setProgressDrawable(getDrawable(R.drawable.green_progressbar));
-            tv.setTextColor(Color.parseColor("#ff00aa00"));
+            batteryProgressBar.setProgressDrawable(greenProgrssBar);
+            tvBatteryStatus.setTextColor(Color.parseColor("#ff00aa00"));
         } else if(batteryChargeInPercent > 20){
-                batteryProgressBar.setProgressDrawable(getDrawable(R.drawable.yellow_progressbar));
-                tv.setTextColor(Color.parseColor("#ffffcb00"));
+                batteryProgressBar.setProgressDrawable(yellowProgrssBar);
+                tvBatteryStatus.setTextColor(Color.parseColor("#ffffcb00"));
             } else {
-                batteryProgressBar.setProgressDrawable(getDrawable(R.drawable.red_progressbar));
-                tv.setTextColor(Color.parseColor("#ffee0000"));
+                batteryProgressBar.setProgressDrawable(redProgrssBar);
+                tvBatteryStatus.setTextColor(Color.parseColor("#ffee0000"));
             }
     }
 
@@ -73,16 +81,15 @@ public class BatteryDataActivity extends Activity {
      * Sets the operational remained time in format hh:mm:ss.
      */
     public void setOperationalRemainedTime(PlaneData planeData) {
-        TextView tv = (TextView) findViewById(R.id.timeRemainedValue);
-        tv.setText(planeData.getOperationalRemainedTime());
+        tvBatteryRemain.setText(planeData.getOperationalRemainedTime());
 
-        int batteryChargeInPercent = ((ProgressBar) findViewById(R.id.batteryProgressBar)).getProgress();
+        int batteryChargeInPercent = batteryProgressBar.getProgress();
         if(batteryChargeInPercent > 50) {
-            tv.setTextColor(Color.parseColor("#ff00aa00"));
+            tvBatteryRemain.setTextColor(Color.parseColor("#ff00aa00"));
         } else if(batteryChargeInPercent > 20){
-            tv.setTextColor(Color.parseColor("#ffffcb00"));
+            tvBatteryRemain.setTextColor(Color.parseColor("#ffffcb00"));
         } else {
-            tv.setTextColor(Color.parseColor("#ffee0000"));
+            tvBatteryRemain.setTextColor(Color.parseColor("#ffee0000"));
         }
     }
 }

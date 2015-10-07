@@ -1,32 +1,31 @@
 package com.tobyrich.dev.hangarapp;
 
-import org.rajawali3d.surface.IRajawaliSurface;
-import org.rajawali3d.surface.RajawaliSurfaceView;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.inject.Inject;
+
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.RajawaliSurfaceView;
 
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
-public class CalibrateSensorsActivity extends Activity {
+@ContentView(R.layout.activity_calibrate_sensors)
+public class CalibrateSensorsActivity extends RoboActivity {
 
-    private RajawaliSurfaceView rajawaliSurfaceView;
-    Renderer renderer;
+    @InjectView(R.id.calibrateSensors_SurfaceView_smartPlane) RajawaliSurfaceView rajawaliSurfaceView;
+    @Inject Renderer renderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calibrate_sensors);
 
-        rajawaliSurfaceView = (RajawaliSurfaceView) findViewById(R.id.calibrateSensors_SurfaceView_smartPlane);
         rajawaliSurfaceView.setFrameRate(60);
         rajawaliSurfaceView.setRenderMode(IRajawaliSurface.RENDERMODE_WHEN_DIRTY);
         rajawaliSurfaceView.setTransparent(true);
-        renderer = new Renderer(this);
         rajawaliSurfaceView.setSurfaceRenderer(renderer);
         rajawaliSurfaceView.setOnTouchListener(renderer);
         rajawaliSurfaceView.setOnClickListener(null);

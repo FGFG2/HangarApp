@@ -1,31 +1,44 @@
 package com.tobyrich.dev.hangarapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.util.PlaneData;
 
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
-public class StatisticsActivity extends Activity {
+@ContentView(R.layout.activity_statistics)
+public class StatisticsActivity extends RoboActivity {
+
+    @InjectView(R.id.totalFlightDuration) TextView tvTotalFlightDuration;
+    @InjectView(R.id.lastFlightDuration) TextView tvLastFlightDuration;
+    @InjectView(R.id.maxHeight) TextView tvMaxHeight;
+    @InjectView(R.id.lastHeight) TextView tvLastHeight;
+    @InjectView(R.id.maxRpm) TextView tvMaxRpm;
+    @InjectView(R.id.lastRpm) TextView tvLastRpm;
+    @InjectView(R.id.maxGForce) TextView tvMaxGForce;
+    @InjectView(R.id.lastGForce) TextView tvLastGForce;
+    @InjectView(R.id.ecoRanking) TextView tvEcoRanking;
+    @Inject PlaneData planeData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_statistics);
 
-        PlaneData planeData = PlaneData.getInstance();
-        setTotalFlightDuration(planeData);
-        setLastFlightDuration(planeData);
-        setMaxRelativeHeight(planeData);
-        setLastRelativeHeight(planeData);
-        setMaxRPM(planeData);
-        setLastRPM(planeData);
-        setMaxG(planeData);
-        setLastG(planeData);
-        setEcoRanking(planeData);
+        tvTotalFlightDuration.setText(planeData.getTotalFlightDuration());
+        tvLastFlightDuration.setText(planeData.getLastFlightDuration());
+        tvMaxHeight.setText(planeData.getMaxRelativeHeight());
+        tvLastHeight.setText(planeData.getLastRelativeHeight());
+        tvMaxRpm.setText(planeData.getMaxRPM());
+        tvLastRpm.setText(planeData.getLastRPM());
+        tvMaxGForce.setText(planeData.getMaxG());
+        tvLastGForce.setText(planeData.getLastG());
+        tvEcoRanking.setText(planeData.getEcoRanking());
     }
 
     @Override
@@ -48,68 +61,5 @@ public class StatisticsActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Sets the total flight duration in format hh:mm:ss.
-     */
-    public void setTotalFlightDuration(PlaneData planeData) {
-        ((TextView)findViewById(R.id.totalFlightDuration)).setText(planeData.getTotalFlightDuration());
-    }
-
-    /**
-     * Sets the last flight duration in format hh:mm:ss.
-     */
-    public void setLastFlightDuration(PlaneData planeData) {
-        ((TextView)findViewById(R.id.lastFlightDuration)).setText(planeData.getLastFlightDuration());
-    }
-
-    /**
-     * Sets the max relative height of the flight in meters.
-     */
-    public void setMaxRelativeHeight(PlaneData planeData) {
-        ((TextView)findViewById(R.id.maxHeight)).setText(planeData.getMaxRelativeHeight());
-    }
-
-    /**
-     * Sets the last relative height of the flight in meters.
-     */
-    public void setLastRelativeHeight(PlaneData planeData) {
-        ((TextView)findViewById(R.id.lastHeight)).setText(planeData.getLastRelativeHeight());
-    }
-
-    /**
-     * Sets the max RPM.
-     */
-    public void setMaxRPM(PlaneData planeData) {
-        ((TextView)findViewById(R.id.maxRpm)).setText(planeData.getMaxRPM());
-    }
-
-    /**
-     * Sets the last RPM.
-     */
-    public void setLastRPM(PlaneData planeData) {
-        ((TextView)findViewById(R.id.lastRpm)).setText(planeData.getLastRPM());
-    }
-
-    /**
-     * Sets the max G-overload.
-     */
-    public void setMaxG(PlaneData planeData) {
-        ((TextView)findViewById(R.id.maxGForce)).setText(planeData.getMaxG());
-    }
-
-    /**
-     * Sets the last G-overload.
-     */
-    public void setLastG(PlaneData planeData) {
-        ((TextView)findViewById(R.id.lastGForce)).setText(planeData.getLastG());
-    }
-
-    /**
-     * Sets the eco-ranking based on flight duration and battery charge quotient.
-     */
-    public void setEcoRanking(PlaneData planeData) {
-        ((TextView)findViewById(R.id.ecoRanking)).setText(planeData.getEcoRanking());
     }
 }

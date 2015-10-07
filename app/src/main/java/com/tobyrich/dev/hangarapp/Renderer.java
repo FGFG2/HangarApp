@@ -6,9 +6,9 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.rotation.Rotatable;
 import com.tobyrich.dev.hangarapp.rotation.RotationListener;
-import com.tobyrich.dev.hangarapp.util.Connection;
 import com.tobyrich.dev.hangarapp.util.ConnectionStatus;
 
 import org.rajawali3d.Object3D;
@@ -25,10 +25,6 @@ import org.rajawali3d.renderer.RajawaliRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * Created by David on 16.05.2015.
- */
 public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
         ScaleGestureDetector.OnScaleGestureListener {
 
@@ -43,7 +39,8 @@ public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
 
     private float scaleFactor = 1f;
 
-    public Renderer(Context context) {
+    @Inject
+    public Renderer(Context context, ConnectionStatus connectionStatus) {
         super(context);
         setFrameRate(60);
         scaleGestureDetector = new ScaleGestureDetector(context, this);
@@ -53,7 +50,7 @@ public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
         rotationListener.addRotatable(r1);
         rotatables.add(r1);
         RotatableComponent r2 = new RotatableComponent(this);
-        ConnectionStatus.getInstance().getConnection().addRotatable(r2);
+        connectionStatus.getConnection().addRotatable(r2);
         rotatables.add(r2);
     }
 

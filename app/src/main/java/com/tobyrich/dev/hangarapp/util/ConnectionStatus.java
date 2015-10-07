@@ -1,5 +1,7 @@
 package com.tobyrich.dev.hangarapp.util;
 
+import com.google.inject.Singleton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +9,8 @@ import java.util.List;
  * Holds information concerning the current plane connection status.
  * Created by Jonas on 27.05.2015.
  */
+@Singleton
 public class ConnectionStatus {
-
-    private static ConnectionStatus instance;
 
     private Connection connection = new BlueToothSmartPlaneConnection();
 
@@ -17,23 +18,9 @@ public class ConnectionStatus {
 
     private String connectionId;
 
-    private List<ConnectionListener> connectionListeners;
-
-    private ConnectionStatus() {
-
-        this.connectionListeners = new ArrayList<>();
-    }
-
-    public static ConnectionStatus getInstance() {
-        if (ConnectionStatus.instance == null) {
-            ConnectionStatus.instance = new ConnectionStatus();
-        }
-        return ConnectionStatus.instance;
-    }
+    private List<ConnectionListener> connectionListeners = new ArrayList<>();
 
     /**
-     * Returns {@code true} if the app is connected to the plane, {@code false} otherwise.
-     *
      * @return {@code true} if the app is connected to the plane, {@code false} otherwise.
      */
     public boolean isConnected() {

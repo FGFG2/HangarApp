@@ -1,5 +1,6 @@
 package com.tobyrich.dev.hangarapp.util;
 
+import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.db.DBHandler;
 import com.tobyrich.dev.hangarapp.objects.Statistics;
 
@@ -15,15 +16,6 @@ public class PlaneData {
 
     int accumulatedTime, lastTime, maxHeight, lastHeight, maxRPM, lastRPM, maxG, lastG, operationalRemainedTime = 0;
     double lastFlightCharge, currentBatteryCharge = 0;
-
-    private static PlaneData instance;
-
-    public static PlaneData getInstance() {
-        if (instance == null) {
-            instance = new PlaneData();
-        }
-        return instance;
-    }
 
     public void setAccumulatedTime(int accumulatedTime) {
         this.accumulatedTime = accumulatedTime;
@@ -72,7 +64,8 @@ public class PlaneData {
     /**
      * FIXME: These variables are for tests. Later should be changed to proper values.
      */
-    private PlaneData() {
+    @Inject
+    public PlaneData() {
         // Get the accumulated time which is saved in DB?
         this.accumulatedTime = 100;
         // Get the last flight time from the plane memory.

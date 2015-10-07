@@ -1,17 +1,18 @@
 package com.tobyrich.dev.hangarapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
 
-public class LimitSetupActivity extends Activity {
+@ContentView(R.layout.activity_limit_setup)
+public class LimitSetupActivity extends RoboActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_limit_setup);
     }
 
     @Override
