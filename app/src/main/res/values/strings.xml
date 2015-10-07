@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Hangar App</string>
+    <string name="hello_world">Hello world!</string>
+
+    <string name="exit">Exit</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="statistics">Statistics</string>
+    <string name="title_activity_statistics">Statistics</string>
+    <string name="total_flight_duration">Total flight duration</string>
+    <string name="last_flight_duration">Last flight duration</string>
+    <string name="max_height">Max. relative height</string>
+    <string name="last_height">Last relative height</string>
+    <string name="max_rpm">Max. r.p.m.</string>
+    <string name="last_rpm">Last r.p.m.</string>
+    <string name="max_G_force">Max. force of gravity</string>
+    <string name="last_G_force">Last force of gravity</string>
+    <string name="eco">Eco ranking</string>
+
+    <string name="battery_data">Battery data</string>
+    <string name="title_activity_battery_data">Battery data</string>
+    <string name="current_charge">Current charge</string>
+    <string name="time_remained">Operational time remained</string>
+
+    <string name="factory_test">Factory test</string>
+    <string name="title_activity_factory_test">Factory test</string>
+    <string name="check_engine">Check engine</string>
+    <string name="rudder_left">Check rudder left</string>
+    <string name="rudder_right">Check rudder right</string>
+
+    <string name="calibrate_sensors">Calibrate sensors</string>
+    <string name="x_axis">X-axis</string>
+    <string name="y_axis">Y-axis</string>
+    <string name="z_axis">Z-axis</string>
+    <string name="title_activity_calibrate_sensors">Calibrate sensors</string>
+    <string name="nullValue">0</string>
+
+    <string name="limit_setup">Limitations setup</string>
+    <string name="title_activity_limit_setup">Limitations setup</string>
+    <string name="remaining_charge">Remaining charge</string>
+    <string name="rpm">r.p.m.</string>
+    <string name="max_tilt">Max. tilt</string>
+    <string name="max_height_limit">Max. height</string>
+
+</resources>
+
