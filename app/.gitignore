@@ -1,2 +1,5 @@
+#Folders
 /build
-.iml
+
+#Files
+*.iml
