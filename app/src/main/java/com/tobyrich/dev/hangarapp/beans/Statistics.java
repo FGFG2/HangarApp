@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp.objects;
+package com.tobyrich.dev.hangarapp.beans;
 
 /**
  * Created by Alex on 03.06.2015.

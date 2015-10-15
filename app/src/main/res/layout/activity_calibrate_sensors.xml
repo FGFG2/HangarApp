@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.tobyrich.dev.hangarapp.CalibrateSensorsActivity"
+    tools:context="com.tobyrich.dev.hangarapp.activities.CalibrateSensorsActivity"
     android:orientation="horizontal"
     android:background="@drawable/background">
     <RelativeLayout
@@ -114,12 +114,8 @@
         </LinearLayout>
     </RelativeLayout>
     <RelativeLayout
+        android:id="@+id/fragment_container"
         android:layout_width="0dip"
         android:layout_height="fill_parent"
-        android:layout_weight="0.5">
-        <org.rajawali3d.surface.RajawaliSurfaceView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/calibrateSensors_SurfaceView_smartPlane" />
-    </RelativeLayout>
+        android:layout_weight="0.5" />
 </LinearLayout>

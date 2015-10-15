@@ -1,41 +1,27 @@
-package com.tobyrich.dev.hangarapp;
+package com.tobyrich.dev.hangarapp.activities;
 
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
-
-import org.rajawali3d.surface.IRajawaliSurface;
-import org.rajawali3d.surface.RajawaliSurfaceView;
+import com.tobyrich.dev.hangarapp.R;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 
-@ContentView(R.layout.activity_calibrate_sensors)
-public class CalibrateSensorsActivity extends RoboActivity {
-
-    @InjectView(R.id.calibrateSensors_SurfaceView_smartPlane) RajawaliSurfaceView rajawaliSurfaceView;
-    @Inject Renderer renderer;
+@ContentView(R.layout.activity_limit_setup)
+public class LimitSetupActivity extends RoboActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        rajawaliSurfaceView.setFrameRate(60);
-        rajawaliSurfaceView.setRenderMode(IRajawaliSurface.RENDERMODE_WHEN_DIRTY);
-        rajawaliSurfaceView.setTransparent(true);
-        rajawaliSurfaceView.setSurfaceRenderer(renderer);
-        rajawaliSurfaceView.setOnTouchListener(renderer);
-        rajawaliSurfaceView.setOnClickListener(null);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_calibrate_sensors, menu);
-        return true;
+        getMenuInflater().inflate(R.menu.menu_limit_setup, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

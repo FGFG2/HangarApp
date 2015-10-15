@@ -1,8 +1,8 @@
-package com.tobyrich.dev.hangarapp.util;
+package com.tobyrich.dev.hangarapp.beans;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.db.DBHandler;
-import com.tobyrich.dev.hangarapp.objects.Statistics;
+import com.tobyrich.dev.hangarapp.util.AppContext;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp;
+package com.tobyrich.dev.hangarapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,42 +7,36 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.inject.Inject;
-import com.tobyrich.dev.hangarapp.util.ConnectionListener;
-import com.tobyrich.dev.hangarapp.util.ConnectionStatus;
-
-import org.rajawali3d.surface.IRajawaliSurface;
-import org.rajawali3d.surface.RajawaliSurfaceView;
+import com.tobyrich.dev.hangarapp.R;
+import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
+import com.tobyrich.dev.hangarapp.connection.ConnectionListener;
+import com.tobyrich.dev.hangarapp.connection.ConnectionStatus;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_main_menu)
 public class MainMenuActivity extends RoboActivity implements ConnectionListener {
 
-    @InjectView(R.id.mainMenu_SurfaceView_smartPlane) RajawaliSurfaceView rajawaliSurfaceView;
     @Inject ConnectionStatus connectionStatus;
-    @Inject Renderer renderer;
+    @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        rajawaliSurfaceView.setFrameRate(60);
-        rajawaliSurfaceView.setRenderMode(IRajawaliSurface.RENDERMODE_WHEN_DIRTY);
-        rajawaliSurfaceView.setTransparent(true);
-        rajawaliSurfaceView.setSurfaceRenderer(renderer);
-        rajawaliSurfaceView.setOnTouchListener(renderer);
-        rajawaliSurfaceView.setOnClickListener(null);
-
         connectionStatus.addConnectionListener(this);
+
+        if (savedInstanceState == null) {
+            // During initial inject rajawaliSurfaceFragment
+            getFragmentManager().beginTransaction().add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main_menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
