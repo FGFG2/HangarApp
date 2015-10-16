@@ -13,7 +13,7 @@ public class BlueToothSmartPlaneConnection extends Connection {
     @Inject
     PlaneData planeData;
 
-    private List<Rotatable> rotatables = new ArrayList<>();
+    private List<Rotatable> rotatables = new ArrayList<Rotatable>();
 
     @Override
     public void addRotatable(Rotatable rotatable) {
@@ -71,7 +71,9 @@ public class BlueToothSmartPlaneConnection extends Connection {
         double d;
         try {
             d = Double.parseDouble(value);
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException e) {
+            d = 0d;
+        } catch (NullPointerException e) {
             d = 0d;
         }
         return d;
@@ -82,7 +84,9 @@ public class BlueToothSmartPlaneConnection extends Connection {
         float f;
         try {
             f = Float.parseFloat(value);
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException e) {
+            f = 0f;
+        } catch(NullPointerException e) {
             f = 0f;
         }
         return f;
@@ -93,7 +97,9 @@ public class BlueToothSmartPlaneConnection extends Connection {
         int i;
         try {
             i = Integer.parseInt(value);
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException  e) {
+            i = 0;
+        } catch(NullPointerException e) {
             i = 0;
         }
         return i;

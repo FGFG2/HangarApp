@@ -7,6 +7,7 @@ import android.view.ScaleGestureDetector;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.connection.ConnectionStatus;
+import com.tobyrich.dev.hangarapp.events.RajawaliSurfaceLoad;
 import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
 import com.tobyrich.dev.hangarapp.listener.rotation.RotationListener;
 
@@ -16,22 +17,20 @@ import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.loader.ALoader;
 import org.rajawali3d.loader.LoaderAWD;
 import org.rajawali3d.loader.async.IAsyncLoaderCallback;
-import org.rajawali3d.materials.Material;
-import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
-import org.rajawali3d.primitives.Sphere;
 import org.rajawali3d.renderer.RajawaliRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import roboguice.inject.ContextSingleton;
 
 @ContextSingleton
 public class Renderer extends RajawaliRenderer implements
         IAsyncLoaderCallback {
 
-    private List<RotatableComponent> rotatables = new ArrayList<>();
+    private List<RotatableComponent> rotatables = new ArrayList<RotatableComponent>();
 
     private ScaleGestureDetector scaleGestureDetector;
     private RotationListener rotationListener;
@@ -60,11 +59,6 @@ public class Renderer extends RajawaliRenderer implements
 
         // load model asynchronously
         loadAwd(R.raw.smart_plane_mesh);
-
-        // show sphere while loading
-        updateShownObject(constructSphere());
-
-        rotationListener.start();
     }
 
     private ALight constructLight() {
@@ -72,17 +66,6 @@ public class Renderer extends RajawaliRenderer implements
         directionalLight.setColor(1.0f, 1.0f, 1.0f);
         directionalLight.setPower(1);
         return directionalLight;
-    }
-
-    private Object3D constructSphere() {
-        Material material = new Material();
-        material.enableLighting(true);
-        material.setDiffuseMethod(new DiffuseMethod.Lambert());
-        material.setColor(236);
-
-        Object3D earthSphere = new Sphere(1, 24, 24);
-        earthSphere.setMaterial(material);
-        return earthSphere;
     }
 
     private void updateShownObject(Object3D objectToShow) {
@@ -97,6 +80,9 @@ public class Renderer extends RajawaliRenderer implements
         getCurrentCamera().setLookAt(0, 0, 0);
     }
 
+    /**
+     * Asynchronous load of resource
+     */
     private void loadAwd(int resourceId) {
         ALoader loader = new LoaderAWD(getContext().getResources(), getTextureManager(), resourceId);
         loadModel(loader, this, resourceId);
@@ -106,11 +92,12 @@ public class Renderer extends RajawaliRenderer implements
     public void onModelLoadComplete(ALoader aLoader) {
         final LoaderAWD loader = (LoaderAWD) aLoader;
         updateShownObject(loader.getParsedObject());
+        EventBus.getDefault().post(new RajawaliSurfaceLoad("Finished loading model!", true));
     }
 
     @Override
     public void onModelLoadFailed(ALoader aLoader) {
-        updateShownObject(constructSphere());
+        EventBus.getDefault().post(new RajawaliSurfaceLoad("Error while loading Model!", false));
     }
 
     @Override

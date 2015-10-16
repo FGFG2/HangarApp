@@ -18,7 +18,7 @@ public class ConnectionStatus {
 
     private String connectionId;
 
-    private List<ConnectionListener> connectionListeners = new ArrayList<>();
+    private List<ConnectionListener> connectionListeners = new ArrayList<ConnectionListener>();
 
     /**
      * @return {@code true} if the app is connected to the plane, {@code false} otherwise.

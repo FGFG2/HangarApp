@@ -7,8 +7,9 @@
         android:layout_height="match_parent"
         android:id="@+id/fragment_SurfaceView_smartPlane" />
     <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:indeterminate="true"
-        android:id="@+id/surface_progress_bar"/>
+        android:id="@+id/surface_progress_bar"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>

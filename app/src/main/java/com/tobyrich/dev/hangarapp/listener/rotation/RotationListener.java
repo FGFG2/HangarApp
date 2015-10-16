@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class RotationListener extends Thread {
 
-    private List<Rotatable> rotatables = new ArrayList<>();
+    private List<Rotatable> rotatables = new ArrayList<Rotatable>();
     private final SensorManager sensorManager;
     private final Sensor gyroscope;
     private final SensorListener sensorListener;

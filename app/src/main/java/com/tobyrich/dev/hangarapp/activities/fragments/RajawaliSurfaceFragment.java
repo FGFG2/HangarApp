@@ -6,16 +6,19 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.Renderer;
+import com.tobyrich.dev.hangarapp.events.RajawaliSurfaceLoad;
 import com.tobyrich.dev.hangarapp.listener.RajawaliSurfaceOnScaleListener;
 import com.tobyrich.dev.hangarapp.listener.RajawaliSurfaceOnTouchListener;
 
 import org.rajawali3d.surface.IRajawaliSurface;
 import org.rajawali3d.surface.RajawaliSurfaceView;
 
+import de.greenrobot.event.EventBus;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -26,6 +29,18 @@ public class RajawaliSurfaceFragment extends RoboFragment {
     @Inject Renderer renderer;
     @Inject RajawaliSurfaceOnTouchListener onTouchListener;
     @Inject RajawaliSurfaceOnScaleListener onScaleListener;
+
+    @Override
+    public void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,5 +64,12 @@ public class RajawaliSurfaceFragment extends RoboFragment {
         rajawaliSurfaceView.setOnClickListener(null);
         rajawaliSurfaceView.setOnTouchListener(onTouchListener);
         new ScaleGestureDetector(view.getContext(), onScaleListener);
+    }
+
+    public void onEventMainThread(RajawaliSurfaceLoad event){
+        if (event.isSuccess()) {
+            progressBar.setVisibility(View.GONE);
+        }
+        Toast.makeText(getActivity(), event.getMessage(), Toast.LENGTH_SHORT).show();
     }
 }
