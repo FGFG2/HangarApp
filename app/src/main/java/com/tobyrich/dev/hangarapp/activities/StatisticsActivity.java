@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp;
+package com.tobyrich.dev.hangarapp.activities;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -6,7 +6,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.tobyrich.dev.hangarapp.util.PlaneData;
+import com.tobyrich.dev.hangarapp.R;
+import com.tobyrich.dev.hangarapp.beans.PlaneData;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -45,7 +46,7 @@ public class StatisticsActivity extends RoboActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_statistics, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

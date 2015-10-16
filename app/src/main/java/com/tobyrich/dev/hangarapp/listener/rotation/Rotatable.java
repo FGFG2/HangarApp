@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp.rotation;
+package com.tobyrich.dev.hangarapp.listener.rotation;
 
 /**
  * Represents an entity that can be rotated along three axes.

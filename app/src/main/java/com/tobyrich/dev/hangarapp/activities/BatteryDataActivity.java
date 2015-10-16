@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp;
+package com.tobyrich.dev.hangarapp.activities;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -9,7 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.tobyrich.dev.hangarapp.util.PlaneData;
+import com.tobyrich.dev.hangarapp.R;
+import com.tobyrich.dev.hangarapp.beans.PlaneData;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -39,7 +40,7 @@ public class BatteryDataActivity extends RoboActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_battery_data, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

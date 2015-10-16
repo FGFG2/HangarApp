@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp.rotation;
+package com.tobyrich.dev.hangarapp.listener.rotation;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;

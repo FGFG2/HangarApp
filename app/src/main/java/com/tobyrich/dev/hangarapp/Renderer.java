@@ -4,18 +4,18 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;
 
 import com.google.inject.Inject;
-import com.tobyrich.dev.hangarapp.rotation.Rotatable;
-import com.tobyrich.dev.hangarapp.rotation.RotationListener;
-import com.tobyrich.dev.hangarapp.util.ConnectionStatus;
+import com.tobyrich.dev.hangarapp.connection.ConnectionStatus;
+import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
+import com.tobyrich.dev.hangarapp.listener.rotation.RotationListener;
 
 import org.rajawali3d.Object3D;
+import org.rajawali3d.lights.ALight;
 import org.rajawali3d.lights.DirectionalLight;
+import org.rajawali3d.loader.ALoader;
 import org.rajawali3d.loader.LoaderAWD;
-import org.rajawali3d.loader.LoaderOBJ;
-import org.rajawali3d.loader.ParsingException;
+import org.rajawali3d.loader.async.IAsyncLoaderCallback;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.vector.Vector3;
@@ -25,25 +25,24 @@ import org.rajawali3d.renderer.RajawaliRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
-        ScaleGestureDetector.OnScaleGestureListener {
+import roboguice.inject.ContextSingleton;
+
+@ContextSingleton
+public class Renderer extends RajawaliRenderer implements
+        IAsyncLoaderCallback {
 
     private List<RotatableComponent> rotatables = new ArrayList<>();
 
-    private final static String TAG = "Renderer";
-    private DirectionalLight directionalLight;
-    private Sphere earthSphere;
-    private Object3D object;
     private ScaleGestureDetector scaleGestureDetector;
     private RotationListener rotationListener;
 
     private float scaleFactor = 1f;
+    private Object3D shownObjectOnScene;
 
     @Inject
     public Renderer(Context context, ConnectionStatus connectionStatus) {
-        super(context);
-        setFrameRate(60);
-        scaleGestureDetector = new ScaleGestureDetector(context, this);
+        super(context.getApplicationContext());
+
         rotationListener = new RotationListener((SensorManager) context.getSystemService(
                 context.SENSOR_SERVICE));
         RotatableComponent r1 = new RotatableComponent(this);
@@ -56,95 +55,72 @@ public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
 
     @Override
     protected void initScene() {
-        directionalLight = new DirectionalLight(1f, -0.5f, 1f);
-        directionalLight.setColor(1.0f, 1.0f, 1.0f);
-        directionalLight.setPower(2);
-        getCurrentScene().addLight(directionalLight);
+        // add directional light for scene
+        getCurrentScene().addLight(constructLight());
 
+        // load model asynchronously
+        loadAwd(R.raw.smart_plane_mesh);
+
+        // show sphere while loading
+        updateShownObject(constructSphere());
+
+        rotationListener.start();
+    }
+
+    private ALight constructLight() {
+        ALight directionalLight = new DirectionalLight(1f, -0.5f, 1f);
+        directionalLight.setColor(1.0f, 1.0f, 1.0f);
+        directionalLight.setPower(1);
+        return directionalLight;
+    }
+
+    private Object3D constructSphere() {
         Material material = new Material();
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
         material.setColor(236);
-        //object = loadObj(R.raw.blender_obj);
-        object = loadAwd(R.raw.smart_plane_mesh);
-        if (object == null) {
-            //loading failed, show sphere instead :)
-            earthSphere = new Sphere(1, 24, 24);
-            earthSphere.setMaterial(material);
-            getCurrentScene().addChild(earthSphere);
-        } else {
-            getCurrentScene().addChild(object);
-        }
+
+        Object3D earthSphere = new Sphere(1, 24, 24);
+        earthSphere.setMaterial(material);
+        return earthSphere;
+    }
+
+    private void updateShownObject(Object3D objectToShow) {
+        shownObjectOnScene = objectToShow;
+        getCurrentScene().clearChildren();
+        getCurrentScene().addChild(objectToShow);
         updateCamera();
-        rotationListener.start();
-    }
-
-    @Override
-    public void onOffsetsChanged(float v, float v1, float v2, float v3, int i, int i1) {
-
-    }
-
-    @Override
-    public void onTouchEvent(MotionEvent motionEvent) {
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        scaleGestureDetector.onTouchEvent(event);
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                //
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (event.getHistorySize() > 0) {
-                    float histX = event.getHistoricalAxisValue(MotionEvent.AXIS_X, Math.min(event.getHistorySize() - 1, 0));
-                    float histY = event.getHistoricalAxisValue(MotionEvent.AXIS_Y, Math.min(event.getHistorySize() - 1, 0));
-                    float currX = event.getAxisValue(MotionEvent.AXIS_X);
-
-                    float currY = event.getAxisValue(MotionEvent.AXIS_Y);
-                    float deltaX = currX - histX;
-                    float deltaY = currY - histY;
-                    object.rotate(Vector3.Axis.Y, -deltaX);
-                    object.rotate(Vector3.Axis.X, -deltaY);
-                    getCurrentCamera().setLookAt(0, 0, 0);
-                }
-                return true;
-            case MotionEvent.ACTION_UP:
-                //
-                break;
-            default:
-                return false;
-        }
-        return false;
     }
 
     private void updateCamera() {
         getCurrentCamera().setZ(-20 / scaleFactor);
-        getCurrentCamera().setLookAt(0,0,0);
+        getCurrentCamera().setLookAt(0, 0, 0);
     }
 
-
-    @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        if (detector.getScaleFactor() > 0.01) {
-            scaleFactor *= detector.getScaleFactor();
-            scaleFactor = Math.min(Math.max(scaleFactor, 0.20f), 20);
-//            Log.d("Scale","scalefactor is "+scaleFactor);
-            updateCamera();
-            return true;
-        }
-        return false;
+    private void loadAwd(int resourceId) {
+        ALoader loader = new LoaderAWD(getContext().getResources(), getTextureManager(), resourceId);
+        loadModel(loader, this, resourceId);
     }
 
     @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-
-        return true;
+    public void onModelLoadComplete(ALoader aLoader) {
+        final LoaderAWD loader = (LoaderAWD) aLoader;
+        updateShownObject(loader.getParsedObject());
     }
 
     @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
+    public void onModelLoadFailed(ALoader aLoader) {
+        updateShownObject(constructSphere());
+    }
+
+    @Override
+    public void onOffsetsChanged(float xOffset, float yOffset, float xOffsetStep, float yOffsetStep, int xPixelOffset, int yPixelOffset) {
+        // not implemented yet
+    }
+
+    @Override
+    public void onTouchEvent(MotionEvent event) {
+        scaleGestureDetector.onTouchEvent(event);
     }
 
     public void onRotationUpdate() {
@@ -159,13 +135,13 @@ public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
             z += r.z;
         }
 
-        double deltaX = calculateDelta(x, object.getRotX());
-        double deltaY = calculateDelta(y, object.getRotY());
-        double deltaZ = calculateDelta(z, object.getRotZ());
+        double deltaX = calculateDelta(x, shownObjectOnScene.getRotX());
+        double deltaY = calculateDelta(y, shownObjectOnScene.getRotY());
+        double deltaZ = calculateDelta(z, shownObjectOnScene.getRotZ());
 
-        object.rotate(Vector3.Axis.Y, deltaX);
-        object.rotate(Vector3.Axis.X, deltaY);
-        object.rotate(Vector3.Axis.Z, -deltaZ);
+        shownObjectOnScene.rotate(Vector3.Axis.Y, deltaX);
+        shownObjectOnScene.rotate(Vector3.Axis.X, deltaY);
+        shownObjectOnScene.rotate(Vector3.Axis.Z, -deltaZ);
     }
 
     private double calculateDelta(float f, double rot) {
@@ -182,26 +158,8 @@ public class Renderer extends RajawaliRenderer implements View.OnTouchListener,
         return result;
     }
 
-    private Object3D loadObj(int resourceId) {
-        LoaderOBJ loader = new LoaderOBJ(this, resourceId);
-
-        try {
-            loader.parse();
-        } catch (ParsingException e) {
-            e.printStackTrace();
-        }
-        return loader.getParsedObject();
-    }
-
-    private Object3D loadAwd(int resourceId) {
-        LoaderAWD loader = new LoaderAWD(getContext().getResources(), getTextureManager(), resourceId);
-
-        try {
-            loader.parse();
-        } catch (ParsingException e) {
-            e.printStackTrace();
-        }
-        return loader.getParsedObject();
+    public Object3D getShownObjectOnScene() {
+        return shownObjectOnScene;
     }
 
     private class RotatableComponent implements Rotatable {

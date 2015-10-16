@@ -42,5 +42,8 @@
     <string name="max_tilt">Max. tilt</string>
     <string name="max_height_limit">Max. height</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
 

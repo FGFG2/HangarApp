@@ -1,7 +1,8 @@
-package com.tobyrich.dev.hangarapp.util;
+package com.tobyrich.dev.hangarapp.connection;
 
 import com.google.inject.Inject;
-import com.tobyrich.dev.hangarapp.rotation.Rotatable;
+import com.tobyrich.dev.hangarapp.beans.PlaneData;
+import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,8 @@ import java.util.Map;
 
 public class BlueToothSmartPlaneConnection extends Connection {
 
-    @Inject PlaneData planeData;
+    @Inject
+    PlaneData planeData;
 
     private List<Rotatable> rotatables = new ArrayList<>();
 

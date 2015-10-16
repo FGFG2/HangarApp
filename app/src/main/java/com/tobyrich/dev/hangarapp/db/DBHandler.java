@@ -3,9 +3,10 @@ package com.tobyrich.dev.hangarapp.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.*;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
-import com.tobyrich.dev.hangarapp.objects.Statistics;
+import com.tobyrich.dev.hangarapp.beans.Statistics;
 
 /**
  * Created by Alex on 03.06.2015.

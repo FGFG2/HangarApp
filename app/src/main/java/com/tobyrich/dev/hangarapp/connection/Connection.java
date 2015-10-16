@@ -1,6 +1,6 @@
-package com.tobyrich.dev.hangarapp.util;
+package com.tobyrich.dev.hangarapp.connection;
 
-import com.tobyrich.dev.hangarapp.rotation.Rotatable;
+import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
 
 import java.util.Map;
 
