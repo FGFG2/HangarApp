@@ -131,6 +131,27 @@ public class Renderer extends RajawaliRenderer implements
         shownObjectOnScene.rotate(Vector3.Axis.Z, -deltaZ);
     }
 
+    public void onRotationUpdateDuplicate() {
+
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+        for (RotatableComponent r : rotatables) {
+
+            x += r.x;
+            y += r.y;
+            z += r.z;
+        }
+
+        double deltaX = calculateDelta(x, shownObjectOnScene.getRotX());
+        double deltaY = calculateDelta(y, shownObjectOnScene.getRotY());
+        double deltaZ = calculateDelta(z, shownObjectOnScene.getRotZ());
+
+        shownObjectOnScene.rotate(Vector3.Axis.Y, deltaX);
+        shownObjectOnScene.rotate(Vector3.Axis.X, deltaY);
+        shownObjectOnScene.rotate(Vector3.Axis.Z, -deltaZ);
+    }
+
     private double calculateDelta(float f, double rot) {
         double result = f * 180f / (float) Math.PI - rot;
         if (result < 4 && result > -4) {
