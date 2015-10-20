@@ -9,8 +9,8 @@ import android.view.View;
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
-import com.tobyrich.dev.hangarapp.connection.ConnectionListener;
-import com.tobyrich.dev.hangarapp.connection.ConnectionStatus;
+import com.tobyrich.dev.lib.connection.ConnectionListener;
+import com.tobyrich.dev.lib.connection.ConnectionStatus;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
