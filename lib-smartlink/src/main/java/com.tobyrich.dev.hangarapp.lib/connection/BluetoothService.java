@@ -85,7 +85,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         bus.unregister(this);
 
     }
-
     /*
      * Events to Handle
      */

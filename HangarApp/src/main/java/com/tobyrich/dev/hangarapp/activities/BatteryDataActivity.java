@@ -3,19 +3,28 @@ package com.tobyrich.dev.hangarapp.activities;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.beans.PlaneData;
+import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
+import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ScanResult;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
+
+import de.greenrobot.event.EventBus;
 
 @ContentView(R.layout.activity_battery_data)
 public class BatteryDataActivity extends RoboActivity {
@@ -31,9 +40,36 @@ public class BatteryDataActivity extends RoboActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
+        Intent intent = new Intent(this, BluetoothService.class);
+        startService(intent);
+        EventBus.getDefault().register(this);
+
+        EventBus.getDefault().post(new ScanEvent(true));
+        Toast.makeText(this, "Start conneting", Toast.LENGTH_SHORT).show();
         setCurrentBatteryCharge(planeData);
         setOperationalRemainedTime(planeData);
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+
+    }
+    /*
+      * TODO Test Bluetooth
+      */
+    public void onEvent(ScanResult evt){
+        if(evt.getResult().size()>0)
+            EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(0)));
+        else
+            Toast.makeText(this, "No Device Found", Toast.LENGTH_SHORT).show();
+    }
+    public void onEvent(PlaneResult evt){
+        if(evt.getDevice() == PlaneResult.BATTERY)
+            setCurrentBatteryCharge(evt.getValue());
+
     }
 
     @Override
@@ -62,7 +98,9 @@ public class BatteryDataActivity extends RoboActivity {
      * Sets the current battery charge in percent.
      */
     public void setCurrentBatteryCharge(PlaneData planeData) {
-        int batteryChargeInPercent = planeData.getCurrentBatteryCharge();
+        setCurrentBatteryCharge(planeData.getCurrentBatteryCharge());
+    }
+    public void setCurrentBatteryCharge(int batteryChargeInPercent) {
         batteryProgressBar.setProgress(batteryChargeInPercent);
         tvBatteryStatus.setText(Integer.toString(batteryChargeInPercent) + "%");
 
