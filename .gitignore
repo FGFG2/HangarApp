@@ -2,19 +2,10 @@
 /.gradle
 /build
 /captures
+/.idea
 
 #Files
 /gradle.properties
 /local.properties
 *.iml
 *.log
-
-# User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dictionaries
-.idea/shelf
-
-# Gradle:
-.idea/gradle.xml
-.idea/libraries
