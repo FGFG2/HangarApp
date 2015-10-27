@@ -7,7 +7,7 @@ import android.view.ScaleGestureDetector;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.events.RajawaliSurfaceLoad;
-import com.tobyrich.dev.hangarapp.lib.connection.ConnectionStatus;
+import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionStatus;
 import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
 import com.tobyrich.dev.hangarapp.listener.rotation.RotationListener;
 

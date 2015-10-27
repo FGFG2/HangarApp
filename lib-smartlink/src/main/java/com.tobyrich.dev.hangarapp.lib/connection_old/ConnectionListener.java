@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp.lib.connection;
+package com.tobyrich.dev.hangarapp.lib.connection_old;
 
 /**
  * Reacts on changes of the {@link ConnectionStatus}.
