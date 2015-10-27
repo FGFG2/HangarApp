@@ -24,9 +24,12 @@
 
     <string name="factory_test">Factory test</string>
     <string name="title_activity_factory_test">Factory test</string>
-    <string name="check_engine">Check engine</string>
-    <string name="rudder_left">Check rudder left</string>
-    <string name="rudder_right">Check rudder right</string>
+    <string name="check_engine_on">ON | Checking engine...</string>
+    <string name="check_engine_off">OFF | Check engine</string>
+    <string name="rudder_left_on">ON | Checking rudder left...</string>
+    <string name="rudder_left_off">OFF | Check rudder left</string>
+    <string name="rudder_right_on">ON | Checking rudder right...</string>
+    <string name="rudder_right_off">OFF | Check rudder right</string>
 
     <string name="calibrate_sensors">Calibrate sensors</string>
     <string name="x_axis">X-axis</string>

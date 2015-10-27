@@ -17,7 +17,7 @@
             android:orientation="vertical"
             android:padding="15dp"
             android:weightSum="7">
-            <Button
+            <ToggleButton
                 android:id="@+id/check_engine"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -25,13 +25,14 @@
                 android:background="@drawable/button"
                 android:clickable="true"
                 android:gravity="left|center_vertical"
-                android:onClick="onClick"
+                android:onClick="onToggleButtonClick"
                 android:paddingLeft="15dp"
-                android:text="@string/check_engine"
+                android:textOn="@string/check_engine_on"
+                android:textOff="@string/check_engine_off"
                 android:textColor="#7ca700"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
-            <Button
+            <ToggleButton
                 android:id="@+id/rudder_left"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -40,13 +41,14 @@
                 android:background="@drawable/button"
                 android:clickable="true"
                 android:gravity="left|center_vertical"
-                android:onClick="onClick"
+                android:onClick="onToggleButtonClick"
                 android:paddingLeft="15dp"
-                android:text="@string/rudder_left"
+                android:textOn="@string/rudder_left_on"
+                android:textOff="@string/rudder_left_off"
                 android:textColor="#7ca700"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
-            <Button
+            <ToggleButton
                 android:id="@+id/rudder_right"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -55,11 +57,12 @@
                 android:background="@drawable/button"
                 android:clickable="true"
                 android:gravity="left|center_vertical"
-                android:onClick="onClick"
+                android:onClick="onToggleButtonClick"
                 android:paddingLeft="15dp"
-                android:text="@string/rudder_right"
+                android:textOn="@string/rudder_right_on"
+                android:textOff="@string/rudder_right_off"
                 android:textColor="#7ca700"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </RelativeLayout>

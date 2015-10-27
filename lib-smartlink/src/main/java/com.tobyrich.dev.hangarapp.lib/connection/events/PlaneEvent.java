@@ -2,14 +2,11 @@ package com.tobyrich.dev.hangarapp.lib.connection.events;
 
 import android.util.Log;
 
-/**
- * Created by geno on 10/27/15.
- */
 public class PlaneEvent {
     private static final String TAG = "tr.lib.e.PlaneEvent";
 
     // Set 300-350
-    public static final int RUDER = 301;
+    public static final int RUDDER = 301;
     public static final int MOTOR = 302;
 
     // Get 351-399

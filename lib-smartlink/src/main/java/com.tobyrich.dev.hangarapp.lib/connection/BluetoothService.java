@@ -12,11 +12,8 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 import java.util.ArrayList;
 import android.widget.Toast;
@@ -24,9 +21,6 @@ import java.util.UUID;
 import de.greenrobot.event.EventBus;
 import com.tobyrich.dev.hangarapp.lib.connection.events.*;
 
-/**
- * Created by geno on 10/20/15.
- */
 public class BluetoothService extends Service implements BluetoothAdapter.LeScanCallback  {
     private static final String TAG = "tr.lib.BluetoothService";
     private EventBus bus = EventBus.getDefault();
@@ -91,7 +85,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     public void onEvent(PlaneEvent evt){
         int value = evt.getValue();
         switch (evt.getDevice()){
-            case PlaneEvent.RUDER:
+            case PlaneEvent.RUDDER:
                 Log.d(TAG, "event-plane-Ruder: " + value);
                 if(value > 126)
                     value = 126;
