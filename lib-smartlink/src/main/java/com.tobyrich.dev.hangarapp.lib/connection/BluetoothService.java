@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import java.util.ArrayList;
 import android.widget.Toast;
@@ -33,7 +32,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private EventBus bus = EventBus.getDefault();
 
     // MAC: 5C:31:3E:4D:33:49
-    //private static final String PLAN_PART = "TobyRich SmartPlane";
     private static final String PLAN_PART = "TobyRich";
     private static final UUID HANGARSERVICE = UUID.fromString("75B64E51-6000-4ED1-921A-476090D80BA7");
     private static final UUID GET_X = UUID.fromString("75B64E51-0010-4ED1-921A-476090D80BA7");
@@ -83,6 +81,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mConnectedGatt.disconnect();
         bus.unregister(this);
 
     }
@@ -90,25 +89,32 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     /*
      * Events to Handle
      */
-    public void onEvent(RuderEvent evt){
+    public void onEvent(PlaneEvent evt){
         int value = evt.getValue();
-        Log.d(TAG, "event-Ruder: " + value);
-        if(value > 126)
-            value = 126;
-        else if(value < -126)
-            value = -126;
-        ruder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-        mConnectedGatt.writeCharacteristic(ruder);
-    }
-    public void onEvent(MotorEvent evt){
-        int value = evt.getValue();
-        Log.d(TAG, "event-Motor: " + value);
-        if (value > 254)
-            value = 254;
-        else if (value < 0)
-            value = 0;
-        motor.setValue(value,BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-        mConnectedGatt.writeCharacteristic(motor);
+        switch (evt.getDevice()){
+            case PlaneEvent.RUDER:
+                Log.d(TAG, "event-plane-Ruder: " + value);
+                if(value > 126)
+                    value = 126;
+                else if(value < -126)
+                    value = -126;
+                ruder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+                mConnectedGatt.writeCharacteristic(ruder);
+                break;
+            case PlaneEvent.MOTOR:
+                Log.d(TAG, "event-plane-Motor: " + value);
+                if (value > 254)
+                    value = 254;
+                else if (value < 0)
+                    value = 0;
+                motor.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                mConnectedGatt.writeCharacteristic(motor);
+                break;
+
+            default:
+                Log.e(TAG, "event-plane: No Device");
+        }
+
     }
 
     public void onEvent(ConnectEvent evt){
@@ -232,15 +238,15 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             int value;
             if(c.equals(SMARTPLANE_RUDER)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-                bus.post(new RuderResult(value));
+                bus.post(new PlaneResult(PlaneResult.RUDER,value));
                 Log.d(TAG, s + ": Ruder - "+value);
             }else if(c.equals(SMARTPLANE_MOTOR)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                bus.post(new MotorResult(value));
+                bus.post(new PlaneResult(PlaneResult.MOTOR,value));
                 Log.d(TAG, s + ": Motor - "+value);
             }else if(c.equals(BATTERY_characteristic)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                bus.post(new BatteryResult(value));
+                bus.post(new PlaneResult(PlaneResult.BATTERY,value));
                 Log.d(TAG, s + ": Battery - "+value);
             }else{
                 Log.v(TAG, s + ": Unknown - " + characteristic.getUuid());
@@ -263,7 +269,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         }
     };
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "Bind");
