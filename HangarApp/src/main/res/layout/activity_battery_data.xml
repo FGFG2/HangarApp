@@ -83,6 +83,11 @@
             android:layout_margin="60dp"
             android:max="100" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.1" />
 </LinearLayout>
 
 

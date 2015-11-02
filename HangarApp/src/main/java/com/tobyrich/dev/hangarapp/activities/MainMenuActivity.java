@@ -1,5 +1,8 @@
 package com.tobyrich.dev.hangarapp.activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,6 +11,7 @@ import android.view.View;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
+import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
 import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionListener;
 import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionStatus;
@@ -20,6 +24,7 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
 
     @Inject ConnectionStatus connectionStatus;
     @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
+    @Inject ConnectionFragment connectionFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +33,20 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
 
         if (savedInstanceState == null) {
             // During initial inject rajawaliSurfaceFragment
-            getFragmentManager().beginTransaction().add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
+
+            FragmentManager fManager = getFragmentManager();
+            FragmentTransaction fTransaction = fManager.beginTransaction();
+
+            fTransaction.add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
+
+            Fragment connectionFragment = fManager.findFragmentByTag("connectionFragment");
+
+            if (connectionFragment == null) {
+                fTransaction.add(R.id.fragment_container, new ConnectionFragment(), "connectionFragment");
+            }
+            else {
+                fTransaction.replace(R.id.fragment_container, connectionFragment, "connectionFragment");
+            }
         }
     }
 

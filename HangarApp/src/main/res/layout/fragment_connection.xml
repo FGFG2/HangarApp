@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment">
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/connect_button"
+        android:tag="connectionFragment"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textOn="@string/connected"
+        android:textOff="@string/connect"/>
+</RelativeLayout>

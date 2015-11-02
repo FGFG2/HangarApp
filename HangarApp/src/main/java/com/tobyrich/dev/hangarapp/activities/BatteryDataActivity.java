@@ -1,5 +1,8 @@
 package com.tobyrich.dev.hangarapp.activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,12 +15,9 @@ import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
+import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.beans.PlaneData;
-import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
-import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
-import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
-import com.tobyrich.dev.hangarapp.lib.connection.events.ScanResult;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -32,21 +32,31 @@ public class BatteryDataActivity extends RoboActivity {
     @InjectView(R.id.batteryProgressBar) ProgressBar batteryProgressBar;
     @InjectView(R.id.currentChargeValue) TextView tvBatteryStatus;
     @InjectView(R.id.timeRemainedValue) TextView tvBatteryRemain;
-    @InjectResource(R.drawable.green_progressbar) Drawable greenProgrssBar;
-    @InjectResource(R.drawable.yellow_progressbar) Drawable yellowProgrssBar;
-    @InjectResource(R.drawable.red_progressbar) Drawable redProgrssBar;
+    @InjectResource(R.drawable.green_progressbar) Drawable greenProgressBar;
+    @InjectResource(R.drawable.yellow_progressbar) Drawable yellowProgressBar;
+    @InjectResource(R.drawable.red_progressbar) Drawable redProgressBar;
+    @Inject ConnectionFragment connectionFragment;
     @Inject PlaneData planeData;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, BluetoothService.class);
-        startService(intent);
-        EventBus.getDefault().register(this);
+        if (savedInstanceState == null) {
 
-        EventBus.getDefault().post(new ScanEvent(true));
-        Toast.makeText(this, "Start conneting", Toast.LENGTH_SHORT).show();
+            FragmentManager fManager = getFragmentManager();
+            FragmentTransaction fTransaction = fManager.beginTransaction();
+
+            Fragment connectionFragment = fManager.findFragmentByTag("connectionFragment");
+
+            if (connectionFragment == null) {
+                fTransaction.add(R.id.fragment_container, new ConnectionFragment(), "connectionFragment");
+            }
+            else {
+                fTransaction.replace(R.id.fragment_container, connectionFragment, "connectionFragment");
+            }
+        }
+
         setCurrentBatteryCharge(planeData);
         setOperationalRemainedTime(planeData);
     }
@@ -55,21 +65,11 @@ public class BatteryDataActivity extends RoboActivity {
     protected void onDestroy(){
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
 
-    }
-    /*
-      * TODO Test Bluetooth
-      */
-    public void onEvent(ScanResult evt){
-        if(evt.getResult().size()>0)
-            EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(0)));
-        else
-            Toast.makeText(this, "No Device Found", Toast.LENGTH_SHORT).show();
-    }
     public void onEvent(PlaneResult evt){
         if(evt.getDevice() == PlaneResult.BATTERY)
             setCurrentBatteryCharge(evt.getValue());
-
     }
 
     @Override
@@ -105,13 +105,13 @@ public class BatteryDataActivity extends RoboActivity {
         tvBatteryStatus.setText(Integer.toString(batteryChargeInPercent) + "%");
 
         if(batteryChargeInPercent > 50) {
-            batteryProgressBar.setProgressDrawable(greenProgrssBar);
+            batteryProgressBar.setProgressDrawable(greenProgressBar);
             tvBatteryStatus.setTextColor(Color.parseColor("#ff00aa00"));
         } else if(batteryChargeInPercent > 20){
-                batteryProgressBar.setProgressDrawable(yellowProgrssBar);
+                batteryProgressBar.setProgressDrawable(yellowProgressBar);
                 tvBatteryStatus.setTextColor(Color.parseColor("#ffffcb00"));
             } else {
-                batteryProgressBar.setProgressDrawable(redProgrssBar);
+                batteryProgressBar.setProgressDrawable(redProgressBar);
                 tvBatteryStatus.setTextColor(Color.parseColor("#ffee0000"));
             }
     }
