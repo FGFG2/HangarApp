@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -21,11 +22,15 @@ import com.tobyrich.dev.hangarapp.util.Consts;
 import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_factory_test)
 public class FactoryTestActivity extends RoboActivity{
 
     @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
+    @InjectView(R.id.check_engine) ToggleButton tbCheckEngine;
+    @InjectView(R.id.rudder_left) ToggleButton tbRudderLeft;
+    @InjectView(R.id.rudder_right) ToggleButton tbRudderRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,6 @@ public class FactoryTestActivity extends RoboActivity{
     public void onToggleButtonClick(View v) {
         switch(v.getId()) {
             case R.id.check_engine: {
-                ToggleButton tbCheckEngine = (ToggleButton) findViewById(R.id.check_engine);
                 if(tbCheckEngine.isChecked()){
                     EventBus.getDefault().post(new PlaneEvent(PlaneEvent.MOTOR, Consts.MAX_MOTOR_VALUE));
                 }
@@ -62,28 +66,22 @@ public class FactoryTestActivity extends RoboActivity{
                 break;
             }
             case R.id.rudder_left: {
-                ToggleButton tbLeft = (ToggleButton) findViewById(R.id.rudder_left);
-                ToggleButton tbRight = (ToggleButton) findViewById(R.id.rudder_right);
-
-                if(tbLeft.isChecked()){
-                    tbRight.setChecked(false);
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MIN_MOTOR_VALUE));
+                if(tbRudderLeft.isChecked()){
+                    tbRudderRight.setChecked(false);
+                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE));
                 }
                 else{
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_MOTOR_VALUE + Consts.MAX_MOTOR_VALUE) / 2));
+                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2));
                 }
                 break;
             }
             case R.id.rudder_right: {
-                ToggleButton tbLeft = (ToggleButton) findViewById(R.id.rudder_left);
-                ToggleButton tbRight = (ToggleButton) findViewById(R.id.rudder_right);
-
-                if(tbRight.isChecked()){
-                    tbLeft.setChecked(false);
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MAX_MOTOR_VALUE));
+                if(tbRudderRight.isChecked()){
+                    tbRudderLeft.setChecked(false);
+                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MAX_RUDDER_VALUE));
                 }
                 else{
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_MOTOR_VALUE + Consts.MAX_MOTOR_VALUE) / 2));
+                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2));
                 }
                 break;
             }
