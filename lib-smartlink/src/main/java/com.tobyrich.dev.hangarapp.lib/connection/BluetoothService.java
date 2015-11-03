@@ -24,7 +24,6 @@ import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 
 public class BluetoothService extends Service implements BluetoothAdapter.LeScanCallback  {
     private static final String TAG = "tr.lib.BluetoothService";
-    private EventBus bus = EventBus.getDefault();
 
     // MAC: 5C:31:3E:4D:33:49
     private static final String PLAN_PART = "TobyRich";
@@ -63,7 +62,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         mBluetoothAdapter = manager.getAdapter();
 
         mDevices = new ArrayList<BluetoothDevice>();
-        bus.register(this);
+        EventBus.getDefault().register(this);
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             //Bluetooth is disabled
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -77,7 +76,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     public void onDestroy() {
         super.onDestroy();
         mConnectedGatt.disconnect();
-        bus.unregister(this);
+        EventBus.getDefault().unregister(this);
 
     }
     /*
@@ -126,7 +125,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         @Override
         public void run() {
             Log.d(TAG,"scan-end: ScanResult");
-            bus.post(new ScanResult(mDevices));
+            EventBus.getDefault().post(new ScanResult(mDevices));
             stopScan();
         }
     };
@@ -232,15 +231,15 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             int value;
             if(c.equals(SMARTPLANE_RUDER)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-                bus.post(new PlaneResult(PlaneResult.RUDER,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.RUDER,value));
                 Log.d(TAG, s + ": Ruder - "+value);
             }else if(c.equals(SMARTPLANE_MOTOR)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                bus.post(new PlaneResult(PlaneResult.MOTOR,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.MOTOR,value));
                 Log.d(TAG, s + ": Motor - "+value);
             }else if(c.equals(BATTERY_characteristic)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                bus.post(new PlaneResult(PlaneResult.BATTERY,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY,value));
                 Log.d(TAG, s + ": Battery - "+value);
             }else{
                 Log.v(TAG, s + ": Unknown - " + characteristic.getUuid());
