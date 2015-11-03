@@ -47,12 +47,12 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
 
 
 
-    private BluetoothAdapter mBluetoothAdapter;
-    private ArrayList<BluetoothDevice> mDevices;
+    private static BluetoothAdapter mBluetoothAdapter;
+    private static ArrayList<BluetoothDevice> mDevices;
 
-    private BluetoothGatt mConnectedGatt;
+    private static BluetoothGatt mConnectedGatt;
 
-    private BluetoothGattCharacteristic battery,ruder,motor;
+    private static BluetoothGattCharacteristic battery,ruder,motor;
 
 
     private static final int MSG_PROGRESS = 201;
@@ -72,7 +72,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         EventBus.getDefault().register(this);
 
         BluetoothManager manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        mBluetoothAdapter = manager.getAdapter();
+        if(mBluetoothAdapter == null)
+            mBluetoothAdapter = manager.getAdapter();
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             //Bluetooth is disabled
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -87,6 +88,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         super.onDestroy();
         mConnectedGatt.disconnect();
         EventBus.getDefault().unregister(this);
+        Log.d(TAG, "Destroy");
 
     }
     /*
@@ -143,7 +145,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     };
 
 
-    private Handler mHandler = new Handler() {
+    private static Handler mHandler = new Handler() {
 
     };
     @Override
