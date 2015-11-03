@@ -100,11 +100,17 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.connect_button:
-                tbConnect.setChecked(false);
-                tbConnect.setEnabled(false);
-                Log.d(TAG, "send: ScanEvent");
-                Toast.makeText(getActivity(), "Start scanning...", Toast.LENGTH_SHORT).show();
-                EventBus.getDefault().post(new ScanEvent(true));
+                if(PlaneState.getInstance().isConnected()) {
+                    tbConnect.setChecked(false);
+                    EventBus.getDefault().post(new ScanEvent(false));
+                    Log.d(TAG, "send: ScanEvent-disconnect");
+                }else{
+                    tbConnect.setChecked(false);
+                    tbConnect.setEnabled(false);
+                    Log.d(TAG, "send: ScanEvent-connect");
+                    Toast.makeText(getActivity(), "Start scanning...", Toast.LENGTH_SHORT).show();
+                    EventBus.getDefault().post(new ScanEvent(true));
+                }
                 break;
             default:
                 break;

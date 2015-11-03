@@ -199,6 +199,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                             mConnectedGatt.writeDescriptor(descriptor);
+                            //TODO: Did not work
                             //GET FIRST-Value
                             mConnectedGatt.readCharacteristic(characteristic);
                             Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid());
