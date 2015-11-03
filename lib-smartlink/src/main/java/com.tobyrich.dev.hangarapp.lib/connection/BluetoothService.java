@@ -19,9 +19,13 @@ import java.util.ArrayList;
 import android.widget.Toast;
 import java.util.UUID;
 import de.greenrobot.event.EventBus;
+
+import com.google.inject.Singleton;
 import com.tobyrich.dev.hangarapp.lib.connection.events.*;
 import com.tobyrich.dev.hangarapp.lib.utils.Consts;
+import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
+@Singleton
 public class BluetoothService extends Service implements BluetoothAdapter.LeScanCallback  {
     private static final String TAG = "tr.lib.BluetoothService";
 
@@ -55,14 +59,20 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private static final int MSG_DISMISS = 202;
     private static final int MSG_CLEAR = 301;
 
+    public BluetoothService(){
+        super();
+
+        mDevices = new ArrayList<BluetoothDevice>();
+        Log.d(TAG, "Init");
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        EventBus.getDefault().register(this);
+
         BluetoothManager manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = manager.getAdapter();
-
-        mDevices = new ArrayList<BluetoothDevice>();
-        EventBus.getDefault().register(this);
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             //Bluetooth is disabled
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -91,6 +101,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                     value = Consts.MAX_RUDDER_VALUE;
                 else if(value < Consts.MIN_RUDDER_VALUE)
                     value = Consts.MIN_RUDDER_VALUE;
+                PlaneState.getInstance().setRudder(value);
                 ruder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
                 mConnectedGatt.writeCharacteristic(ruder);
                 break;
@@ -100,6 +111,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                     value = Consts.MAX_MOTOR_VALUE;
                 else if (value < Consts.MIN_MOTOR_VALUE)
                     value = Consts.MIN_MOTOR_VALUE;
+                PlaneState.getInstance().setMotor(value);
                 motor.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 mConnectedGatt.writeCharacteristic(motor);
                 break;
@@ -136,6 +148,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     };
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+
         if(device.getName() != null && device.getName().contains(PLAN_PART)) {
             mDevices.add(device);
             Log.d(TAG, "scan-found-toby: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
@@ -159,11 +172,14 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             Log.d(TAG, "Connection State Change: "+status+" -> "+connectionState(newState));
             if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
                 EventBus.getDefault().post(new ConnectResult(true));
+                PlaneState.getInstance().setConnected(true);
                 gatt.discoverServices();
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
                 EventBus.getDefault().post(new ConnectResult(false));
+                PlaneState.getInstance().setConnected(false);
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
                 EventBus.getDefault().post(new ConnectResult(false));
+                PlaneState.getInstance().setConnected(false);
                 gatt.disconnect();
             }
         }
@@ -234,14 +250,17 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             int value;
             if(c.equals(SMARTPLANE_RUDER)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+                PlaneState.getInstance().setRudder(value);
                 EventBus.getDefault().post(new PlaneResult(PlaneResult.RUDER, value));
                 Log.d(TAG, s + ": Ruder - "+value);
             }else if(c.equals(SMARTPLANE_MOTOR)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                PlaneState.getInstance().setMotor(value);
                 EventBus.getDefault().post(new PlaneResult(PlaneResult.MOTOR, value));
                 Log.d(TAG, s + ": Motor - "+value);
             }else if(c.equals(BATTERY_characteristic)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                PlaneState.getInstance().setBattery(value);
                 EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
                 Log.d(TAG, s + ": Battery - "+value);
             }else{

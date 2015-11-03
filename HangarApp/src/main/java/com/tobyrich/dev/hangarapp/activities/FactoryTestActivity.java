@@ -15,6 +15,7 @@ import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
 import com.tobyrich.dev.hangarapp.lib.utils.Consts;
+import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
 import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboActivity;
@@ -35,12 +36,18 @@ public class FactoryTestActivity extends RoboActivity{
 
         Intent intent = new Intent(this, BluetoothService.class);
         startService(intent);
-        EventBus.getDefault().register(this);
 
         if (savedInstanceState == null) {
             // During initial inject rajawaliSurfaceFragment
             getFragmentManager().beginTransaction().add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
         }
+
+        if(PlaneState.getInstance().getMotor()!=0)
+            tbCheckEngine.setChecked(true);
+        if(PlaneState.getInstance().getRudder()< 0)
+            tbRudderLeft.setChecked(true);
+        if(PlaneState.getInstance().getRudder()>0)
+            tbRudderRight.setChecked(true);
 
         Toast.makeText(this, "Start conneting", Toast.LENGTH_SHORT).show();
     }

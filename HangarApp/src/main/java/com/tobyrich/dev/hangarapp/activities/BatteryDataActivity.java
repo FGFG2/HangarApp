@@ -17,7 +17,9 @@ import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.beans.PlaneData;
+import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
+import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -42,6 +44,10 @@ public class BatteryDataActivity extends RoboActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent intent = new Intent(this, BluetoothService.class);
+        startService(intent);
+        EventBus.getDefault().register(this);
+
         if (savedInstanceState == null) {
 
             FragmentManager fManager = getFragmentManager();
@@ -57,7 +63,7 @@ public class BatteryDataActivity extends RoboActivity {
             }
         }
 
-        setCurrentBatteryCharge(planeData);
+        setCurrentBatteryCharge(PlaneState.getInstance().getBattery());
         setOperationalRemainedTime(planeData);
     }
 

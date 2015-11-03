@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
+import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionListener;
 import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionStatus;
 
@@ -30,6 +31,9 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         connectionStatus.addConnectionListener(this);
+
+        Intent intent = new Intent(this, BluetoothService.class);
+        startService(intent);
 
         if (savedInstanceState == null) {
             // During initial inject rajawaliSurfaceFragment
