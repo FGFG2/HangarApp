@@ -30,7 +30,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private static final String TAG = "tr.lib.BluetoothService";
 
     // MAC: 5C:31:3E:4D:33:49
-    private static final String PLAN_PART = "TobyRich";
+    //private static final String PLAN_PART = "TobyRich";
     private static final UUID HANGARSERVICE = UUID.fromString("75B64E51-6000-4ED1-921A-476090D80BA7");
     private static final UUID GET_X = UUID.fromString("75B64E51-0010-4ED1-921A-476090D80BA7");
     private static final UUID GET_Y = UUID.fromString("75B64E51-0020-4ED1-921A-476090D80BA7");
@@ -150,12 +150,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     };
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-
-        if(device.getName() != null && device.getName().contains(PLAN_PART)) {
-            mDevices.add(device);
-            Log.d(TAG, "scan-found-toby: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
-        }else
-            Log.d(TAG, "scan-found: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
+        mDevices.add(device);
+        Log.d(TAG, "scan-found: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
     }
 
     private void startScan(){

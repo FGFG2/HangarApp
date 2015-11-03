@@ -1,5 +1,9 @@
 package com.tobyrich.dev.hangarapp.activities.fragments;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,15 +53,29 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
     /*
   * TODO Test Bluetooth
   */
-    public void onEvent(ScanResult evt){
+    public void onEvent(final ScanResult evt){
         Log.d(TAG, "receive: ScanResult");
         if(evt.getResult().size()>0) {
-            EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(0)));
-            //workaround onEvent(ConnectResult evt)
-            tbConnect.setChecked(true);
-            //workaround onEvent(ConnectResult evt)
-            tbConnect.setEnabled(true);
-            Toast.makeText(getActivity(), "Start conneting...", Toast.LENGTH_SHORT).show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Make your selection");
+            String[] devices = new String[evt.getResult().size()];
+            for(int i=0;i<evt.getResult().size();i++) {
+                BluetoothDevice dev =  evt.getResult().get(i);
+                devices[i] =dev.getName() + " ("+dev.getAddress()+")";
+            }
+            builder.setItems(devices, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    // Do something with the selection
+                    EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(item)));
+                    //workaround onEvent(ConnectResult evt)
+                    tbConnect.setChecked(true);
+                    //workaround onEvent(ConnectResult evt)
+                    tbConnect.setEnabled(true);
+                    Toast.makeText(getActivity(), "Start conneting...", Toast.LENGTH_SHORT).show();
+                }
+            });
+            AlertDialog alert = builder.create();
+            alert.show();
         }else{
             //workaround onEvent(ConnectResult evt)
             tbConnect.setChecked(false);
