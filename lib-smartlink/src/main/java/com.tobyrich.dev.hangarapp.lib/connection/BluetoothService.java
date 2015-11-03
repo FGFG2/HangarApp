@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.util.UUID;
 import de.greenrobot.event.EventBus;
 import com.tobyrich.dev.hangarapp.lib.connection.events.*;
+import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 
 public class BluetoothService extends Service implements BluetoothAdapter.LeScanCallback  {
     private static final String TAG = "tr.lib.BluetoothService";
@@ -87,19 +88,19 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         switch (evt.getDevice()){
             case PlaneEvent.RUDDER:
                 Log.d(TAG, "event-plane-Ruder: " + value);
-                if(value > 126)
-                    value = 126;
-                else if(value < -126)
-                    value = -126;
+                if(value > Consts.MAX_RUDDER_VALUE)
+                    value = Consts.MAX_RUDDER_VALUE;
+                else if(value < Consts.MIN_RUDDER_VALUE)
+                    value = Consts.MIN_RUDDER_VALUE;
                 ruder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
                 mConnectedGatt.writeCharacteristic(ruder);
                 break;
             case PlaneEvent.MOTOR:
                 Log.d(TAG, "event-plane-Motor: " + value);
-                if (value > 254)
-                    value = 254;
-                else if (value < 0)
-                    value = 0;
+                if (value > Consts.MAX_MOTOR_VALUE)
+                    value = Consts.MAX_MOTOR_VALUE;
+                else if (value < Consts.MIN_MOTOR_VALUE)
+                    value = Consts.MIN_MOTOR_VALUE;
                 motor.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 mConnectedGatt.writeCharacteristic(motor);
                 break;

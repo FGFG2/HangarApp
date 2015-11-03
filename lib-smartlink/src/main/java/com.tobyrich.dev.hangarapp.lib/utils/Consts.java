@@ -1,4 +1,4 @@
-package com.tobyrich.dev.hangarapp.util;
+package com.tobyrich.dev.hangarapp.lib.utils;
 
 public final class Consts {
     public static final int MAX_RUDDER_VALUE = 126;

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -17,7 +16,7 @@ import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ScanResult;
-import com.tobyrich.dev.hangarapp.util.Consts;
+import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 
 import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboActivity;
