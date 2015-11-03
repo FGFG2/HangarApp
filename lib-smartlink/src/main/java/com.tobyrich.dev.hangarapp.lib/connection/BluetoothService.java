@@ -158,9 +158,12 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.d(TAG, "Connection State Change: "+status+" -> "+connectionState(newState));
             if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+                EventBus.getDefault().post(new ConnectResult(true));
                 gatt.discoverServices();
             } else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+                EventBus.getDefault().post(new ConnectResult(false));
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
+                EventBus.getDefault().post(new ConnectResult(false));
                 gatt.disconnect();
             }
         }
@@ -231,15 +234,15 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             int value;
             if(c.equals(SMARTPLANE_RUDER)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-                EventBus.getDefault().post(new PlaneResult(PlaneResult.RUDER,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.RUDER, value));
                 Log.d(TAG, s + ": Ruder - "+value);
             }else if(c.equals(SMARTPLANE_MOTOR)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                EventBus.getDefault().post(new PlaneResult(PlaneResult.MOTOR,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.MOTOR, value));
                 Log.d(TAG, s + ": Motor - "+value);
             }else if(c.equals(BATTERY_characteristic)) {
                 value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY,value));
+                EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
                 Log.d(TAG, s + ": Battery - "+value);
             }else{
                 Log.v(TAG, s + ": Unknown - " + characteristic.getUuid());

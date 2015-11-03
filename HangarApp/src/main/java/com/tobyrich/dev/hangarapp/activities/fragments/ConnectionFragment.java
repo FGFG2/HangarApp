@@ -10,7 +10,9 @@ import android.widget.ToggleButton;
 import com.tobyrich.dev.hangarapp.R;
 
 import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectResult;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ScanResult;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
 
 import de.greenrobot.event.EventBus;
 import roboguice.fragment.provided.RoboFragment;
@@ -47,13 +49,20 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         }
     }
 
+    public void onEvent(ConnectResult evt){
+        tbConnect.setChecked(evt.getState());
+        if(!evt.getState()){
+            Toast.makeText(getActivity(), "Conneting lost", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.connect_button: {
-                //getActivity().startService(new Intent(getActivity(), BluetoothService.class));
-                //EventBus.getDefault().post(new ScanEvent(true));
-            }
+            case R.id.connect_button:
+                tbConnect.setChecked(false);
+                EventBus.getDefault().post(new ScanEvent(true));
+                break;
             default:
                 break;
         }

@@ -14,8 +14,6 @@ import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
-import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
-import com.tobyrich.dev.hangarapp.lib.connection.events.ScanResult;
 import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 
 import de.greenrobot.event.EventBus;
@@ -38,8 +36,6 @@ public class FactoryTestActivity extends RoboActivity{
         Intent intent = new Intent(this, BluetoothService.class);
         startService(intent);
         EventBus.getDefault().register(this);
-
-        EventBus.getDefault().post(new ScanEvent(true));
 
         if (savedInstanceState == null) {
             // During initial inject rajawaliSurfaceFragment
@@ -86,13 +82,6 @@ public class FactoryTestActivity extends RoboActivity{
             }
             default: break;
         }
-    }
-
-    public void onEvent(ScanResult evt){
-        if(evt.getResult().size()>0)
-            EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(0)));
-        else
-            Toast.makeText(this, "No Device Found", Toast.LENGTH_SHORT).show();
     }
 
     @Override
