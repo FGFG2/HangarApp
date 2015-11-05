@@ -112,6 +112,12 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
             case R.id.menu_exit: {
                 this.finish();
             }
+
+            case R.id.menu_achievements: {
+                Intent intent = new Intent(this, AchievementsActivity.class);
+                startActivity(intent);
+                break;
+            }
             default: break;
         }
 

@@ -8,11 +8,11 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:screenOrientation="landscape"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.MainMenuActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,7 +23,7 @@
             android:name=".activities.StatisticsActivity"
             android:label="@string/title_activity_statistics"
             android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainMenuActivity" />
@@ -32,7 +32,7 @@
             android:name=".activities.BatteryDataActivity"
             android:label="@string/title_activity_battery_data"
             android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainMenuActivity" />
@@ -41,7 +41,7 @@
             android:name=".activities.FactoryTestActivity"
             android:label="@string/title_activity_factory_test"
             android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainMenuActivity" />
@@ -50,7 +50,7 @@
             android:name=".activities.CalibrateSensorsActivity"
             android:label="@string/title_activity_calibrate_sensors"
             android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainMenuActivity" />
@@ -59,10 +59,19 @@
             android:name=".activities.LimitSetupActivity"
             android:label="@string/title_activity_limit_setup"
             android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainMenuActivity" />
+        </activity>
+        <activity
+            android:name=".activities.AchievementsActivity"
+            android:label="@string/title_activity_achievements"
+            android:parentActivityName=".activities.MainMenuActivity"
+            android:screenOrientation="landscape">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tobyrich.dev.hangarapp.activities.MainMenuActivity" />
         </activity>
     </application>
 
