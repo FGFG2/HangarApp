@@ -9,18 +9,18 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.beans.Achievement;
+import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Customizing of ArrayAdapter for display the list of achievements.
+ * Customizing of ArrayAdapter to display the list of achievements.
  */
 public class AchievementsAdapter extends ArrayAdapter<Achievement>{
 
-    private ArrayList<Achievement> achievements;
+    private List<Achievement> achievements;
 
-    public AchievementsAdapter(Context context, ArrayList<Achievement> achievements) {
+    public AchievementsAdapter(Context context, List<Achievement> achievements) {
         super(context, 0, achievements);
         this.achievements = achievements;
     }
@@ -39,7 +39,7 @@ public class AchievementsAdapter extends ArrayAdapter<Achievement>{
 
         // Populate the data into the template view using the data object
         tvName.setText(achievement.getName());
-        tvValue.setText(achievement.getValue());
+        tvValue.setText("" + achievement.getProgress());
 
         if(achievement.getProgress() == 100) {
             tvName.setTextColor(Color.parseColor("#7ca700"));

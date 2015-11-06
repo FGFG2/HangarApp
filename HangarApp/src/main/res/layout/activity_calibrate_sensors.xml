@@ -49,6 +49,19 @@
                 android:text="@string/z_axis"
                 android:textColor="#7ca700"
                 android:textSize="20sp" />
+
+            <!-- Test TextView-->
+            <TextView
+                android:id="@+id/test_label"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/z_axis"
+                android:textColor="#7ca700"
+                android:textSize="20sp" />
+
         </LinearLayout>
     </RelativeLayout>
     <RelativeLayout

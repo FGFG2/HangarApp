@@ -1,13 +1,25 @@
 package com.tobyrich.dev.hangarapp.activities;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
+import com.tobyrich.dev.hangarapp.util.*;
+import com.tobyrich.dev.hangarapp.beans.api.model.*;
+import com.tobyrich.dev.hangarapp.beans.api.service.*;
 
+import java.io.IOException;
+import java.util.List;
+
+import retrofit.Call;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 
@@ -24,6 +36,7 @@ public class CalibrateSensorsActivity extends RoboActivity {
             // During initial inject rajawaliSurfaceFragment
             getFragmentManager().beginTransaction().add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
         }
+
     }
 
     @Override
@@ -47,4 +60,5 @@ public class CalibrateSensorsActivity extends RoboActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
