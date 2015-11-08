@@ -2,10 +2,12 @@ package com.tobyrich.dev.hangarapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tobyrich.dev.hangarapp.R;
@@ -36,10 +38,12 @@ public class AchievementsAdapter extends ArrayAdapter<Achievement>{
 
         TextView tvName = (TextView) convertView.findViewById(R.id.achievementName);
         TextView tvValue = (TextView) convertView.findViewById(R.id.achievementValue);
+        ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.achievementProgressBar);
 
         // Populate the data into the template view using the data object
         tvName.setText(achievement.getName());
         tvValue.setText("" + achievement.getProgress());
+        progressBar.setProgress(achievement.getProgress());
 
         if(achievement.getProgress() == 100) {
             tvName.setTextColor(Color.parseColor("#7ca700"));
