@@ -1,8 +1,5 @@
 package com.tobyrich.dev.hangarapp.activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -11,11 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.beans.PlaneData;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
@@ -37,9 +32,14 @@ public class BatteryDataActivity extends RoboActivity {
     @InjectResource(R.drawable.green_progressbar) Drawable greenProgressBar;
     @InjectResource(R.drawable.yellow_progressbar) Drawable yellowProgressBar;
     @InjectResource(R.drawable.red_progressbar) Drawable redProgressBar;
-    @Inject ConnectionFragment connectionFragment;
     @Inject PlaneData planeData;
-    
+
+    private static final int PERCENTAGE_TO_CHANGE_TO_YELLOW = 50;
+    private static final int PERCENTAGE_TO_CHANGE_TO_RED = 20;
+    private static final String COLOR_CODE_GREEN = "#ff00aa00";
+    private static final String COLOR_CODE_YELLOW = "#ffffcb00";
+    private static final String COLOR_CODE_RED = "#ffee0000";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,21 +47,6 @@ public class BatteryDataActivity extends RoboActivity {
         Intent intent = new Intent(this, BluetoothService.class);
         startService(intent);
         EventBus.getDefault().register(this);
-
-        if (savedInstanceState == null) {
-
-            FragmentManager fManager = getFragmentManager();
-            FragmentTransaction fTransaction = fManager.beginTransaction();
-
-            Fragment connectionFragment = fManager.findFragmentByTag("connectionFragment");
-
-            if (connectionFragment == null) {
-                fTransaction.add(R.id.fragment_container, new ConnectionFragment(), "connectionFragment");
-            }
-            else {
-                fTransaction.replace(R.id.fragment_container, connectionFragment, "connectionFragment");
-            }
-        }
 
         setCurrentBatteryCharge(PlaneState.getInstance().getBattery());
         setOperationalRemainedTime(planeData);
@@ -96,7 +81,6 @@ public class BatteryDataActivity extends RoboActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -106,20 +90,24 @@ public class BatteryDataActivity extends RoboActivity {
     public void setCurrentBatteryCharge(PlaneData planeData) {
         setCurrentBatteryCharge(planeData.getCurrentBatteryCharge());
     }
+
     public void setCurrentBatteryCharge(int batteryChargeInPercent) {
         batteryProgressBar.setProgress(batteryChargeInPercent);
         tvBatteryStatus.setText(Integer.toString(batteryChargeInPercent) + "%");
 
-        if(batteryChargeInPercent > 50) {
+        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_YELLOW) {
             batteryProgressBar.setProgressDrawable(greenProgressBar);
-            tvBatteryStatus.setTextColor(Color.parseColor("#ff00aa00"));
-        } else if(batteryChargeInPercent > 20){
-                batteryProgressBar.setProgressDrawable(yellowProgressBar);
-                tvBatteryStatus.setTextColor(Color.parseColor("#ffffcb00"));
-            } else {
-                batteryProgressBar.setProgressDrawable(redProgressBar);
-                tvBatteryStatus.setTextColor(Color.parseColor("#ffee0000"));
-            }
+            tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_GREEN));
+            return;
+        }
+        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_RED){
+            batteryProgressBar.setProgressDrawable(yellowProgressBar);
+            tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_YELLOW));
+            return;
+        }
+
+        batteryProgressBar.setProgressDrawable(redProgressBar);
+        tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_RED));
     }
 
     /**
@@ -129,12 +117,15 @@ public class BatteryDataActivity extends RoboActivity {
         tvBatteryRemain.setText(planeData.getOperationalRemainedTime());
 
         int batteryChargeInPercent = batteryProgressBar.getProgress();
-        if(batteryChargeInPercent > 50) {
-            tvBatteryRemain.setTextColor(Color.parseColor("#ff00aa00"));
-        } else if(batteryChargeInPercent > 20){
-            tvBatteryRemain.setTextColor(Color.parseColor("#ffffcb00"));
-        } else {
-            tvBatteryRemain.setTextColor(Color.parseColor("#ffee0000"));
+
+        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_YELLOW) {
+            tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_GREEN));
+            return;
         }
+        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_RED){
+            tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_YELLOW));
+            return;
+        }
+        tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_RED));
     }
 }
