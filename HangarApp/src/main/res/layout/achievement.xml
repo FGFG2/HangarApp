@@ -14,27 +14,34 @@
             android:baselineAligned="false"
             android:orientation="horizontal"
             >
-            <TextView
-                android:id="@+id/achievementName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:gravity="left"
-                android:textColor="#d3d3d3"
-                android:textSize="20sp"
-                android:layout_weight="0.5" />
-            <TextView
-                android:id="@+id/achievementValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="10dp"
-                android:gravity="right"
-                android:textColor="#d3d3d3"
-                android:textSize="20sp"
-                android:textStyle="bold|italic"
-                android:layout_weight="0.5" />
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.9">
+                <TextView
+                    android:id="@+id/achievementName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="left"
+                    android:textColor="#d3d3d3"
+                    android:textSize="20sp"
+                     />
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.1">
+                <ImageView
+                    android:id="@+id/achievementIcon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="right"
+                    android:adjustViewBounds="true"
+                     />
+            </RelativeLayout>
         </LinearLayout>
         <ProgressBar
             android:id="@+id/achievementProgressBar"
