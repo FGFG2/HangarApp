@@ -203,7 +203,10 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                             //TODO: Did not work
                             //GET FIRST-Value
                             mConnectedGatt.readCharacteristic(characteristic);
-                            Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid());
+                            int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                            PlaneState.getInstance().setBattery(value);
+                            EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
+                            Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": with Value "+value);
                         }else if(c.equals(SMARTPLANE_MOTOR)) {
                             motor = characteristic;
                             //mConnectedGatt.readCharacteristic(characteristic);
