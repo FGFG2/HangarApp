@@ -7,7 +7,6 @@ import android.view.ScaleGestureDetector;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.events.RajawaliSurfaceLoad;
-import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionStatus;
 import com.tobyrich.dev.hangarapp.listener.rotation.Rotatable;
 import com.tobyrich.dev.hangarapp.listener.rotation.RotationListener;
 
@@ -39,7 +38,7 @@ public class Renderer extends RajawaliRenderer implements
     private Object3D shownObjectOnScene;
 
     @Inject
-    public Renderer(Context context, ConnectionStatus connectionStatus) {
+    public Renderer(Context context) {
         super(context.getApplicationContext());
 
         rotationListener = new RotationListener((SensorManager) context.getSystemService(
@@ -48,9 +47,6 @@ public class Renderer extends RajawaliRenderer implements
         rotationListener.addRotatable(r1);
         rotatables.add(r1);
         RotatableComponent r2 = new RotatableComponent(this);
-
-        //TODO: REACTIVATE IF BLUETOOTH LIB WORKS
-        //connectionStatus.getConnection().addRotatable(r2);
         rotatables.add(r2);
     }
 

@@ -14,23 +14,19 @@ import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
-import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionListener;
-import com.tobyrich.dev.hangarapp.lib.connection_old.ConnectionStatus;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 
 @ContentView(R.layout.activity_main_menu)
-public class MainMenuActivity extends RoboActivity implements ConnectionListener {
+public class MainMenuActivity extends RoboActivity{
 
-    @Inject ConnectionStatus connectionStatus;
     @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
     @Inject ConnectionFragment connectionFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectionStatus.addConnectionListener(this);
 
         Intent intent = new Intent(this, BluetoothService.class);
         startService(intent);
@@ -81,7 +77,7 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
      * @param v view
      */
     public void onMenuItemClick(View v) {
-        switch(v.getId()) {
+        switch (v.getId()) {
             case R.id.menu_statistics: {
                 Intent intent = new Intent(this, StatisticsActivity.class);
                 startActivity(intent);
@@ -119,13 +115,9 @@ public class MainMenuActivity extends RoboActivity implements ConnectionListener
             case R.id.menu_exit: {
                 this.finish();
             }
-            default: break;
+            default:
+                break;
         }
-
-    }
-
-    @Override
-    public void onConnectionChanged(boolean connected, String connectionId) {
 
     }
 }
