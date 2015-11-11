@@ -1,0 +1,184 @@
+package com.tobyrich.dev.hangarapp.lib.connection;
+import android.app.Application;
+import android.app.ListActivity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+
+import com.google.inject.AbstractModule;
+import com.tobyrich.dev.hangarapp.lib.BuildConfig;
+import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
+import com.tobyrich.dev.hangarapp.lib.utils.Consts;
+
+import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+import org.robolectric.internal.ShadowExtractor;
+import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowContextImpl;
+import org.robolectric.shadows.ShadowIntent;
+
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
+
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class)
+public class BluetoothServiceTest extends TestCase {
+    @InjectMocks
+    private BluetoothService bluetoothService = new BluetoothService();
+    @Mock
+    private PlaneEvent planeEvent;
+    @Mock
+    private ScanEvent scanEvent;
+    @Mock
+    private BluetoothGattCharacteristic bluetoothGattCharacteristic;
+    @Mock
+    private BluetoothGatt mConnectedGatt;
+    @Mock
+    private BluetoothAdapter mBluetoothAdapter;
+    @Mock
+    private BluetoothManager manager;
+
+    @Before
+    public void setUp() throws Exception {
+        // Create mock for private members of test
+        MockitoAnnotations.initMocks(this);
+
+        // Override injector and perform injection
+        RoboGuice.overrideApplicationInjector(RuntimeEnvironment.application, new MyTestModule());
+        RoboInjector injector = RoboGuice.getInjector(RuntimeEnvironment.application);
+        injector.injectMembersWithoutViews(this);
+    }
+
+    @Test
+    public void testOnEventScanEventStart() throws Exception {
+        Mockito.when(scanEvent.getState()).thenReturn(true);
+        Mockito.when(mBluetoothAdapter.startLeScan(bluetoothService)).thenReturn(true);
+
+        bluetoothService.onEvent(scanEvent);
+
+        Mockito.verify(mBluetoothAdapter, times(1)).startLeScan(bluetoothService);
+    }
+
+    @Test
+    public void testOnEventScanEventStop() throws Exception {
+        Mockito.when(scanEvent.getState()).thenReturn(false);
+        Mockito.doNothing().when(mBluetoothAdapter).stopLeScan(bluetoothService);
+
+        bluetoothService.onEvent(scanEvent);
+
+        Mockito.verify(mBluetoothAdapter, times(1)).stopLeScan(bluetoothService);
+    }
+
+    @Test
+    public void testOnEventPlaneEventRudder() throws Exception {
+        Mockito.when(planeEvent.getDevice()).thenReturn(PlaneEvent.RUDDER);
+
+        // MAX_VALUE + 1
+        Mockito.when(planeEvent.getValue()).thenReturn(Consts.MAX_RUDDER_VALUE + 1);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_RUDDER_VALUE), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(1)).writeCharacteristic(bluetoothGattCharacteristic);
+
+        // MIN_VALUE - 1
+        Mockito.when(planeEvent.getValue()).thenReturn(Consts.MIN_RUDDER_VALUE - 1);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_RUDDER_VALUE), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(2)).writeCharacteristic(bluetoothGattCharacteristic);
+
+        // NORMAL_VALUE
+        final int NORMAL_VALUE = 20;
+        Mockito.when(planeEvent.getValue()).thenReturn(NORMAL_VALUE);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE - 1), anyInt(), anyInt());
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(NORMAL_VALUE), anyInt(), anyInt());
+        Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE + 1), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(3)).writeCharacteristic(bluetoothGattCharacteristic);
+    }
+
+    @Test
+    public void testOnEventPlaneEventMotor() throws Exception {
+        Mockito.when(planeEvent.getDevice()).thenReturn(PlaneEvent.MOTOR);
+
+        // MAX_VALUE + 1
+        Mockito.when(planeEvent.getValue()).thenReturn(Consts.MAX_MOTOR_VALUE + 1);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_MOTOR_VALUE), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(1)).writeCharacteristic(bluetoothGattCharacteristic);
+
+        // MIN_VALUE - 1
+        Mockito.when(planeEvent.getValue()).thenReturn(Consts.MIN_MOTOR_VALUE - 1);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_MOTOR_VALUE), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(2)).writeCharacteristic(bluetoothGattCharacteristic);
+
+        // NORMAL_VALUE
+        final int NORMAL_VALUE = 20;
+        Mockito.when(planeEvent.getValue()).thenReturn(NORMAL_VALUE);
+        Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
+        Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
+
+        bluetoothService.onEvent(planeEvent);
+
+        Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE - 1), anyInt(), anyInt());
+        Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(NORMAL_VALUE), anyInt(), anyInt());
+        Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE + 1), anyInt(), anyInt());
+        Mockito.verify(mConnectedGatt, times(3)).writeCharacteristic(bluetoothGattCharacteristic);
+    }
+
+    private class MyTestModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            // Replace injected class with mock
+            bind(PlaneEvent.class).toInstance(planeEvent);
+            bind(BluetoothGattCharacteristic.class).toInstance(bluetoothGattCharacteristic);
+            bind(BluetoothGatt.class).toInstance(mConnectedGatt);
+            bind(ScanEvent.class).toInstance(scanEvent);
+            bind(BluetoothAdapter.class).toInstance(mBluetoothAdapter);
+            bind(BluetoothManager.class).toInstance(manager);
+        }
+    }
+}

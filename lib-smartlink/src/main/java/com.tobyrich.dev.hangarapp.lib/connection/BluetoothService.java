@@ -45,14 +45,12 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private static final UUID BATTERY_characteristic = UUID.fromString("00002A19-0000-1000-8000-00805F9B34FB");
     private static final UUID BATTERY_descriptor = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
+    private BluetoothAdapter mBluetoothAdapter;
+    private ArrayList<BluetoothDevice> mDevices;
 
+    private BluetoothGatt mConnectedGatt;
 
-    private static BluetoothAdapter mBluetoothAdapter;
-    private static ArrayList<BluetoothDevice> mDevices;
-
-    private static BluetoothGatt mConnectedGatt;
-
-    private static BluetoothGattCharacteristic battery,ruder,motor;
+    private BluetoothGattCharacteristic battery, rudder, motor;
 
 
     private static final int MSG_PROGRESS = 201;
@@ -105,8 +103,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                 else if(value < Consts.MIN_RUDDER_VALUE)
                     value = Consts.MIN_RUDDER_VALUE;
                 PlaneState.getInstance().setRudder(value);
-                ruder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-                mConnectedGatt.writeCharacteristic(ruder);
+                rudder.setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+                mConnectedGatt.writeCharacteristic(rudder);
                 break;
             case PlaneEvent.MOTOR:
                 Log.d(TAG, "event-plane-Motor: " + value);
@@ -212,7 +210,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                             //mConnectedGatt.readCharacteristic(characteristic);
                             Log.d(TAG, "Characteristic-found: Motor - "+characteristic.getUuid());
                         }else if(c.equals(SMARTPLANE_RUDER)) {
-                            ruder = characteristic;
+                            rudder = characteristic;
                             //mConnectedGatt.readCharacteristic(characteristic);
                             Log.d(TAG, "Characteristic-found: Ruder - " + characteristic.getUuid());
                         }else{
