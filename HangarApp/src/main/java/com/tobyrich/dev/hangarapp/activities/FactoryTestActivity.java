@@ -23,12 +23,16 @@ import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_factory_test)
-public class FactoryTestActivity extends RoboActivity{
+public class FactoryTestActivity extends RoboActivity {
 
-    @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
-    @InjectView(R.id.check_engine) ToggleButton tbCheckEngine;
-    @InjectView(R.id.rudder_left) ToggleButton tbRudderLeft;
-    @InjectView(R.id.rudder_right) ToggleButton tbRudderRight;
+    @Inject
+    RajawaliSurfaceFragment rajawaliSurfaceFragment;
+    @InjectView(R.id.check_engine)
+    ToggleButton tbCheckEngine;
+    @InjectView(R.id.rudder_left)
+    ToggleButton tbRudderLeft;
+    @InjectView(R.id.rudder_right)
+    ToggleButton tbRudderRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,53 +46,60 @@ public class FactoryTestActivity extends RoboActivity{
             getFragmentManager().beginTransaction().add(R.id.fragment_container, rajawaliSurfaceFragment).commit();
         }
 
-        if(PlaneState.getInstance().getMotor()!=0)
+        if (PlaneState.getInstance().getMotor() != 0)
             tbCheckEngine.setChecked(true);
-        if(PlaneState.getInstance().getRudder()< 0)
+        if (PlaneState.getInstance().getRudder() < 0)
             tbRudderLeft.setChecked(true);
-        if(PlaneState.getInstance().getRudder()>0)
+        if (PlaneState.getInstance().getRudder() > 0)
             tbRudderRight.setChecked(true);
 
         Toast.makeText(this, "Start conneting", Toast.LENGTH_SHORT).show();
     }
 
     /**
-     * Called by click on toggle-buttons.
+     * Called by click on check-engine-toggle-buttons.
+     *
      * @param v view
      */
-    public void onToggleButtonClick(View v) {
-        switch(v.getId()) {
-            case R.id.check_engine: {
-                if(tbCheckEngine.isChecked()){
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.MOTOR, Consts.MAX_MOTOR_VALUE));
-                }
-                else{
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.MOTOR, Consts.MIN_MOTOR_VALUE));
-                }
-                break;
-            }
-            case R.id.rudder_left: {
-                if(tbRudderLeft.isChecked()){
-                    tbRudderRight.setChecked(false);
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE));
-                }
-                else{
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2));
-                }
-                break;
-            }
-            case R.id.rudder_right: {
-                if(tbRudderRight.isChecked()){
-                    tbRudderLeft.setChecked(false);
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, Consts.MAX_RUDDER_VALUE));
-                }
-                else{
-                    EventBus.getDefault().post(new PlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2));
-                }
-                break;
-            }
-            default: break;
+    public void onCheckEngineToggleButtonClick(View v) {
+        if (tbCheckEngine.isChecked()) {
+            postPlaneEvent(PlaneEvent.MOTOR, Consts.MAX_MOTOR_VALUE);
+        } else {
+            postPlaneEvent(PlaneEvent.MOTOR, Consts.MIN_MOTOR_VALUE);
         }
+    }
+
+    /**
+     * Called by click on rudder-left-toggle-buttons.
+     *
+     * @param v view
+     */
+    public void onRudderLeftToggleButtonClick(View v) {
+        if (tbRudderLeft.isChecked()) {
+            tbRudderRight.setChecked(false);
+            postPlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE);
+        } else {
+            postPlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2);
+        }
+    }
+
+    /**
+     * Called by click on rudder-right-toggle-buttons.
+     *
+     * @param v view
+     */
+    public void onRudderRightToggleButtonClick(View v) {
+        if (tbRudderLeft.isChecked()) {
+            tbRudderRight.setChecked(false);
+            postPlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE);
+        } else {
+            postPlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2);
+        }
+    }
+
+    private void postPlaneEvent(int device, int value) {
+        PlaneEvent planeEvent = new PlaneEvent(device, value);
+        EventBus.getDefault().post(planeEvent);
     }
 
     @Override

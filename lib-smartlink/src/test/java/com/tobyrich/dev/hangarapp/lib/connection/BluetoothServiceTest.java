@@ -1,6 +1,7 @@
 package com.tobyrich.dev.hangarapp.lib.connection;
 import android.app.Application;
 import android.app.ListActivity;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -34,6 +35,7 @@ import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowIntent;
+import org.robolectric.util.ServiceController;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
@@ -74,57 +76,87 @@ public class BluetoothServiceTest extends TestCase {
     }
 
     @Test
+    public void testOnCreate() throws Exception {
+        /*BluetoothManager mockManager = Mockito.mock(BluetoothManager.class);
+        Application application = (Application) ShadowApplication.getInstance().getApplicationContext();
+        ShadowContextImpl shadowContext = (ShadowContextImpl) ShadowExtractor.extract(application.getBaseContext());
+        shadowContext.setSystemService(Context.BLUETOOTH_SERVICE, mockManager);
+
+        BluetoothManager locationManager = (BluetoothManager) RuntimeEnvironment.application.getSystemService(Context.BLUETOOTH_SERVICE);
+
+        BluetoothService spy = Mockito.spy(bluetoothService);
+
+        Mockito.when(spy.getSystemService(Context.BLUETOOTH_SERVICE)).thenReturn(manager);
+
+        spy.onCreate();*/
+    }
+
+    @Test
     public void testOnEventScanEventStart() throws Exception {
+        // Given
         Mockito.when(scanEvent.getState()).thenReturn(true);
         Mockito.when(mBluetoothAdapter.startLeScan(bluetoothService)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(scanEvent);
 
+        // Then
         Mockito.verify(mBluetoothAdapter, times(1)).startLeScan(bluetoothService);
     }
 
     @Test
     public void testOnEventScanEventStop() throws Exception {
+        // Given
         Mockito.when(scanEvent.getState()).thenReturn(false);
         Mockito.doNothing().when(mBluetoothAdapter).stopLeScan(bluetoothService);
 
+        // When
         bluetoothService.onEvent(scanEvent);
 
+        // Then
         Mockito.verify(mBluetoothAdapter, times(1)).stopLeScan(bluetoothService);
     }
 
     @Test
     public void testOnEventPlaneEventRudder() throws Exception {
+        // Given
         Mockito.when(planeEvent.getDevice()).thenReturn(PlaneEvent.RUDDER);
-
         // MAX_VALUE + 1
         Mockito.when(planeEvent.getValue()).thenReturn(Consts.MAX_RUDDER_VALUE + 1);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_RUDDER_VALUE), anyInt(), anyInt());
         Mockito.verify(mConnectedGatt, times(1)).writeCharacteristic(bluetoothGattCharacteristic);
 
+        // Given
         // MIN_VALUE - 1
         Mockito.when(planeEvent.getValue()).thenReturn(Consts.MIN_RUDDER_VALUE - 1);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_RUDDER_VALUE), anyInt(), anyInt());
         Mockito.verify(mConnectedGatt, times(2)).writeCharacteristic(bluetoothGattCharacteristic);
 
+        // Given
         // NORMAL_VALUE
         final int NORMAL_VALUE = 20;
         Mockito.when(planeEvent.getValue()).thenReturn(NORMAL_VALUE);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE - 1), anyInt(), anyInt());
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(NORMAL_VALUE), anyInt(), anyInt());
         Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE + 1), anyInt(), anyInt());
@@ -133,36 +165,44 @@ public class BluetoothServiceTest extends TestCase {
 
     @Test
     public void testOnEventPlaneEventMotor() throws Exception {
+        // Given
         Mockito.when(planeEvent.getDevice()).thenReturn(PlaneEvent.MOTOR);
-
         // MAX_VALUE + 1
         Mockito.when(planeEvent.getValue()).thenReturn(Consts.MAX_MOTOR_VALUE + 1);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_MOTOR_VALUE), anyInt(), anyInt());
         Mockito.verify(mConnectedGatt, times(1)).writeCharacteristic(bluetoothGattCharacteristic);
 
+        // Given
         // MIN_VALUE - 1
         Mockito.when(planeEvent.getValue()).thenReturn(Consts.MIN_MOTOR_VALUE - 1);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(Consts.MAX_MOTOR_VALUE), anyInt(), anyInt());
         Mockito.verify(mConnectedGatt, times(2)).writeCharacteristic(bluetoothGattCharacteristic);
 
+        // Given
         // NORMAL_VALUE
         final int NORMAL_VALUE = 20;
         Mockito.when(planeEvent.getValue()).thenReturn(NORMAL_VALUE);
         Mockito.when(bluetoothGattCharacteristic.setValue(anyInt(), anyInt(), anyInt())).thenReturn(true);
         Mockito.when(mConnectedGatt.writeCharacteristic(bluetoothGattCharacteristic)).thenReturn(true);
 
+        // When
         bluetoothService.onEvent(planeEvent);
 
+        // Then
         Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE - 1), anyInt(), anyInt());
         Mockito.verify(bluetoothGattCharacteristic, times(1)).setValue(eq(NORMAL_VALUE), anyInt(), anyInt());
         Mockito.verify(bluetoothGattCharacteristic, times(0)).setValue(eq(NORMAL_VALUE + 1), anyInt(), anyInt());
