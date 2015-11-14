@@ -33,9 +33,10 @@ public class Achievement {
     private String ImageUrl = "http://4.bp.blogspot.com/_C5a2qH8Y_jk/StYXDpZ9-WI/AAAAAAAAAJQ/sCgPx6jfWPU/S1600-R/android.png";
     private Bitmap icon;
 
-    public Achievement(String name, int progress) {
+    public Achievement(String name, int progress, String description) {
         Name = name;
         Progress = progress;
+        Description = description;
     }
 
     public String getDescription() {

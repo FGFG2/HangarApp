@@ -3,10 +3,16 @@ package com.tobyrich.dev.hangarapp.activities;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -23,18 +29,24 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
+import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_achievements)
 public class AchievementsActivity extends RoboActivity {
 
     @InjectView(R.id.achievementsList) ListView lvAchievements;
+    @InjectView(R.id.achievementDescription) TextView tvDescription;
+    @InjectView(R.id.smartplaneImage) ImageView imSmartplane;
+
+    @InjectResource(R.drawable.button) Drawable background;
 
     public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
 
@@ -80,9 +92,12 @@ public class AchievementsActivity extends RoboActivity {
     // Dummy achievements for testing purposes.
     public List<Achievement> getAchievementsList() {
         List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Flight duration", 100));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55));
+        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
+        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
+        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
+                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
+                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
+                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
 
         return fakeAchievementList;
     }
@@ -131,9 +146,42 @@ public class AchievementsActivity extends RoboActivity {
             adapter = new AchievementsAdapter(context, achievementList);
             lvAchievements.setAdapter(adapter);
 
+            //define onclickListener for achievements
+            setOnAchievementClickListener();
+
             for (int i = 0; i < achievementList.size(); i++) System.out.println(achievementList.get(i).getName());
 
             super.onPostExecute(result);
+        }
+
+        /**
+         * Called by click on achievement.
+         */
+        public void setOnAchievementClickListener() {
+            lvAchievements.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapter, View view, int i, long l) {
+                    Achievement item = (Achievement) adapter.getItemAtPosition(i);
+
+                    if (imSmartplane.isShown()) {
+                        imSmartplane.setVisibility(View.INVISIBLE);
+                    }
+
+                    LinearLayout listItem;
+
+                    for (int j = 0; j < lvAchievements.getChildCount(); j++) {
+                        listItem = (LinearLayout) lvAchievements.getChildAt(j);
+                        if (listItem.getBackground() != null) {
+                            listItem.setBackground(null);
+                        }
+                    }
+
+                    tvDescription.setText(item.getDescription());
+                    if (view.getBackground() == null) {
+                        view.setBackgroundColor(Color.parseColor("#696969"));
+                    }
+                }
+            });
         }
 
         @Override
@@ -179,4 +227,5 @@ public class AchievementsActivity extends RoboActivity {
 
         return inputStream;
     }
+
 }

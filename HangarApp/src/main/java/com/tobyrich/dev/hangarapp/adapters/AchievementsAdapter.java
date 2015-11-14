@@ -59,10 +59,15 @@ public class AchievementsAdapter extends ArrayAdapter<Achievement>{
         if(achievement.getProgress() == 100) {
             tvName.setTextColor(Color.parseColor("#7ca700"));
         } else {
-            tvName.setTextColor(Color.parseColor("#d3d3d3"));
+            tvName.setTextColor(Color.parseColor("#c0c0c0"));
         }
 
         // Return the completed view to render on the screen
         return convertView;
+    }
+
+    @Override
+    public Achievement getItem(int position) {
+        return achievements.get(position);
     }
 }
