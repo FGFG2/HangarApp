@@ -5,8 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
@@ -44,7 +48,7 @@ public class AchievementsActivity extends RoboActivity {
 
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
-    @InjectView(R.id.smartplaneImage) ImageView imSmartplane;
+    @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
 
     @InjectResource(R.drawable.button) Drawable background;
 
@@ -53,14 +57,37 @@ public class AchievementsActivity extends RoboActivity {
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
 
+    // Cache for the Achievements icons.
+    private LruCache<String, Bitmap> mMemoryCache;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievements);
 
-        // The achievements are populated asynchronous in private class,
-        // need to pass the context of the activity for the ArrayAdapter.
-        new AchievementsFeeder(getApplicationContext()).execute();
+        // Check if there is an Internet connection available.
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+
+            // Setup cache.
+            final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+            final int cacheSize = maxMemory / 8;
+            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    return bitmap.getByteCount() / 1024;
+                }
+            };
+
+            // The achievements are populated asynchronous in private class,
+            // need to pass the context of the activity for the ArrayAdapter.
+            new AchievementsFeeder(getApplicationContext()).execute();
+        } else {
+            // Show message if there is no Internet Connection.
+            Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     @Override
@@ -118,7 +145,7 @@ public class AchievementsActivity extends RoboActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            // try {
+            try {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(URL_ALL_ACHIEVEMENTS)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -127,16 +154,18 @@ public class AchievementsActivity extends RoboActivity {
 
                 AchievementService service = retrofit.create(AchievementService.class);
                 Call<List<Achievement>> call = service.getAllAchievements();
-                // achievementList = call.execute().body();
-                achievementList = getAchievementsList();
+                achievementList = call.execute().body();
 
+            } catch (IOException e) {
+               e.printStackTrace();
+            } finally {
+                // Populate the collection with fake achievements.
+                achievementList = getAchievementsList();
                 for (Achievement achievement: achievementList) {
                     bm = LoadImage(achievement.getImageUrl(), bmOptions);
                     achievement.setIcon(bm);
                 }
-            // } catch (IOException e) {
-            //    e.printStackTrace();
-            //}
+            }
 
             return null;
         }
@@ -146,10 +175,8 @@ public class AchievementsActivity extends RoboActivity {
             adapter = new AchievementsAdapter(context, achievementList);
             lvAchievements.setAdapter(adapter);
 
-            //define onclickListener for achievements
+            // Define onclickListener for achievements.
             setOnAchievementClickListener();
-
-            for (int i = 0; i < achievementList.size(); i++) System.out.println(achievementList.get(i).getName());
 
             super.onPostExecute(result);
         }
@@ -163,8 +190,8 @@ public class AchievementsActivity extends RoboActivity {
                 public void onItemClick(AdapterView<?> adapter, View view, int i, long l) {
                     Achievement item = (Achievement) adapter.getItemAtPosition(i);
 
-                    if (imSmartplane.isShown()) {
-                        imSmartplane.setVisibility(View.INVISIBLE);
+                    if (ivSmartplane.isShown()) {
+                        ivSmartplane.setVisibility(View.INVISIBLE);
                     }
 
                     LinearLayout listItem;
@@ -182,6 +209,7 @@ public class AchievementsActivity extends RoboActivity {
                     }
                 }
             });
+
         }
 
         @Override
@@ -191,41 +219,56 @@ public class AchievementsActivity extends RoboActivity {
         @Override
         protected void onProgressUpdate(Void... values) {
         }
-    }
 
-    private Bitmap LoadImage(String URL, BitmapFactory.Options options) {
-        Bitmap bitmap = null;
-        InputStream in;
+        private Bitmap LoadImage(String URL, BitmapFactory.Options options) {
 
-        try {
-            in = OpenHttpConnection(URL);
-            bitmap = BitmapFactory.decodeStream(in, null, options);
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            Bitmap bitmap = getBitmapFromMemCache(URL);
+            if (bitmap == null) {
+                InputStream in;
 
-        return bitmap;
-    }
+                try {
+                    in = OpenHttpConnection(URL);
+                    bitmap = BitmapFactory.decodeStream(in, null, options);
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-    private InputStream OpenHttpConnection(String strURL) throws IOException{
-        InputStream inputStream = null;
-        URL url = new URL(strURL);
-        URLConnection conn = url.openConnection();
-
-        try {
-            HttpURLConnection httpConn = (HttpURLConnection)conn;
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
-
-            if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                inputStream = httpConn.getInputStream();
+                addBitmapToMemoryCache(URL, bitmap);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            return bitmap;
         }
 
-        return inputStream;
+        private InputStream OpenHttpConnection(String strURL) throws IOException{
+            InputStream inputStream = null;
+            URL url = new URL(strURL);
+            URLConnection conn = url.openConnection();
+
+            try {
+                HttpURLConnection httpConn = (HttpURLConnection)conn;
+                httpConn.setRequestMethod("GET");
+                httpConn.connect();
+
+                if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpConn.getInputStream();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return inputStream;
+        }
+
+        public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+            if (getBitmapFromMemCache(key) == null) {
+                mMemoryCache.put(key, bitmap);
+            }
+        }
+
+        public Bitmap getBitmapFromMemCache(String key) {
+            return mMemoryCache.get(key);
+        }
     }
 
 }

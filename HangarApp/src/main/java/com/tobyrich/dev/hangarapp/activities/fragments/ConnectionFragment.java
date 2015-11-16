@@ -71,7 +71,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
                     tbConnect.setChecked(true);
                     //workaround onEvent(ConnectResult evt)
                     tbConnect.setEnabled(true);
-                    Toast.makeText(getActivity(), "Start conneting...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Start connecting...", Toast.LENGTH_SHORT).show();
                 }
             });
             AlertDialog alert = builder.create();
@@ -92,7 +92,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         tbConnect.setEnabled(true);
         */
         if(!evt.getState()){
-            Toast.makeText(getActivity(), "Conneting lost!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Connection lost!", Toast.LENGTH_SHORT).show();
         }
     }
 

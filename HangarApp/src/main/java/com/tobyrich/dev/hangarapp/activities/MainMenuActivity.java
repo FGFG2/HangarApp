@@ -77,47 +77,47 @@ public class MainMenuActivity extends RoboActivity{
      * @param v view
      */
     public void onMenuItemClick(View v) {
+        Intent intent = new Intent();
+
         switch (v.getId()) {
             case R.id.menu_statistics: {
-                Intent intent = new Intent(this, StatisticsActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, StatisticsActivity.class);
                 break;
             }
             case R.id.menu_batteryData: {
-                Intent intent = new Intent(this, BatteryDataActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, BatteryDataActivity.class);
                 break;
             }
             case R.id.menu_factoryTest: {
-                Intent intent = new Intent(this, FactoryTestActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, FactoryTestActivity.class);
                 break;
             }
 
             case R.id.menu_calibrateSensors: {
-                Intent intent = new Intent(this, CalibrateSensorsActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, CalibrateSensorsActivity.class);
                 break;
             }
 
             case R.id.menu_limitSetup: {
-                Intent intent = new Intent(this, LimitSetupActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, LimitSetupActivity.class);
                 break;
             }
 
             case R.id.menu_achievements: {
-                Intent intent = new Intent(this, AchievementsActivity.class);
-                startActivity(intent);
+                intent = new Intent(this, AchievementsActivity.class);
                 break;
             }
 
             case R.id.menu_exit: {
                 this.finish();
             }
+
             default:
                 break;
+
         }
+
+        startActivity(intent);
 
     }
 }

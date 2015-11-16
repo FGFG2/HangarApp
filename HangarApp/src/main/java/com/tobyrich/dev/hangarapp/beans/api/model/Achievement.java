@@ -31,7 +31,7 @@ public class Achievement {
     private int Progress;
     // Fake URL for testing.
     private String ImageUrl = "http://4.bp.blogspot.com/_C5a2qH8Y_jk/StYXDpZ9-WI/AAAAAAAAAJQ/sCgPx6jfWPU/S1600-R/android.png";
-    private Bitmap icon;
+    private Bitmap Icon;
 
     public Achievement(String name, int progress, String description) {
         Name = name;
@@ -80,11 +80,11 @@ public class Achievement {
     }
 
     public Bitmap getIcon() {
-        return icon;
+        return Icon;
     }
 
     public void setIcon(Bitmap icon) {
-        this.icon = icon;
+        this.Icon = icon;
     }
 
 }
