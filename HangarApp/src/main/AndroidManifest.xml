@@ -23,15 +23,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.StatisticsActivity"
-            android:label="@string/title_activity_statistics"
-            android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainMenuActivity" />
-        </activity>
-        <activity
             android:name=".activities.BatteryDataActivity"
             android:label="@string/title_activity_battery_data"
             android:parentActivityName=".activities.MainMenuActivity"
@@ -43,24 +34,6 @@
         <activity
             android:name=".activities.FactoryTestActivity"
             android:label="@string/title_activity_factory_test"
-            android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainMenuActivity" />
-        </activity>
-        <activity
-            android:name=".activities.CalibrateSensorsActivity"
-            android:label="@string/title_activity_calibrate_sensors"
-            android:parentActivityName=".activities.MainMenuActivity"
-            android:screenOrientation="landscape" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainMenuActivity" />
-        </activity>
-        <activity
-            android:name=".activities.LimitSetupActivity"
-            android:label="@string/title_activity_limit_setup"
             android:parentActivityName=".activities.MainMenuActivity"
             android:screenOrientation="landscape" >
             <meta-data
