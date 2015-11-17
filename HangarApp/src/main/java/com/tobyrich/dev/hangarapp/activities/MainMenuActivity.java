@@ -65,6 +65,12 @@ public class MainMenuActivity extends RoboActivity{
         menu_factoryTest.setEnabled(PlaneState.getInstance().isConnected());
         menu_batteryData.setEnabled(PlaneState.getInstance().isConnected());
     }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+
+    }
     public void onEvent(ConnectResult evt){
         menu_factoryTest.setEnabled(evt.getState());
         menu_batteryData.setEnabled(evt.getState());
