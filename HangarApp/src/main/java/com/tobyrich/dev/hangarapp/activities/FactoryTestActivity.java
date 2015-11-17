@@ -75,8 +75,8 @@ public class FactoryTestActivity extends RoboActivity {
      * @param v view
      */
     public void onRudderLeftToggleButtonClick(View v) {
-        if (tbRudderLeft.isChecked()) {
-            tbRudderRight.setChecked(false);
+        if (tbRudderRight.isChecked()) {
+            tbRudderLeft.setChecked(false);
             postPlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE);
         } else {
             postPlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2);

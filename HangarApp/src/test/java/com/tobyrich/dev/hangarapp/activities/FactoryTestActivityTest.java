@@ -1,19 +1,11 @@
 package com.tobyrich.dev.hangarapp.activities;
 
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.inject.AbstractModule;
-import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.beans.PlaneData;
 import com.tobyrich.dev.hangarapp.lib.BuildConfig;
-import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
-import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 
 import org.junit.Before;
 import org.junit.Test;

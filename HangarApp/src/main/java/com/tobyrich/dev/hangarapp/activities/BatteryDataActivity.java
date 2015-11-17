@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.beans.PlaneData;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
 import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
@@ -28,11 +27,9 @@ public class BatteryDataActivity extends RoboActivity {
 
     @InjectView(R.id.batteryProgressBar) ProgressBar batteryProgressBar;
     @InjectView(R.id.currentChargeValue) TextView tvBatteryStatus;
-    @InjectView(R.id.timeRemainedValue) TextView tvBatteryRemain;
     @InjectResource(R.drawable.green_progressbar) Drawable greenProgressBar;
     @InjectResource(R.drawable.yellow_progressbar) Drawable yellowProgressBar;
     @InjectResource(R.drawable.red_progressbar) Drawable redProgressBar;
-    @Inject PlaneData planeData;
 
     private static final int PERCENTAGE_TO_CHANGE_TO_YELLOW = 50;
     private static final int PERCENTAGE_TO_CHANGE_TO_RED = 20;
@@ -49,7 +46,6 @@ public class BatteryDataActivity extends RoboActivity {
         EventBus.getDefault().register(this);
 
         setCurrentBatteryCharge(PlaneState.getInstance().getBattery());
-        setOperationalRemainedTime(planeData);
     }
 
     @Override
@@ -87,9 +83,6 @@ public class BatteryDataActivity extends RoboActivity {
     /**
      * Sets the current battery charge in percent.
      */
-    public void setCurrentBatteryCharge(PlaneData planeData) {
-        setCurrentBatteryCharge(planeData.getCurrentBatteryCharge());
-    }
 
     public void setCurrentBatteryCharge(int batteryChargeInPercent) {
         batteryProgressBar.setProgress(batteryChargeInPercent);
@@ -108,24 +101,5 @@ public class BatteryDataActivity extends RoboActivity {
 
         batteryProgressBar.setProgressDrawable(redProgressBar);
         tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_RED));
-    }
-
-    /**
-     * Sets the operational remained time in format hh:mm:ss.
-     */
-    public void setOperationalRemainedTime(PlaneData planeData) {
-        tvBatteryRemain.setText(planeData.getOperationalRemainedTime());
-
-        int batteryChargeInPercent = batteryProgressBar.getProgress();
-
-        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_YELLOW) {
-            tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_GREEN));
-            return;
-        }
-        if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_RED){
-            tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_YELLOW));
-            return;
-        }
-        tvBatteryRemain.setTextColor(Color.parseColor(COLOR_CODE_RED));
     }
 }

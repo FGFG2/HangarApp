@@ -80,10 +80,6 @@ public class MainMenuActivity extends RoboActivity{
         Intent intent = new Intent();
 
         switch (v.getId()) {
-            case R.id.menu_statistics: {
-                intent = new Intent(this, StatisticsActivity.class);
-                break;
-            }
             case R.id.menu_batteryData: {
                 intent = new Intent(this, BatteryDataActivity.class);
                 break;
@@ -92,26 +88,13 @@ public class MainMenuActivity extends RoboActivity{
                 intent = new Intent(this, FactoryTestActivity.class);
                 break;
             }
-
-            case R.id.menu_calibrateSensors: {
-                intent = new Intent(this, CalibrateSensorsActivity.class);
-                break;
-            }
-
-            case R.id.menu_limitSetup: {
-                intent = new Intent(this, LimitSetupActivity.class);
-                break;
-            }
-
             case R.id.menu_achievements: {
                 intent = new Intent(this, AchievementsActivity.class);
                 break;
             }
-
             case R.id.menu_exit: {
                 this.finish();
             }
-
             default:
                 break;
 

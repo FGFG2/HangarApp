@@ -6,7 +6,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.inject.AbstractModule;
-import com.tobyrich.dev.hangarapp.beans.PlaneData;
 import com.tobyrich.dev.hangarapp.lib.BuildConfig;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
 
@@ -40,8 +39,6 @@ public class BatteryDataActivityTest {
     private ProgressBar batteryProgressBar;
     @Mock
     private TextView tvBatteryStatus;
-    @Mock
-    private PlaneData planeData;
     @Mock
     private PlaneResult planeResult;
 

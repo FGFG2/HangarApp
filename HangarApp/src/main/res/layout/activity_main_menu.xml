@@ -17,21 +17,7 @@
             android:baselineAligned="false"
             android:orientation="vertical"
             android:padding="15dp"
-            android:weightSum="7">
-            <Button
-                android:id="@+id/menu_statistics"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/button"
-                android:clickable="true"
-                android:gravity="left|center_vertical"
-                android:onClick="onMenuItemClick"
-                android:paddingLeft="15dp"
-                android:text="@string/statistics"
-                android:textColor="#7ca700"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+            android:weightSum="4">
             <Button
                 android:id="@+id/menu_batteryData"
                 android:layout_width="wrap_content"
@@ -59,36 +45,6 @@
                 android:onClick="onMenuItemClick"
                 android:paddingLeft="15dp"
                 android:text="@string/factory_test"
-                android:textColor="#7ca700"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-            <Button
-                android:id="@+id/menu_calibrateSensors"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/button"
-                android:clickable="true"
-                android:gravity="left|center_vertical"
-                android:onClick="onMenuItemClick"
-                android:paddingLeft="15dp"
-                android:text="@string/calibrate_sensors"
-                android:textColor="#7ca700"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-            <Button
-                android:id="@+id/menu_limitSetup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/button"
-                android:clickable="true"
-                android:gravity="left|center_vertical"
-                android:onClick="onMenuItemClick"
-                android:paddingLeft="15dp"
-                android:text="@string/limit_setup"
                 android:textColor="#7ca700"
                 android:textSize="20sp"
                 android:textStyle="bold" />
