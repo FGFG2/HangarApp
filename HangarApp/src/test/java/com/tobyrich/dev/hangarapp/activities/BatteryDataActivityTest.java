@@ -129,7 +129,6 @@ public class BatteryDataActivityTest {
             // Replace injected class with mock
             bind(ProgressBar.class).toInstance(batteryProgressBar);
             bind(TextView.class).toInstance(tvBatteryStatus);
-            bind(PlaneData.class).toInstance(planeData);
         }
     }
 }
