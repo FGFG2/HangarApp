@@ -4,14 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment">
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New ToggleButton"
-        android:id="@+id/connect_button"
-        android:tag="connectionFragment"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:textOn="@string/connected"
-        android:textOff="@string/connect"/>
+            <ToggleButton
+                android:id="@+id/connect_button"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:background="@drawable/button"
+                android:tag="connectionFragment"
+                android:text="New ToggleButton"
+                android:textColor="#7ca700"
+                android:textOff="@string/connect"
+                android:textOn="@string/connected"
+                android:textSize="15sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true" />
 </RelativeLayout>
