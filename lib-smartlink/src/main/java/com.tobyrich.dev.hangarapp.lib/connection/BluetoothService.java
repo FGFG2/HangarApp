@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.util.UUID;
 import de.greenrobot.event.EventBus;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.tobyrich.dev.hangarapp.lib.connection.events.*;
 import com.tobyrich.dev.hangarapp.lib.utils.Consts;
@@ -45,6 +46,9 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private static final UUID BATTERY_characteristic = UUID.fromString("00002A19-0000-1000-8000-00805F9B34FB");
     private static final UUID BATTERY_descriptor = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
+    @Inject
+    private BluetoothManager manager;
+
     private BluetoothAdapter mBluetoothAdapter;
     private ArrayList<BluetoothDevice> mDevices;
 
@@ -69,7 +73,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         super.onCreate();
         EventBus.getDefault().register(this);
 
-        BluetoothManager manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         if(mBluetoothAdapter == null)
             mBluetoothAdapter = manager.getAdapter();
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
