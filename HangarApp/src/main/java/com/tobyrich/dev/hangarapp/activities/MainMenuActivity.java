@@ -48,6 +48,9 @@ public class MainMenuActivity extends RoboActivity{
                 fTransaction.replace(R.id.fragment_container, connectionFragment, "connectionFragment");
             }
         }
+        if (getIntent().getBooleanExtra("EXIT", false)) {
+            finish();
+        }
     }
 
     /**
@@ -72,12 +75,14 @@ public class MainMenuActivity extends RoboActivity{
             }
             case R.id.menu_exit: {
                 this.finish();
+                intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("EXIT", true);
             }
             default:
                 break;
 
         }
-
         startActivity(intent);
 
     }
