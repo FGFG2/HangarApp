@@ -5,11 +5,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -17,7 +14,6 @@ import android.os.IBinder;
 import android.util.Log;
 import java.util.ArrayList;
 import android.widget.Toast;
-import java.util.UUID;
 import de.greenrobot.event.EventBus;
 
 import com.google.inject.Singleton;
@@ -35,8 +31,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private ArrayList<BluetoothDevice> mDevices;
 
     private BluetoothGatt mConnectedGatt;
-
-    //private BluetoothGattCharacteristic battery, rudder, motor;
 
     private static final int MSG_PROGRESS = 201;
     private static final int MSG_DISMISS = 202;
