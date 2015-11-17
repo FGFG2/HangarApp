@@ -5,16 +5,20 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectResult;
+import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
+import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 
@@ -24,9 +28,13 @@ public class MainMenuActivity extends RoboActivity{
     @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
     @Inject ConnectionFragment connectionFragment;
 
+    Button menu_batteryData;
+    Button menu_factoryTest;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
 
         Intent intent = new Intent(this, BluetoothService.class);
         startService(intent);
@@ -51,6 +59,15 @@ public class MainMenuActivity extends RoboActivity{
         if (getIntent().getBooleanExtra("EXIT", false)) {
             finish();
         }
+        menu_factoryTest = (Button) findViewById(R.id.menu_factoryTest);
+        menu_batteryData = (Button) findViewById(R.id.menu_batteryData);
+
+        menu_factoryTest.setEnabled(PlaneState.getInstance().isConnected());
+        menu_batteryData.setEnabled(PlaneState.getInstance().isConnected());
+    }
+    public void onEvent(ConnectResult evt){
+        menu_factoryTest.setEnabled(evt.getState());
+        menu_batteryData.setEnabled(evt.getState());
     }
 
     /**

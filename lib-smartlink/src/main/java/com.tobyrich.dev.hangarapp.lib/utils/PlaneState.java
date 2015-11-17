@@ -19,6 +19,13 @@ public class PlaneState {
         return instance;
     }
 
+    public PlaneState(){
+        connected = false;
+        battery = 0;
+        motor = 0;
+        rudder = 0;
+    }
+
     public int getBattery() {
         return battery;
     }
