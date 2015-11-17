@@ -73,6 +73,9 @@ public class BluetoothServiceTest extends TestCase {
         RoboGuice.overrideApplicationInjector(RuntimeEnvironment.application, new MyTestModule());
         RoboInjector injector = RoboGuice.getInjector(RuntimeEnvironment.application);
         injector.injectMembersWithoutViews(this);
+
+        SmartPlaneCharacteristic.getInstance().setRudder(bluetoothGattCharacteristic);
+        SmartPlaneCharacteristic.getInstance().setMotor(bluetoothGattCharacteristic);
     }
 
     @Test
