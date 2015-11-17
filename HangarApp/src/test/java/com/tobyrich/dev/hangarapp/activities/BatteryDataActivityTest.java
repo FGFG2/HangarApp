@@ -122,43 +122,6 @@ public class BatteryDataActivityTest {
         Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
     }
 
-    @Test
-    public void testSetOperationalRemainedTimeRed() throws Exception{
-        // Given
-        Mockito.when(batteryProgressBar.getProgress()).thenReturn(BATTERY_CHARGE_20);
-
-        // When
-        batteryDataActivity.setOperationalRemainedTime(planeData);
-
-        // Then
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(Color.parseColor(COLOR_CODE_RED));
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
-    }
-
-    @Test
-    public void testSetOperationalRemainedTimeYellow() throws Exception{
-        // Given
-        Mockito.when(batteryProgressBar.getProgress()).thenReturn(BATTERY_CHARGE_50);
-
-        // When
-        batteryDataActivity.setOperationalRemainedTime(planeData);
-
-        // Then
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(Color.parseColor(COLOR_CODE_YELLOW));
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
-    }
-    @Test
-    public void testSetOperationalRemainedTimeGreen() throws Exception{
-        // Given
-        Mockito.when(batteryProgressBar.getProgress()).thenReturn(BATTERY_CHARGE_51);
-
-        // When
-        batteryDataActivity.setOperationalRemainedTime(planeData);
-
-        // Then
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(Color.parseColor(COLOR_CODE_GREEN));
-        Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
-    }
 
     private class MyTestModule extends AbstractModule {
         @Override
