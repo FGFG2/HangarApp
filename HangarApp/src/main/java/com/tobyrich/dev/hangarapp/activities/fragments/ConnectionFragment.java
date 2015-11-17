@@ -63,6 +63,13 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
                 BluetoothDevice dev =  evt.getResult().get(i);
                 devices[i] =dev.getName() + " ("+dev.getAddress()+")";
             }
+            builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    tbConnect.setChecked(false);
+                    tbConnect.setEnabled(true);
+                }
+            });
             builder.setItems(devices, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
                     // Do something with the selection
