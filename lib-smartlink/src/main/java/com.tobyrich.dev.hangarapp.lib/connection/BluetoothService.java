@@ -61,7 +61,6 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
 
     public BluetoothService(){
         super();
-        manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mDevices = new ArrayList<BluetoothDevice>();
         Log.d(TAG, "Init");
     }
@@ -70,6 +69,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     public void onCreate() {
         super.onCreate();
         EventBus.getDefault().register(this);
+
+        manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
         if(mBluetoothAdapter == null)
             mBluetoothAdapter = manager.getAdapter();
