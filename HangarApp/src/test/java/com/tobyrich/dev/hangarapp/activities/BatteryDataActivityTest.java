@@ -12,35 +12,41 @@ import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.creation.MockitoMethodProxy;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
+import org.robolectric.util.ActivityController;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import org.junit.Test;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, packageName = "com.tobyrich.dev.hangarapp")
 public class BatteryDataActivityTest {
 
-    @InjectMocks
-    private BatteryDataActivity batteryDataActivity = new BatteryDataActivity();
     @Mock
     private ProgressBar batteryProgressBar;
     @Mock
     private TextView tvBatteryStatus;
     @Mock
     private PlaneResult planeResult;
+
+    private ActivityController controller;
+    private BatteryDataActivity batteryDataActivity;
 
     private final static int BATTERY_CHARGE_51 = 51;
     private final static int BATTERY_CHARGE_50 = 50;
@@ -54,6 +60,11 @@ public class BatteryDataActivityTest {
     public void setUp() throws Exception {
         // Create mock for private members of test
         MockitoAnnotations.initMocks(this);
+
+        // Build Activity
+        controller = Robolectric.buildActivity(BatteryDataActivity.class).create().start();
+        batteryDataActivity = (BatteryDataActivity) controller.get();
+        batteryDataActivity.tvBatteryStatus = tvBatteryStatus;
 
         // Override injector and perform injection
         RoboGuice.overrideApplicationInjector(RuntimeEnvironment.application, new MyTestModule());
@@ -81,7 +92,7 @@ public class BatteryDataActivityTest {
     }
 
     @Test
-    public void testOnPlaneResultEventNegative() throws Exception{
+    public void testOnPlaneResultEventNegative() throws Exception {
         // Given
         Mockito.when(planeResult.getDevice()).thenReturn(PlaneResult.MOTOR);
         Mockito.when(planeResult.getValue()).thenReturn(BATTERY_CHARGE_20);
@@ -112,6 +123,7 @@ public class BatteryDataActivityTest {
         Mockito.verify(tvBatteryStatus, times(1)).setTextColor(Color.parseColor(COLOR_CODE_YELLOW));
         Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
     }
+
     @Test
     public void testSetCurrentBatteryChargeGreen() throws Exception{
         // When
@@ -122,7 +134,6 @@ public class BatteryDataActivityTest {
         Mockito.verify(tvBatteryStatus, times(1)).setTextColor(anyInt());
     }
 
-
     private class MyTestModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -132,4 +143,3 @@ public class BatteryDataActivityTest {
         }
     }
 }
-
