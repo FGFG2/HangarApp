@@ -17,7 +17,7 @@
             android:baselineAligned="false"
             android:orientation="vertical"
             android:padding="15dp"
-            android:weightSum="4">
+            android:weightSum="0">
             <Button
                 android:id="@+id/menu_batteryData"
                 android:layout_width="wrap_content"
