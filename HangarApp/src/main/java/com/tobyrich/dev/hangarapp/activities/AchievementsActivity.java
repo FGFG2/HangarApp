@@ -9,9 +9,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.LruCache;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -26,15 +25,17 @@ import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
 
+import org.roboguice.shaded.goole.common.base.Optional;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -47,15 +48,12 @@ import roboguice.inject.InjectView;
 @ContentView(R.layout.activity_achievements)
 public class AchievementsActivity extends RoboActivity {
 
+    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
     @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
     @InjectView(R.id.achievementsLoading) ProgressBar achievementsLoading;
-
     @InjectResource(R.drawable.button) Drawable background;
-
-    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
-
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
 
@@ -124,6 +122,12 @@ public class AchievementsActivity extends RoboActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            achievementsLoading.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
         protected Void doInBackground(Void... params) {
             try {
                 Retrofit retrofit = new Retrofit.Builder()
@@ -135,18 +139,15 @@ public class AchievementsActivity extends RoboActivity {
                 AchievementService service = retrofit.create(AchievementService.class);
                 Call<List<Achievement>> call = service.getAllAchievements();
                 achievementList = call.execute().body();
-
             } catch (IOException e) {
-               e.printStackTrace();
-            } finally {
-                // Populate the collection with fake achievements.
-                achievementList = getAchievementsList();
-                for (Achievement achievement: achievementList) {
-                    bm = LoadImage(achievement.getImageUrl(), bmOptions);
-                    achievement.setIcon(bm);
-                }
+                Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
             }
 
+            if (achievementList.isEmpty()) {
+                achievementList = getAchievementsList();
+                Log.i(this.getClass().getSimpleName(), "No achievements loaded. Using fallback.");
+            }
+            loadImages();
             return null;
         }
 
@@ -161,6 +162,24 @@ public class AchievementsActivity extends RoboActivity {
             setOnAchievementClickListener();
 
             super.onPostExecute(result);
+        }
+
+        private void loadImages() {
+            for (Achievement achievement : achievementList) {
+                Optional<URL> url = getUrlFromString(achievement.getImageUrl());
+                if (url.isPresent()) {
+                    bm = loadImage(achievement.getImageUrl(), bmOptions);
+                    achievement.setIcon(bm);
+                }
+            }
+        }
+
+        private Optional<URL> getUrlFromString(String urlString) {
+            try {
+                return Optional.fromNullable(new URL(urlString));
+            } catch (MalformedURLException e) {
+                return Optional.absent();
+            }
         }
 
         /**
@@ -194,24 +213,14 @@ public class AchievementsActivity extends RoboActivity {
 
         }
 
-        @Override
-        protected void onPreExecute() {
-            achievementsLoading.setVisibility(View.VISIBLE);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-
-        private Bitmap LoadImage(String URL, BitmapFactory.Options options) {
+        private Bitmap loadImage(String URL, BitmapFactory.Options options) {
 
             Bitmap bitmap = getBitmapFromMemCache(URL);
             if (bitmap == null) {
                 InputStream in;
 
                 try {
-                    in = OpenHttpConnection(URL);
+                    in = openHttpConnection(URL);
                     bitmap = BitmapFactory.decodeStream(in, null, options);
                     in.close();
                 } catch (IOException e) {
@@ -224,7 +233,7 @@ public class AchievementsActivity extends RoboActivity {
             return bitmap;
         }
 
-        private InputStream OpenHttpConnection(String strURL) throws IOException{
+        private InputStream openHttpConnection(String strURL) throws IOException {
             InputStream inputStream = null;
             URL url = new URL(strURL);
             URLConnection conn = url.openConnection();
