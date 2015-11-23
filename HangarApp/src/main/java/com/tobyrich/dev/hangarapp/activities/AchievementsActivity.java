@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ public class AchievementsActivity extends RoboActivity {
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
     @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
+    @InjectView(R.id.achievementsLoading) ProgressBar achievementsLoading;
 
     @InjectResource(R.drawable.button) Drawable background;
 
@@ -153,6 +155,8 @@ public class AchievementsActivity extends RoboActivity {
             adapter = new AchievementsAdapter(context, achievementList);
             lvAchievements.setAdapter(adapter);
 
+            achievementsLoading.setVisibility(View.GONE);
+
             // Define onclickListener for achievements.
             setOnAchievementClickListener();
 
@@ -194,6 +198,8 @@ public class AchievementsActivity extends RoboActivity {
 
         @Override
         protected void onPreExecute() {
+            achievementsLoading.setVisibility(View.VISIBLE);
+            super.onPreExecute();
         }
 
         @Override
