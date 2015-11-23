@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -97,12 +98,10 @@ public class AchievementsActivity extends RoboActivity {
     // Dummy achievements for testing purposes.
     public List<Achievement> getAchievementsList() {
         List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
-                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
-                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
-                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
+        fakeAchievementList.add(new Achievement("Longest flight ever", 100, "To get this achievement you need to flight for 3 Minutes without landing or crashing."));
+        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time to test the adapters wrapping", 35, "Try to land so smooth as possible."));
+        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Prove your top flight skills being able to control the plane with no rush movements. " +
+                "This achievement is secured if there is no jolting during at least 1 Minute flight."));
 
         return fakeAchievementList;
     }
@@ -137,11 +136,12 @@ public class AchievementsActivity extends RoboActivity {
             } catch (IOException e) {
                e.printStackTrace();
             } finally {
-                // Populate the collection with fake achievements.
-                achievementList = getAchievementsList();
                 for (Achievement achievement: achievementList) {
                     bm = LoadImage(achievement.getImageUrl(), bmOptions);
-                    achievement.setIcon(bm);
+
+                    if (bm != null) {
+                        achievement.setIcon(bm);
+                    }
                 }
             }
 
@@ -182,6 +182,8 @@ public class AchievementsActivity extends RoboActivity {
                     }
 
                     tvDescription.setText(item.getDescription());
+                    tvDescription.setTypeface(tvDescription.getTypeface(), Typeface.NORMAL);
+
                     if (view.getBackground() == null) {
                         view.setBackgroundColor(Color.parseColor("#696969"));
                     }
