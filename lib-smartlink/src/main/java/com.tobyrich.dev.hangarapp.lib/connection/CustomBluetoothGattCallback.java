@@ -18,6 +18,7 @@ import de.greenrobot.event.EventBus;
 
 public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
+    private BluetoothGatt mConnectedGatt;
     // MAC: 5C:31:3E:4D:33:49
     //private static final String PLAN_PART = "TobyRich";
     private static final UUID HANGARSERVICE = UUID.fromString("75B64E51-6000-4ED1-921A-476090D80BA7");
@@ -36,6 +37,10 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
     private static final String TAG = "tr.lib.CBtGattCallback";
 
+    public void setConnectedGatt(BluetoothGatt mConnectedGatt) {
+        this.mConnectedGatt = mConnectedGatt;
+    }
+
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         Log.d(TAG, "Connection State Change: " + status + " -> " + connectionState(newState));
@@ -50,14 +55,15 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
             EventBus.getDefault().post(new ConnectResult(false));
             PlaneState.getInstance().setConnected(false);
             gatt.disconnect();
+            mConnectedGatt = null;
         }
     }
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-        Log.v(TAG, "Services Discovered: " + status + ":" + gatt.getServices());
+        Log.v(TAG, "Services Discovered: " + status + ":" + mConnectedGatt.getServices());
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            for(BluetoothGattService service : gatt.getServices()){
+            for(BluetoothGattService service : mConnectedGatt.getServices()){
                 Log.v(TAG, "Services: " + service.getUuid() + ":");
                 for(BluetoothGattCharacteristic characteristic : service.getCharacteristics()){
                     UUID c = characteristic.getUuid();
@@ -65,25 +71,25 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                     if(c.equals(BATTERY_characteristic)) {
                         PlaneConnections.getInstance().setBattery(characteristic);
                         //NEED to get CharacteristicRead Result
-                        gatt.setCharacteristicNotification(characteristic, true);
+                        mConnectedGatt.setCharacteristicNotification(characteristic, true);
                         //ENABLE Autonotify
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        gatt.writeDescriptor(descriptor);
+                        mConnectedGatt.writeDescriptor(descriptor);
                         //TODO: Did not work
                         //GET FIRST-Value
-                        gatt.readCharacteristic(characteristic);
+                        mConnectedGatt.readCharacteristic(characteristic);
                         int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                         PlaneState.getInstance().setBattery(value);
                         EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
                         Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": with Value "+value);
                     }else if(c.equals(SMARTPLANE_MOTOR)) {
                         PlaneConnections.getInstance().setMotor(characteristic);
-                        //gatt.readCharacteristic(characteristic);
+                        //mConnectedGatt.readCharacteristic(characteristic);
                         Log.d(TAG, "Characteristic-found: Motor - "+characteristic.getUuid());
                     }else if(c.equals(SMARTPLANE_RUDER)) {
                         PlaneConnections.getInstance().setRudder(characteristic);
-                        //gatt.readCharacteristic(characteristic);
+                        //mConnectedGatt.readCharacteristic(characteristic);
                         Log.d(TAG, "Characteristic-found: Ruder - " + characteristic.getUuid());
                     }else{
                         Log.v(TAG, "onCharacteristicRead: Unknown - "+ characteristic.getUuid());

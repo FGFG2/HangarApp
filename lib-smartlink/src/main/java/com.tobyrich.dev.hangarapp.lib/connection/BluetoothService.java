@@ -32,6 +32,9 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private BluetoothGatt mConnectedGatt;
     private CustomBluetoothGattCallback mGattCallback;
 
+    private static final int MSG_PROGRESS = 201;
+    private static final int MSG_DISMISS = 202;
+    private static final int MSG_CLEAR = 301;
 
     public BluetoothService(){
         super();
@@ -113,18 +116,19 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         if(mGattCallback==null)
             mGattCallback = new CustomBluetoothGattCallback();
         mConnectedGatt = evt.getDevice().connectGatt(this, false, mGattCallback);
+        mGattCallback.setConnectedGatt(mConnectedGatt);
     }
     public void onEvent(ScanEvent evt){
         Log.d(TAG, "event-Scan: " + evt.getState());
         if(evt.getState()) {
             startService();
             if(mBluetoothAdapter !=null && mBluetoothAdapter.isEnabled()){
+                mDevices = new ArrayList<BluetoothDevice>();
                 startScan();
             }else{
                 PlaneState.getInstance().setConnected(false);
             }
         }else {
-            mDevices = new ArrayList<BluetoothDevice>();
             stopScan();
             mConnectedGatt.disconnect();
         }
