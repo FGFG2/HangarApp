@@ -79,8 +79,8 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                         mConnectedGatt.writeDescriptor(descriptor);
                         //TODO: Did not work
                         //GET FIRST-Value
-                        /*
                         mConnectedGatt.readCharacteristic(characteristic);
+                        /*
                         int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                         PlaneState.getInstance().setBattery(value);
                         EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));

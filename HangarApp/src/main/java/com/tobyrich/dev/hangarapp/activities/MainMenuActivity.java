@@ -77,16 +77,12 @@ public class MainMenuActivity extends RoboActivity{
         EventBus.getDefault().unregister(this);
 
     }
-    public void onEvent(ConnectResult evt) {
+    public void onEventMainThread(ConnectResult evt) {
         bluetoothButtonState(evt.getState());
     }
     private void bluetoothButtonState(boolean bool){
-        //TODO why only one button change state
-        Log.d(TAG,"blButton1:");
         menu_batteryData.setEnabled(bool);
-        Log.d(TAG, "blButton2:");
         menu_factoryTest.setEnabled(bool);
-        Log.d(TAG, "blButton-end");
     }
     /**
      * Called by click on menu-buttons.
