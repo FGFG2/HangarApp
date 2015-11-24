@@ -55,7 +55,6 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
             EventBus.getDefault().post(new ConnectResult(false));
             PlaneState.getInstance().setConnected(false);
             gatt.disconnect();
-            mConnectedGatt = null;
         }
     }
 
