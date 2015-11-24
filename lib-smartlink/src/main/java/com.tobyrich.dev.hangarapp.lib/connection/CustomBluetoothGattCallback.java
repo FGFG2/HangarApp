@@ -37,6 +37,8 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
     private static final String TAG = "tr.lib.CBtGattCallback";
 
+    private BluetoothGattCharacteristic battery,motor,rudder;
+
     public void setConnectedGatt(BluetoothGatt mConnectedGatt) {
         this.mConnectedGatt = mConnectedGatt;
     }
@@ -60,7 +62,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-        Log.v(TAG, "Services Discovered: " + status + ":" + mConnectedGatt.getServices());
+        Log.d(TAG, "Services Discovered: " + status + ":" + mConnectedGatt.getServices());
         if (status == BluetoothGatt.GATT_SUCCESS) {
             for(BluetoothGattService service : mConnectedGatt.getServices()){
                 Log.v(TAG, "Services: " + service.getUuid() + ":");
@@ -77,11 +79,13 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                         mConnectedGatt.writeDescriptor(descriptor);
                         //TODO: Did not work
                         //GET FIRST-Value
+                        /*
                         mConnectedGatt.readCharacteristic(characteristic);
                         int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                         PlaneState.getInstance().setBattery(value);
                         EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
-                        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": with Value "+value);
+                        */
+                        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": without Value ");
                     }else if(c.equals(SMARTPLANE_MOTOR)) {
                         PlaneConnections.getInstance().setMotor(characteristic);
                         //mConnectedGatt.readCharacteristic(characteristic);
@@ -115,7 +119,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
     @Override
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-        Log.v(TAG, "Descriptor: ");
+        Log.v(TAG, "Descriptor: written");
     }
 
     @Override
