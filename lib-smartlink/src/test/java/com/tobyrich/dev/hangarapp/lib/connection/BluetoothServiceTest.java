@@ -1,14 +1,8 @@
 package com.tobyrich.dev.hangarapp.lib.connection;
-import android.app.Application;
-import android.app.ListActivity;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
 
 import com.google.inject.AbstractModule;
 import com.tobyrich.dev.hangarapp.lib.BuildConfig;
@@ -25,24 +19,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.internal.ShadowExtractor;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowContextImpl;
-import org.robolectric.shadows.ShadowIntent;
-import org.robolectric.util.ServiceController;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
@@ -74,8 +58,8 @@ public class BluetoothServiceTest extends TestCase {
         RoboInjector injector = RoboGuice.getInjector(RuntimeEnvironment.application);
         injector.injectMembersWithoutViews(this);
 
-        SmartPlaneCharacteristic.getInstance().setRudder(bluetoothGattCharacteristic);
-        SmartPlaneCharacteristic.getInstance().setMotor(bluetoothGattCharacteristic);
+        PlaneConnections.getInstance().setRudder(bluetoothGattCharacteristic);
+        PlaneConnections.getInstance().setMotor(bluetoothGattCharacteristic);
     }
 
     @Test

@@ -4,7 +4,6 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
@@ -31,10 +30,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     private ArrayList<BluetoothDevice> mDevices;
 
     private BluetoothGatt mConnectedGatt;
+    private CustomBluetoothGattCallback mGattCallback;
 
-    private static final int MSG_PROGRESS = 201;
-    private static final int MSG_DISMISS = 202;
-    private static final int MSG_CLEAR = 301;
 
     public BluetoothService(){
         super();
@@ -42,11 +39,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         Log.d(TAG, "Init");
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        EventBus.getDefault().register(this);
-
+    private void startService(){
         manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
         if(mBluetoothAdapter == null)
@@ -56,15 +49,28 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(enableBtIntent);
+            if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                PlaneState.getInstance().setConnected(false);
+                EventBus.getDefault().post(new ConnectResult(false));
+            }
         }else if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "No LE Support.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        EventBus.getDefault().register(this);
+        startService();
         Log.d(TAG, "Create");
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
         mConnectedGatt.disconnect();
+        EventBus.getDefault().post(new ConnectResult(false));
+        PlaneState.getInstance().setConnected(false);
         EventBus.getDefault().unregister(this);
         Log.d(TAG, "Destroy");
 
@@ -82,8 +88,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                 else if(value < Consts.MIN_RUDDER_VALUE)
                     value = Consts.MIN_RUDDER_VALUE;
                 PlaneState.getInstance().setRudder(value);
-                SmartPlaneCharacteristic.getInstance().getRudder().setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-                mConnectedGatt.writeCharacteristic(SmartPlaneCharacteristic.getInstance().getRudder());
+                PlaneConnections.getInstance().getRudder().setValue(value, BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+                mConnectedGatt.writeCharacteristic(PlaneConnections.getInstance().getRudder());
                 break;
             case PlaneEvent.MOTOR:
                 Log.d(TAG, "event-plane-Motor: " + value);
@@ -92,8 +98,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
                 else if (value < Consts.MIN_MOTOR_VALUE)
                     value = Consts.MIN_MOTOR_VALUE;
                 PlaneState.getInstance().setMotor(value);
-                SmartPlaneCharacteristic.getInstance().getMotor().setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                mConnectedGatt.writeCharacteristic(SmartPlaneCharacteristic.getInstance().getMotor());
+                PlaneConnections.getInstance().getMotor().setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                mConnectedGatt.writeCharacteristic(PlaneConnections.getInstance().getMotor());
                 break;
 
             default:
@@ -104,14 +110,24 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
 
     public void onEvent(ConnectEvent evt){
         Log.d(TAG, "event-connecting: " + evt.getDevice().getAddress());
+        if(mGattCallback==null)
+            mGattCallback = new CustomBluetoothGattCallback();
         mConnectedGatt = evt.getDevice().connectGatt(this, false, mGattCallback);
     }
     public void onEvent(ScanEvent evt){
         Log.d(TAG, "event-Scan: " + evt.getState());
-        if(evt.getState())
-            startScan();
-        else
+        if(evt.getState()) {
+            startService();
+            if(mBluetoothAdapter !=null && mBluetoothAdapter.isEnabled()){
+                startScan();
+            }else{
+                PlaneState.getInstance().setConnected(false);
+            }
+        }else {
+            mDevices = new ArrayList<BluetoothDevice>();
             stopScan();
+            mConnectedGatt.disconnect();
+        }
     }
     private Runnable mEndRunnable = new Runnable() {
         @Override
@@ -134,14 +150,13 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
 
     private void startScan(){
         mBluetoothAdapter.startLeScan(this);
+        PlaneState.getInstance().setConnected(false);
         mHandler.postDelayed(mEndRunnable, 10000);
     }
 
     private void stopScan(){
         mBluetoothAdapter.stopLeScan(this);
     }
-
-    private BluetoothGattCallback mGattCallback = new CustomBluetoothGattCallback(mConnectedGatt);
 
     @Override
     public IBinder onBind(Intent intent) {

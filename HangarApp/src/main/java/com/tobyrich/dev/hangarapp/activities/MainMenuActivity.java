@@ -30,6 +30,8 @@ import roboguice.inject.ContentView;
 @ContentView(R.layout.activity_main_menu)
 public class MainMenuActivity extends RoboActivity{
 
+    private static final String TAG = "tr.MainMenuActivity";
+
     @Inject RajawaliSurfaceFragment rajawaliSurfaceFragment;
     @Inject ConnectionFragment connectionFragment;
 
@@ -67,8 +69,7 @@ public class MainMenuActivity extends RoboActivity{
         menu_factoryTest = (Button) findViewById(R.id.menu_factoryTest);
         menu_batteryData = (Button) findViewById(R.id.menu_batteryData);
 
-        menu_factoryTest.setEnabled(PlaneState.getInstance().isConnected());
-        menu_batteryData.setEnabled(PlaneState.getInstance().isConnected());
+        bluetoothButtonState(PlaneState.getInstance().isConnected());
     }
     @Override
     public void onDestroy() {
@@ -76,11 +77,17 @@ public class MainMenuActivity extends RoboActivity{
         EventBus.getDefault().unregister(this);
 
     }
-    public void onEvent(ConnectResult evt){
-        menu_factoryTest.setEnabled(evt.getState());
-        menu_batteryData.setEnabled(evt.getState());
+    public void onEvent(ConnectResult evt) {
+        bluetoothButtonState(evt.getState());
     }
-
+    private void bluetoothButtonState(boolean bool){
+        //TODO why only one button change state
+        Log.d(TAG,"blButton1:");
+        menu_batteryData.setEnabled(bool);
+        Log.d(TAG, "blButton2:");
+        menu_factoryTest.setEnabled(bool);
+        Log.d(TAG, "blButton-end");
+    }
     /**
      * Called by click on menu-buttons.
      * @param v view

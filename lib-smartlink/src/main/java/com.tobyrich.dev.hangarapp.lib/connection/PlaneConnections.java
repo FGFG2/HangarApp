@@ -2,16 +2,16 @@ package com.tobyrich.dev.hangarapp.lib.connection;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-public class SmartPlaneCharacteristic {
+public class PlaneConnections {
     private BluetoothGattCharacteristic battery;
     private BluetoothGattCharacteristic rudder;
     private BluetoothGattCharacteristic motor;
 
-    private static SmartPlaneCharacteristic instance;
+    private static PlaneConnections instance;
 
-    public static SmartPlaneCharacteristic getInstance() {
+    public static PlaneConnections getInstance() {
         if(instance==null)
-            instance = new SmartPlaneCharacteristic();
+            instance = new PlaneConnections();
         return instance;
     }
 
