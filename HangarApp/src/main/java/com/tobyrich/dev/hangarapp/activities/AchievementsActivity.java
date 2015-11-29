@@ -84,7 +84,7 @@ public class AchievementsActivity extends RoboActivity {
 
             // The achievements are populated asynchronous in private class,
             // need to pass the context of the activity for the ArrayAdapter.
-            reloadAchieventsList();
+            reloadAchievementsList();
         } else {
             // Show message if there is no Internet Connection.
             Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
@@ -276,7 +276,7 @@ public class AchievementsActivity extends RoboActivity {
         }
     }
 
-    private void reloadAchieventsList() {
+    private void reloadAchievementsList() {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
 
