@@ -35,6 +35,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
@@ -82,7 +84,7 @@ public class AchievementsActivity extends RoboActivity {
 
             // The achievements are populated asynchronous in private class,
             // need to pass the context of the activity for the ArrayAdapter.
-            new AchievementsFeeder(getApplicationContext()).execute();
+            reloadAchieventsList();
         } else {
             // Show message if there is no Internet Connection.
             Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
@@ -129,6 +131,36 @@ public class AchievementsActivity extends RoboActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            loadAchievementsFromService();
+
+            if (achievementList.isEmpty()) {
+                achievementList = getAchievementsList();
+                Log.i(this.getClass().getSimpleName(), "No achievements loaded. Using fallback.");
+            }
+            loadImages();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if(adapter == null) {
+                adapter = new AchievementsAdapter(context, achievementList);
+                lvAchievements.setAdapter(adapter);
+            } else {
+                adapter.notifyDataSetChanged();
+            }
+
+            achievementsLoading.setVisibility(View.GONE);
+
+            // Define onclickListener for achievements.
+            setOnAchievementClickListener();
+
+            super.onPostExecute(result);
+        }
+
+
+        private void loadAchievementsFromService() {
             try {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(URL_ALL_ACHIEVEMENTS)
@@ -142,26 +174,6 @@ public class AchievementsActivity extends RoboActivity {
             } catch (IOException e) {
                 Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
             }
-
-            if (achievementList.isEmpty()) {
-                achievementList = getAchievementsList();
-                Log.i(this.getClass().getSimpleName(), "No achievements loaded. Using fallback.");
-            }
-            loadImages();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            adapter = new AchievementsAdapter(context, achievementList);
-            lvAchievements.setAdapter(adapter);
-
-            achievementsLoading.setVisibility(View.GONE);
-
-            // Define onclickListener for achievements.
-            setOnAchievementClickListener();
-
-            super.onPostExecute(result);
         }
 
         private void loadImages() {
@@ -262,6 +274,23 @@ public class AchievementsActivity extends RoboActivity {
         public Bitmap getBitmapFromMemCache(String key) {
             return mMemoryCache.get(key);
         }
+    }
+
+    private void reloadAchieventsList() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AchievementsFeeder(getApplicationContext()).execute();
+                        System.out.println("Load new = " + System.currentTimeMillis());
+                    }
+                });
+            }
+        }, 0, 15000);
     }
 
 }
