@@ -81,11 +81,17 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     /*
      * Events to Handle
      */
+    public void onEvent(DatatransferEvent evt){
+        byte[] value = evt.getValue();
+        Log.d(TAG, "event-datatransfer: " + value);
+        PlaneConnections.getInstance().getDatatransfer().setValue(value);
+        mConnectedGatt.writeCharacteristic(PlaneConnections.getInstance().getDatatransfer());
+    }
     public void onEvent(PlaneEvent evt){
         int value = evt.getValue();
         switch (evt.getDevice()){
             case PlaneEvent.RUDDER:
-                Log.d(TAG, "event-plane-Ruder: " + value);
+                Log.d(TAG, "event-plane-Rudder: " + value);
                 if(value > Consts.MAX_RUDDER_VALUE)
                     value = Consts.MAX_RUDDER_VALUE;
                 else if(value < Consts.MIN_RUDDER_VALUE)
@@ -148,6 +154,8 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     };
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        if(mDevices.contains(device))
+            return;
         mDevices.add(device);
         Log.d(TAG, "scan-found: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
     }

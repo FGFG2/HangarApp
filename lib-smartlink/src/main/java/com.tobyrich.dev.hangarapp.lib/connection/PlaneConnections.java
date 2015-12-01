@@ -6,6 +6,7 @@ public class PlaneConnections {
     private BluetoothGattCharacteristic battery;
     private BluetoothGattCharacteristic rudder;
     private BluetoothGattCharacteristic motor;
+    private BluetoothGattCharacteristic datatransfer;
 
     private static PlaneConnections instance;
 
@@ -36,5 +37,13 @@ public class PlaneConnections {
 
     public void setBattery(BluetoothGattCharacteristic battery) {
         this.battery = battery;
+    }
+
+    public BluetoothGattCharacteristic getDatatransfer() {
+        return datatransfer;
+    }
+
+    public void setDatatransfer(BluetoothGattCharacteristic datatransfer) {
+        this.datatransfer = datatransfer;
     }
 }

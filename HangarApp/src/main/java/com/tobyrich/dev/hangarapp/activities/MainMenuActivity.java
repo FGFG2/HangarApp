@@ -20,7 +20,9 @@ import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.activities.fragments.ConnectionFragment;
 import com.tobyrich.dev.hangarapp.activities.fragments.RajawaliSurfaceFragment;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectResult;
+import com.tobyrich.dev.hangarapp.lib.connection.events.ScanEvent;
 import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
 import de.greenrobot.event.EventBus;
@@ -64,6 +66,7 @@ public class MainMenuActivity extends RoboActivity{
             }
         }
         if (getIntent().getBooleanExtra("EXIT", false)) {
+            EventBus.getDefault().post(new ScanEvent(true));
             finish();
         }
         menu_factoryTest = (Button) findViewById(R.id.menu_factoryTest);
