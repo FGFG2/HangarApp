@@ -26,8 +26,16 @@
                     android:layout_marginTop="10dp"
                     android:gravity="left"
                     android:textColor="#d3d3d3"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/achievementProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#d3d3d3"
                     android:textSize="20sp"
-                     />
+                    android:layout_toRightOf="@+id/achievementName"
+                    android:layout_alignTop="@+id/achievementName"
+                    android:layout_marginLeft="20dp" />
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
