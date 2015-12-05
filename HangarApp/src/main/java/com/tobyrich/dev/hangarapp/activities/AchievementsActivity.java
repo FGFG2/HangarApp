@@ -58,6 +58,7 @@ public class AchievementsActivity extends RoboActivity {
     @InjectResource(R.drawable.button) Drawable background;
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
+    private boolean achievementListChanged = false;
 
     // Cache for the Achievements icons.
     private LruCache<String, Bitmap> mMemoryCache;
@@ -125,7 +126,9 @@ public class AchievementsActivity extends RoboActivity {
 
         @Override
         protected void onPreExecute() {
-            achievementsLoading.setVisibility(View.VISIBLE);
+            if(adapter == null) {
+                achievementsLoading.setVisibility(View.VISIBLE);
+            }
             super.onPreExecute();
         }
 
@@ -148,6 +151,10 @@ public class AchievementsActivity extends RoboActivity {
                 adapter = new AchievementsAdapter(context, achievementList);
                 lvAchievements.setAdapter(adapter);
             } else {
+                if(isAchievementListChanged()) {
+                    // Show message if achievements list is changed.
+                    Toast.makeText(context, "Achievements were updated!", Toast.LENGTH_LONG).show();
+                }
                 adapter.notifyDataSetChanged();
             }
 
@@ -170,10 +177,25 @@ public class AchievementsActivity extends RoboActivity {
 
                 AchievementService service = retrofit.create(AchievementService.class);
                 Call<List<Achievement>> call = service.getAllAchievements();
+                List<Achievement> oldAchievements = achievementList;
                 achievementList = call.execute().body();
+                setAchievementListChanged(checkIfAchievementListChanged(oldAchievements, achievementList));
             } catch (IOException e) {
                 Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
             }
+        }
+
+        private boolean checkIfAchievementListChanged(List<Achievement> oldList, List<Achievement> newList) {
+            if(oldList.size() != newList.size()) {
+                return true;
+            } else {
+                for(int i = 0; i < newList.size(); i++) {
+                    if(oldList.get(i).getProgress() != newList.get(i).getProgress()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void loadImages() {
@@ -286,11 +308,18 @@ public class AchievementsActivity extends RoboActivity {
                     @Override
                     public void run() {
                         new AchievementsFeeder(getApplicationContext()).execute();
-                        System.out.println("Load new = " + System.currentTimeMillis());
                     }
                 });
             }
         }, 0, 15000);
+
     }
 
+    public void setAchievementListChanged(boolean achievementListChanged) {
+        this.achievementListChanged = achievementListChanged;
+    }
+
+    public boolean isAchievementListChanged() {
+        return achievementListChanged;
+    }
 }
