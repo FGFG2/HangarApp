@@ -4,15 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.LruCache;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -27,15 +25,19 @@ import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
 
+import org.roboguice.shaded.goole.common.base.Optional;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import de.greenrobot.event.EventBus;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -48,17 +50,15 @@ import roboguice.inject.InjectView;
 @ContentView(R.layout.activity_achievements)
 public class AchievementsActivity extends RoboActivity {
 
+    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
     @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
     @InjectView(R.id.achievementsLoading) ProgressBar achievementsLoading;
-
     @InjectResource(R.drawable.button) Drawable background;
-
-    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
-
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
+    private boolean achievementListChanged = false;
 
     // Cache for the Achievements icons.
     private LruCache<String, Bitmap> mMemoryCache;
@@ -85,7 +85,7 @@ public class AchievementsActivity extends RoboActivity {
 
             // The achievements are populated asynchronous in private class,
             // need to pass the context of the activity for the ArrayAdapter.
-            new AchievementsFeeder(getApplicationContext()).execute();
+            reloadAchievementsList();
         } else {
             // Show message if there is no Internet Connection.
             Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
@@ -100,10 +100,12 @@ public class AchievementsActivity extends RoboActivity {
     // Dummy achievements for testing purposes.
     public List<Achievement> getAchievementsList() {
         List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Longest flight ever", 100, "To get this achievement you need to flight for 3 Minutes without landing or crashing."));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time to test the adapters wrapping", 35, "Try to land so smooth as possible."));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Prove your top flight skills being able to control the plane with no rush movements. " +
-                "This achievement is secured if there is no jolting during at least 1 Minute flight."));
+        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
+        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
+        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
+                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
+                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
+                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
 
         return fakeAchievementList;
     }
@@ -123,7 +125,49 @@ public class AchievementsActivity extends RoboActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            if(adapter == null) {
+                achievementsLoading.setVisibility(View.VISIBLE);
+            }
+            super.onPreExecute();
+        }
+
+        @Override
         protected Void doInBackground(Void... params) {
+            loadAchievementsFromService();
+
+            if (achievementList.isEmpty()) {
+                achievementList = getAchievementsList();
+                Log.i(this.getClass().getSimpleName(), "No achievements loaded. Using fallback.");
+            }
+            loadImages();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if(adapter == null) {
+                adapter = new AchievementsAdapter(context, achievementList);
+                lvAchievements.setAdapter(adapter);
+            } else {
+                if(isAchievementListChanged()) {
+                    // Show message if achievements list is changed.
+                    Toast.makeText(context, "Achievements were updated!", Toast.LENGTH_LONG).show();
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            achievementsLoading.setVisibility(View.GONE);
+
+            // Define onclickListener for achievements.
+            setOnAchievementClickListener();
+
+            super.onPostExecute(result);
+        }
+
+
+        private void loadAchievementsFromService() {
             try {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(URL_ALL_ACHIEVEMENTS)
@@ -133,34 +177,43 @@ public class AchievementsActivity extends RoboActivity {
 
                 AchievementService service = retrofit.create(AchievementService.class);
                 Call<List<Achievement>> call = service.getAllAchievements();
+                List<Achievement> oldAchievements = achievementList;
                 achievementList = call.execute().body();
-
+                setAchievementListChanged(checkIfAchievementListChanged(oldAchievements, achievementList));
             } catch (IOException e) {
-               e.printStackTrace();
-            } finally {
-                for (Achievement achievement: achievementList) {
-                    bm = LoadImage(achievement.getImageUrl(), bmOptions);
+                Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
+            }
+        }
 
-                    if (bm != null) {
-                        achievement.setIcon(bm);
+        private boolean checkIfAchievementListChanged(List<Achievement> oldList, List<Achievement> newList) {
+            if(oldList.size() != newList.size()) {
+                return true;
+            } else {
+                for(int i = 0; i < newList.size(); i++) {
+                    if(oldList.get(i).getProgress() != newList.get(i).getProgress()) {
+                        return true;
                     }
                 }
             }
-
-            return null;
+            return false;
         }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            adapter = new AchievementsAdapter(context, achievementList);
-            lvAchievements.setAdapter(adapter);
+        private void loadImages() {
+            for (Achievement achievement : achievementList) {
+                Optional<URL> url = getUrlFromString(achievement.getImageUrl());
+                if (url.isPresent()) {
+                    bm = loadImage(achievement.getImageUrl(), bmOptions);
+                    achievement.setIcon(bm);
+                }
+            }
+        }
 
-            achievementsLoading.setVisibility(View.GONE);
-
-            // Define onclickListener for achievements.
-            setOnAchievementClickListener();
-
-            super.onPostExecute(result);
+        private Optional<URL> getUrlFromString(String urlString) {
+            try {
+                return Optional.fromNullable(new URL(urlString));
+            } catch (MalformedURLException e) {
+                return Optional.absent();
+            }
         }
 
         /**
@@ -186,8 +239,6 @@ public class AchievementsActivity extends RoboActivity {
                     }
 
                     tvDescription.setText(item.getDescription());
-                    tvDescription.setTypeface(tvDescription.getTypeface(), Typeface.NORMAL);
-
                     if (view.getBackground() == null) {
                         view.setBackgroundColor(Color.parseColor("#696969"));
                     }
@@ -196,24 +247,14 @@ public class AchievementsActivity extends RoboActivity {
 
         }
 
-        @Override
-        protected void onPreExecute() {
-            achievementsLoading.setVisibility(View.VISIBLE);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-
-        private Bitmap LoadImage(String URL, BitmapFactory.Options options) {
+        private Bitmap loadImage(String URL, BitmapFactory.Options options) {
 
             Bitmap bitmap = getBitmapFromMemCache(URL);
             if (bitmap == null) {
                 InputStream in;
 
                 try {
-                    in = OpenHttpConnection(URL);
+                    in = openHttpConnection(URL);
                     bitmap = BitmapFactory.decodeStream(in, null, options);
                     in.close();
                 } catch (IOException e) {
@@ -226,7 +267,7 @@ public class AchievementsActivity extends RoboActivity {
             return bitmap;
         }
 
-        private InputStream OpenHttpConnection(String strURL) throws IOException{
+        private InputStream openHttpConnection(String strURL) throws IOException {
             InputStream inputStream = null;
             URL url = new URL(strURL);
             URLConnection conn = url.openConnection();
@@ -257,4 +298,28 @@ public class AchievementsActivity extends RoboActivity {
         }
     }
 
+    private void reloadAchievementsList() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AchievementsFeeder(getApplicationContext()).execute();
+                    }
+                });
+            }
+        }, 0, 15000);
+
+    }
+
+    public void setAchievementListChanged(boolean achievementListChanged) {
+        this.achievementListChanged = achievementListChanged;
+    }
+
+    public boolean isAchievementListChanged() {
+        return achievementListChanged;
+    }
 }

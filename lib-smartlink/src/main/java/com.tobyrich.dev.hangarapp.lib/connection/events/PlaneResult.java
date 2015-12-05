@@ -9,7 +9,7 @@ public class PlaneResult {
     private static final String TAG = "tr.lib.e.PlaneResult";
 
     public static final int BATTERY = 401;
-    public static final int RUDER = 402;
+    public static final int RUDDER = 402;
     public static final int MOTOR = 403;
 
 

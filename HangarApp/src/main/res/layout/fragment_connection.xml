@@ -11,7 +11,7 @@
                 android:background="@drawable/button"
                 android:tag="connectionFragment"
                 android:text="New ToggleButton"
-                android:textColor="#7ca700"
+                android:textColor="@drawable/menu_button"
                 android:textOff="@string/connect"
                 android:textOn="@string/connected"
                 android:textSize="15sp"

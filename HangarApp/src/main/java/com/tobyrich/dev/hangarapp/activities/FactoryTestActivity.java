@@ -75,7 +75,7 @@ public class FactoryTestActivity extends RoboActivity {
      * @param v view
      */
     public void onRudderLeftToggleButtonClick(View v) {
-        if (tbRudderRight.isChecked()) {
+        if (tbRudderRight.isChecked() || tbRudderLeft.isChecked()) {
             tbRudderRight.setChecked(false);
             postPlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE);
         } else {
@@ -89,16 +89,15 @@ public class FactoryTestActivity extends RoboActivity {
      * @param v view
      */
     public void onRudderRightToggleButtonClick(View v) {
-        if (tbRudderLeft.isChecked()) {
+        if (tbRudderRight.isChecked() || tbRudderLeft.isChecked()) {
             tbRudderLeft.setChecked(false);
-            postPlaneEvent(PlaneEvent.RUDDER, Consts.MIN_RUDDER_VALUE);
+            postPlaneEvent(PlaneEvent.RUDDER, Consts.MAX_RUDDER_VALUE);
         } else {
             postPlaneEvent(PlaneEvent.RUDDER, (Consts.MIN_RUDDER_VALUE + Consts.MAX_RUDDER_VALUE) / 2);
         }
     }
 
     private void postPlaneEvent(int device, int value) {
-        PlaneEvent planeEvent = new PlaneEvent(device, value);
-        EventBus.getDefault().post(planeEvent);
+        EventBus.getDefault().post(new PlaneEvent(device, value));
     }
 }

@@ -75,32 +75,29 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
                     // Do something with the selection
                     EventBus.getDefault().post(new ConnectEvent(evt.getResult().get(item)));
                     //workaround onEvent(ConnectResult evt)
-                    tbConnect.setChecked(true);
+                    //tbConnect.setChecked(true);
                     //workaround onEvent(ConnectResult evt)
-                    tbConnect.setEnabled(true);
+                    //tbConnect.setEnabled(true);
                     Toast.makeText(getActivity(), "Start connecting...", Toast.LENGTH_SHORT).show();
                 }
             });
             AlertDialog alert = builder.create();
             alert.show();
         }else{
-            //workaround onEvent(ConnectResult evt)
             tbConnect.setChecked(false);
             tbConnect.setEnabled(true);
             Toast.makeText(getActivity(), "No Device Found!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void onEvent(ConnectResult evt){
-        Log.d(TAG, "receive: ConnectResult");
-        /*
-        Did not work, no idea
-        tbConnect.setChecked(evt.getState());
+    public void onEventMainThread(ConnectResult evt){
+        boolean bool = evt.getState();
+
         tbConnect.setEnabled(true);
-        */
-        if(!evt.getState()){
+        if(!bool){
             Toast.makeText(getActivity(), "Connection lost!", Toast.LENGTH_SHORT).show();
         }
+        tbConnect.setChecked(bool);
     }
 
     @Override
