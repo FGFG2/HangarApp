@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 
@@ -47,22 +48,18 @@ public class AchievementsAdapter extends ArrayAdapter<Achievement>{
         }
 
         TextView tvName = (TextView) convertView.findViewById(R.id.achievementName);
-        TextView tvProgress = (TextView) convertView.findViewById(R.id.achievementProgress);
         ImageView ivIcon = (ImageView) convertView.findViewById(R.id.achievementIcon);
-        ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.achievementProgressBar);
+        NumberProgressBar progressBar = (NumberProgressBar) convertView.findViewById(R.id.achievementProgressBar);
 
         // Populate the data into the template view using the data object
         tvName.setText(achievement.getName());
         ivIcon.setImageBitmap(achievement.getIcon());
-        tvProgress.setText("[" + achievement.getProgress() + "%]");
         progressBar.setProgress(achievement.getProgress());
 
         if(achievement.getProgress() == 100) {
             tvName.setTextColor(Color.parseColor("#7ca700"));
-            tvProgress.setTextColor(Color.parseColor("#7ca700"));
         } else {
             tvName.setTextColor(Color.parseColor("#c0c0c0"));
-            tvProgress.setTextColor(Color.parseColor("#c0c0c0"));
         }
 
         // Return the completed view to render on the screen

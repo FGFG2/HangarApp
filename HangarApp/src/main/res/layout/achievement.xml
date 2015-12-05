@@ -27,15 +27,6 @@
                     android:gravity="left"
                     android:textColor="#d3d3d3"
                     android:textSize="20sp"/>
-                <TextView
-                    android:id="@+id/achievementProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#d3d3d3"
-                    android:textSize="20sp"
-                    android:layout_toRightOf="@+id/achievementName"
-                    android:layout_alignTop="@+id/achievementName"
-                    android:layout_marginLeft="20dp" />
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
@@ -51,13 +42,14 @@
                      />
             </RelativeLayout>
         </LinearLayout>
-        <ProgressBar
+        <com.daimajia.numberprogressbar.NumberProgressBar
             android:id="@+id/achievementProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="4dp"
+            style="@style/NumberProgressBar_Passing_Green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="100"
             android:layout_weight="1"
-            android:progressDrawable="@drawable/achievement_progressbar"/>
+            />
+
     </LinearLayout>
