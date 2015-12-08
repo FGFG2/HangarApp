@@ -70,6 +70,5 @@ public class RajawaliSurfaceFragment extends RoboFragment {
         if (event.isSuccess()) {
             progressBar.setVisibility(View.GONE);
         }
-        Toast.makeText(getActivity(), event.getMessage(), Toast.LENGTH_SHORT).show();
     }
 }

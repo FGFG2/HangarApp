@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -32,6 +34,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
 
     //@InjectView(R.id.connect_button)
     ToggleButton tbConnect;
+    ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +50,8 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         tbConnect.setChecked(PlaneState.getInstance().isConnected());
         tbConnect.setEnabled(true);
 
+        progressBar = (ProgressBar) view.findViewById(R.id.connection_ProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         return view;
     }
 
@@ -56,6 +61,9 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
     public void onEvent(final ScanResult evt){
         Log.d(TAG, "receive: ScanResult");
         if(evt.getResult().size()>0) {
+
+            progressBar.setVisibility(View.GONE);
+
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Make your selection");
             String[] devices = new String[evt.getResult().size()];
@@ -109,6 +117,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
                     EventBus.getDefault().post(new ScanEvent(false));
                     Log.d(TAG, "send: ScanEvent-disconnect");
                 }else{
+                    progressBar.setVisibility(View.VISIBLE);
                     tbConnect.setChecked(false);
                     tbConnect.setEnabled(false);
                     Log.d(TAG, "send: ScanEvent-connect");
