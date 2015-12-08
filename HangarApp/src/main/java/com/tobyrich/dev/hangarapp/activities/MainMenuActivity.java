@@ -43,10 +43,11 @@ public class MainMenuActivity extends RoboActivity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         EventBus.getDefault().register(this);
 
-        Intent intent = new Intent(this, BluetoothService.class);
-        startService(intent);
+        Intent bluetoothIntent = new Intent(this, BluetoothService.class);
+        startService(bluetoothIntent);
 
         if (savedInstanceState == null) {
             // During initial inject rajawaliSurfaceFragment
@@ -65,10 +66,13 @@ public class MainMenuActivity extends RoboActivity{
                 fTransaction.replace(R.id.fragment_container, connectionFragment, "connectionFragment");
             }
         }
+
         if (getIntent().getBooleanExtra("EXIT", false)) {
-            EventBus.getDefault().post(new ScanEvent(true));
+            EventBus.getDefault().post(new ScanEvent(false));
+            stopService(bluetoothIntent);
             finish();
         }
+
         menu_factoryTest = (Button) findViewById(R.id.menu_factoryTest);
         menu_batteryData = (Button) findViewById(R.id.menu_batteryData);
 
@@ -112,6 +116,7 @@ public class MainMenuActivity extends RoboActivity{
                 intent = new Intent(getApplicationContext(), MainMenuActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("EXIT", true);
+                break;
             }
             default:
                 break;

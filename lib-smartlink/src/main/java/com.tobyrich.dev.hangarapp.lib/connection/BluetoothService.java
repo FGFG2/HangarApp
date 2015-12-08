@@ -71,12 +71,14 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mConnectedGatt.disconnect();
-        EventBus.getDefault().post(new ConnectResult(false));
+        if(mConnectedGatt != null) {
+            mConnectedGatt.disconnect();
+            mConnectedGatt.close();
+            mConnectedGatt = null;
+        }
         PlaneState.getInstance().setConnected(false);
         EventBus.getDefault().unregister(this);
         Log.d(TAG, "Destroy");
-
     }
     /*
      * Events to Handle
@@ -136,7 +138,9 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             }
         }else {
             stopScan();
-            mConnectedGatt.disconnect();
+            if(mConnectedGatt != null){
+                mConnectedGatt.disconnect();
+            }
         }
     }
     private Runnable mEndRunnable = new Runnable() {
