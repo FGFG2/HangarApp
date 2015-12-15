@@ -32,7 +32,9 @@ import de.greenrobot.event.EventBus;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
-public class RajawaliSurfaceFragment extends RoboFragment implements View.OnClickListener{
+public class RajawaliSurfaceFragment extends RoboFragment{
+
+    private static final int FRAME_RATE = 60;
 
     @InjectView(R.id.fragment_SurfaceView_smartPlane) RajawaliSurfaceView rajawaliSurfaceView;
     @InjectView(R.id.surface_progress_bar) ProgressBar progressBar;
@@ -40,15 +42,9 @@ public class RajawaliSurfaceFragment extends RoboFragment implements View.OnClic
     @Inject RajawaliSurfaceOnTouchListener onTouchListener;
     @Inject RajawaliSurfaceOnScaleListener onScaleListener;
 
-    Button testButton;
-
     private double xAxis = 0;
     private double yAxis = 0;
     private double zAxis = 0;
-
-    private static int x = 0;
-    private static int y = 0;
-    private static int z = 0;
 
     @Override
     public void onStart() {
@@ -72,20 +68,13 @@ public class RajawaliSurfaceFragment extends RoboFragment implements View.OnClic
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(
-                R.layout.fragment_rajawali_view, container, false);
-
-        testButton = (Button) view.findViewById(R.id.test_button);
-        testButton.setOnClickListener(this);
-
         return inflater.inflate(R.layout.fragment_rajawali_view, container, false);
-        //return view;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rajawaliSurfaceView.setFrameRate(60);
+        rajawaliSurfaceView.setFrameRate(FRAME_RATE);
         rajawaliSurfaceView.setRenderMode(IRajawaliSurface.RENDERMODE_WHEN_DIRTY);
         rajawaliSurfaceView.setTransparent(true);
         rajawaliSurfaceView.setSurfaceRenderer(renderer);
@@ -95,34 +84,15 @@ public class RajawaliSurfaceFragment extends RoboFragment implements View.OnClic
     }
 
     public void onEventMainThread(GyroscopeResult evt){
-        xAxis = Math.PI / 180 * evt.getX();
-        yAxis = Math.PI / 180 * evt.getY();
-        zAxis = Math.PI / 180 * evt.getZ();
-        //Toast.makeText(getActivity(), "x: " + xAxis + " | y: " + yAxis + " | z: " + zAxis, Toast.LENGTH_SHORT).show();
+        double converter = Math.PI / 180;
+        xAxis = converter * evt.getX();
+        yAxis = converter * evt.getY();
+        zAxis = converter * evt.getZ();
         renderer.getShownObjectOnScene().rotate(Vector3.Axis.Y, -xAxis);
         renderer.getShownObjectOnScene().rotate(Vector3.Axis.X, -yAxis);
         renderer.getShownObjectOnScene().rotate(Vector3.Axis.Z, -zAxis);
-
         renderer.getCurrentCamera().setLookAt(0, 0, 0);
     }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.test_button:
-                /*int min = 0;
-                int max = 360;
-                int x = min + (int)(Math.random() * ((max - min) + 1));
-                int y = min + (int)(Math.random() * ((max - min) + 1));
-                int z = min + (int)(Math.random() * ((max - min) + 1));*/
-                z = z+5;
-                EventBus.getDefault().post(new GyroscopeResult(x,y,z));
-                break;
-            default:
-                break;
-        }
-    }
-
 
     public void onEventMainThread(RajawaliSurfaceLoad event){
         if (event.isSuccess()) {
