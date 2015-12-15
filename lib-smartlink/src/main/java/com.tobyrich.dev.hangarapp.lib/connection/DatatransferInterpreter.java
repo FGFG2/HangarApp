@@ -1,29 +1,21 @@
-package com.tobyrich.dev.hangarapp.lib.connection.events;
-
-import android.util.Base64;
+package com.tobyrich.dev.hangarapp.lib.connection;
 
 /**
  * Created by geno on 12/1/15.
  */
-public class DatatransferEvent {
+public class DatatransferInterpreter {
     public static final byte ACCELOMETER = 100;
     private byte type;
     private byte[] msg;
 
-    public  DatatransferEvent(byte type){
+    public DatatransferInterpreter(byte type){
         this(type,null);
     }
-
-    public  DatatransferEvent(byte[] string){
+    public DatatransferInterpreter(byte[] string){
         type = string[0];
-
-        if(msg==null) {
-            this.msg = new byte[18];
-        }
-
         System.arraycopy(string, 2, msg, 0, 18);
     }
-    public  DatatransferEvent(byte type, byte[] msg){
+    public DatatransferInterpreter(byte type, byte[] msg){
         this.type = type;
         if(msg==null) {
             this.msg = new byte[18];
@@ -43,7 +35,7 @@ public class DatatransferEvent {
     public String toString() {
         switch (type){
             case ACCELOMETER:
-                return "ACCELOMETER (x:"+ msg[1]+", y:" + msg[2]+", x:" + msg[3]+")";
+                return "ACCELOMETER (x:"+ msg[1]+", y:" + msg[2]+", z:" + msg[3]+")";
             default:
                 return "Datatransfer not defined";
         }

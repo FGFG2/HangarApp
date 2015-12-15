@@ -83,7 +83,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     /*
      * Events to Handle
      */
-    public void onEvent(DatatransferEvent evt){
+    public void onEvent(DatatransferInterpreter evt){
         byte[] value = evt.getValue();
         Log.d(TAG, "event-datatransfer: " + value);
         PlaneConnections.getInstance().getDatatransfer().setValue(value);
