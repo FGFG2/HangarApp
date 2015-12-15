@@ -74,7 +74,7 @@ public class BatteryDataActivityTest {
         Mockito.when(planeResult.getValue()).thenReturn(BATTERY_CHARGE_20);
 
         // When
-        batteryDataActivity.onEvent(planeResult);
+        batteryDataActivity.onEventMainThread(planeResult);
 
         // Then
         Mockito.verify(planeResult, times(1)).getValue();
@@ -87,7 +87,7 @@ public class BatteryDataActivityTest {
         Mockito.when(planeResult.getValue()).thenReturn(BATTERY_CHARGE_20);
 
         // When
-        batteryDataActivity.onEvent(planeResult);
+        batteryDataActivity.onEventMainThread(planeResult);
 
         // Then
         Mockito.verify(planeResult, times(0)).getValue();

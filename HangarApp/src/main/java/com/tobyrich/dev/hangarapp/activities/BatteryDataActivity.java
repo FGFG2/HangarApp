@@ -54,7 +54,7 @@ public class BatteryDataActivity extends RoboActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    public void onEvent(PlaneResult evt){
+    public void onEventMainThread(PlaneResult evt){
         if(evt.getDevice() == PlaneResult.BATTERY)
             setCurrentBatteryCharge(evt.getValue());
     }

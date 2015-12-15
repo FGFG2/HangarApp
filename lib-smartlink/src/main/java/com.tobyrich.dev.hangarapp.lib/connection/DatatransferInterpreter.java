@@ -55,7 +55,12 @@ public class DatatransferInterpreter {
         return tmp;
     }
 
-    public void recieve() {
+    public static void received(byte[] string){
+        DatatransferInterpreter a = new DatatransferInterpreter(string);
+        a.received();
+    }
+
+    public void received() {
         ByteBuffer x,y,z;
         float x_i,y_i,z_i;
         int tmp;

@@ -94,7 +94,7 @@ public class RajawaliSurfaceFragment extends RoboFragment implements View.OnClic
         new ScaleGestureDetector(view.getContext(), onScaleListener);
     }
 
-    public void onEvent(GyroscopeResult evt){
+    public void onEventMainThread(GyroscopeResult evt){
         xAxis = Math.PI / 180 * evt.getX();
         yAxis = Math.PI / 180 * evt.getY();
         zAxis = Math.PI / 180 * evt.getZ();

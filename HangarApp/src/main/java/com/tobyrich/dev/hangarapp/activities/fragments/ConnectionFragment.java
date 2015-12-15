@@ -58,7 +58,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
     /*
   * TODO Test Bluetooth
   */
-    public void onEvent(final ScanResult evt){
+    public void onEventMainThread(final ScanResult evt){
         Log.d(TAG, "receive: ScanResult");
         if(evt.getResult().size()>0) {
 
