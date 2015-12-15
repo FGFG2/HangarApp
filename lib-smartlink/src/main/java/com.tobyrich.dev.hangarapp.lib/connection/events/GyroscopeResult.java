@@ -4,20 +4,20 @@ package com.tobyrich.dev.hangarapp.lib.connection.events;
  * Created by geno on 10/27/15.
  */
 public class GyroscopeResult {
-    private int x,y,z;
-    public GyroscopeResult(int x, int y, int z){
+    private float x,y,z;
+    public GyroscopeResult(float x, float y, float z){
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public int getX(){
+    public float getX(){
         return x;
     }
-    public int getY(){
+    public float getY(){
         return y;
     }
-    public int getZ(){
+    public float getZ(){
         return z;
     }
 }

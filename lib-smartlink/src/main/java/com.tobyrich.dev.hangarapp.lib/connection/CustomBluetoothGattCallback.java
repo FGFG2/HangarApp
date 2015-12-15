@@ -38,7 +38,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
 
     private static final UUID DATATransferSERVICE = UUID.fromString("75B64E51-F191-4ED1-921A-476090D80BA7");
     private static final UUID DATATransfer_characteristic = UUID.fromString("75B64E51-F195-4ED1-921A-476090D80BA7");
-    private static final UUID DATATransfer_descriptor = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
+    private static final UUID DATATransfer_descriptor = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private static final String TAG = "tr.lib.CBtGattCallback";
 
@@ -84,18 +84,18 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                         //TODO Test
                         Log.d(TAG, "Characteristic-found: Datatransfer - " + characteristic.getUuid());
                     }else if(c.equals(BATTERY_characteristic)) {
-                        PlaneConnections.getInstance().setBattery(characteristic);
+                        /*PlaneConnections.getInstance().setBattery(characteristic);
                         //NEED to get CharacteristicRead Result
                         mConnectedGatt.setCharacteristicNotification(characteristic, true);
                         //ENABLE Autonotify
 
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        mConnectedGatt.writeDescriptor(descriptor);
+                        mConnectedGatt.writeDescriptor(descriptor);*/
 
                         //TODO: Did not work
                         //GET FIRST-Value
-                        mConnectedGatt.readCharacteristic(characteristic);
+                        //mConnectedGatt.readCharacteristic(characteristic);
                         /*
                         int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                         PlaneState.getInstance().setBattery(value);
