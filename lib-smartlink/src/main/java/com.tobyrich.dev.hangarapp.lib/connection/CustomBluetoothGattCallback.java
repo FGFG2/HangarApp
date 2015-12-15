@@ -148,7 +148,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
         int value;
         if(c.equals(DATATransfer_characteristic)) {
             DatatransferInterpreter event =  new DatatransferInterpreter(characteristic.getValue());
-            Log.d(TAG, s + ": DataService - "+event.toString());
+            event.recieve();
         }else if(c.equals(SMARTPLANE_RUDDER)) {
             value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
             PlaneState.getInstance().setRudder(value);
