@@ -94,6 +94,7 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         }else{
             tbConnect.setChecked(false);
             tbConnect.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
             Toast.makeText(getActivity(), "No Device Found!", Toast.LENGTH_SHORT).show();
         }
     }
