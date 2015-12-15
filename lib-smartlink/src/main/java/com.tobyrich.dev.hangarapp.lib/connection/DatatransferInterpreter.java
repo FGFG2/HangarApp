@@ -76,7 +76,7 @@ public class DatatransferInterpreter {
 
                 z = ByteBuffer.wrap(msg, 8, 4);
                 z.order(ByteOrder.LITTLE_ENDIAN);
-                z_i = y.getFloat();
+                z_i = z.getFloat();
 
                 Log.d(TAG,"ACCEL (x:"+x_i +", y:" + y_i+", z:" + z_i+")");
                 break;
@@ -91,7 +91,8 @@ public class DatatransferInterpreter {
 
                 z = ByteBuffer.wrap(msg, 8, 4);
                 z.order(ByteOrder.LITTLE_ENDIAN);
-                z_i = y.getFloat();
+                z_i = z.getFloat();
+
                 Log.d(TAG, "GYRO (x:" + x_i + ", y:" + y_i + ", z:" + z_i + ")");
                 EventBus.getDefault().post(new GyroscopeResult(x_i, y_i, z_i));
                 break;
