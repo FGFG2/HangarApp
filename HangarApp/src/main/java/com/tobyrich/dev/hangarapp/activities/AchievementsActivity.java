@@ -8,9 +8,7 @@ import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -28,30 +26,16 @@ import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
+import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.ImageFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
-import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
-import com.tobyrich.dev.hangarapp.beans.api.AccountConstants;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.AchievementsFeeder;
 
-import org.roboguice.shaded.goole.common.base.Optional;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import retrofit.Call;
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectResource;
@@ -71,19 +55,28 @@ public class AchievementsActivity extends RoboActivity implements
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
     private boolean achievementListChanged = false;
+    private String authToken;
+    private AchievementsActivity thisActivity;
+    private Context thisContext;
+    private Timer timer;
 
     // Cache for the Achievements icons.
     private LruCache<String, Bitmap> mMemoryCache;
-
 
     // Functions -----------------------------------------------------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievements);
-        String authToken = this.getAuthToken();
+        thisActivity = this;
+        thisContext = getBaseContext();
 
-        // Check if there is an Internet connection available.
+        // FIXME: authentification-routine probably needs to be delegated to another manager class.
+        authToken = this.getAuthToken();
+        Log.i(this.getClass().getSimpleName(), "Token is: [" + authToken + "]");
+
+
+                // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
@@ -111,9 +104,22 @@ public class AchievementsActivity extends RoboActivity implements
      * onAchievementsFeederComplete() will be called back when done.
      */
     private void loadAchievementsList() {
-        new AchievementsFeeder(this, getBaseContext()).execute();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(this.getClass().getSimpleName(), "Invoke AchievementFeeder.");
+                        new AchievementsFeeder(thisActivity, thisContext, authToken).execute();
+                        oldAchievementList = achievementList;
+                    }
+                });
+            }
+        }, 0, 15000);
+
         achievementsLoading.setVisibility(View.VISIBLE);
-        oldAchievementList = achievementList;
     }
 
 
@@ -180,25 +186,26 @@ public class AchievementsActivity extends RoboActivity implements
 
     /**
      * Function returns an authorization token which was used by SmartPlane app.
-     * No further authorization in HangarApp required.
-     * @return String or null
+     * No further authorization from HangarApp required.
+     * @return String
      */
     public String getAuthToken() {
         AccountManager mgr = AccountManager.get(this);
-        Account[] acts = mgr.getAccountsByType(null);
-//        Account[] acts = mgr.getAccountsByType(AccountConstants.ACCOUNT_TYPE);
+        Account[] aсcounts = mgr.getAccountsByType(APIConstants.ACCOUNT_TYPE);
 
         Bundle authTokenBundle;
         String authToken = null;
         try {
-            Account acct = acts[0];
+            // There is just one account associated with TobyRich.
+            Account acct = aсcounts[0];
             AccountManagerFuture<Bundle> accountManagerFuture = mgr.getAuthToken(
-                    acct, AccountConstants.AUTHTOKEN_TYPE_READ_ONLY, null, this, null, null
+                    acct, APIConstants.AUTHTOKEN_TYPE_READ_ONLY, null, this, null, null
             );
             authTokenBundle = accountManagerFuture.getResult();
             authToken = authTokenBundle.get(AccountManager.KEY_AUTHTOKEN).toString();
         } catch (Exception e) {
-            Log.e(this.getClass().getSimpleName(), "There are no profiles on this system.");
+            Log.e(this.getClass().getSimpleName(), "There are no profiles on this system.", e);
+            authToken = "A Token should be here.";
         }
 
         return authToken;
@@ -277,4 +284,21 @@ public class AchievementsActivity extends RoboActivity implements
         return achievementListChanged;
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        if (timer == null) {
+            loadAchievementsList();
+        }
+    }
 }

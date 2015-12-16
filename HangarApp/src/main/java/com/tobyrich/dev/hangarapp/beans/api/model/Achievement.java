@@ -2,11 +2,13 @@ package com.tobyrich.dev.hangarapp.beans.api.model;
 
 import android.graphics.Bitmap;
 
+import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
+
 import java.util.List;
 
 /**
  *
- * Example of get-response from http://chaos-krauts.de/Achievement/api/allAchievements
+ * Example of get-response from remote server
     [
         {
             "Id": 1,
@@ -29,8 +31,7 @@ public class Achievement {
     private int Id;
     private String Name;
     private int Progress;
-    // Fake URL for testing.
-    private String ImageUrl = "http://4.bp.blogspot.com/_C5a2qH8Y_jk/StYXDpZ9-WI/AAAAAAAAAJQ/sCgPx6jfWPU/S1600-R/android.png";
+    private String ImageUrl = APIConstants.DEFAULT_ICON_URL;
     private Bitmap Icon;
 
     public Achievement(String name, int progress, String description) {

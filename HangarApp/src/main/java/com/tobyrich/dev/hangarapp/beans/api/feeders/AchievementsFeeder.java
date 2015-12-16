@@ -1,38 +1,15 @@
 package com.tobyrich.dev.hangarapp.beans.api.feeders;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
-import android.util.LruCache;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.activities.AchievementsActivity;
-import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
+import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
-import com.tobyrich.dev.hangarapp.util.UtilFunctions;
-
-import org.roboguice.shaded.goole.common.base.Optional;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +17,6 @@ import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
-import roboguice.inject.InjectView;
-import roboguice.util.RoboAsyncTask;
 import roboguice.util.SafeAsyncTask;
 
 /**
@@ -50,8 +25,8 @@ import roboguice.util.SafeAsyncTask;
 public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
 
     private List<Achievement> achievementList = new ArrayList<Achievement>();
-    private static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
     private Context context;
+    private String authToken;
     private Handler mHandler;
     private AchievementsFeederCallback achievementsFeederCallback;
 
@@ -75,6 +50,17 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
     }
 
 
+    public AchievementsFeeder(
+            AchievementsFeederCallback achievementsFeederCallback,
+            Context context,
+            String authToken
+    ) {
+        this.achievementsFeederCallback = achievementsFeederCallback;
+        this.context = context;
+        this.authToken = authToken;
+        mHandler = new Handler();
+    }
+
     // Functions -----------------------------------------------------------------------------------
     @Override
     protected void onPreExecute() {
@@ -90,6 +76,7 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
 
     @Override
     protected void onSuccess(List<Achievement> result) {
+        Log.i(this.getClass().getSimpleName(), "onSuccess.");
         achievementsFeederCallback.onAchievementsFeederComplete(result);
     }
 
@@ -112,26 +99,26 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
     private List<Achievement> loadAchievementsFromService() {
         try {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(URL_ALL_ACHIEVEMENTS)
+                    .baseUrl(APIConstants.URL_ALL_ACHIEVEMENTS)
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
 
             AchievementService service = retrofit.create(AchievementService.class);
-            Call<List<Achievement>> call = service.getAllAchievements();
+            Call<List<Achievement>> call = service.getAllAchievements(authToken);
             achievementList = call.execute().body();
 
         } catch (IOException e) {
             Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
             e.printStackTrace();
-            // FIXME:
+            // FIXME: No fake achievements should be shown by release.
             achievementList = getAchievementsList();
         }
 
         if (achievementList == null) {
             Log.i(this.getClass().getSimpleName(), "False token.");
             mHandler.post(new ToastRunnable("Please start the SmartPlane application and input your credentials again."));
-            // FIXME:
+            // FIXME: No fake achievements should be shown by release.
             achievementList = getAchievementsList();
         }
 
