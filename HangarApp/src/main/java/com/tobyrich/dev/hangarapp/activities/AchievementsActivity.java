@@ -1,5 +1,11 @@
 package com.tobyrich.dev.hangarapp.activities;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,13 +28,17 @@ import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
+import com.tobyrich.dev.hangarapp.beans.api.feeders.ImageFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
+import com.tobyrich.dev.hangarapp.beans.api.AccountConstants;
+import com.tobyrich.dev.hangarapp.beans.api.feeders.AchievementsFeeder;
 
 import org.roboguice.shaded.goole.common.base.Optional;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,14 +58,16 @@ import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_achievements)
-public class AchievementsActivity extends RoboActivity {
+public class AchievementsActivity extends RoboActivity implements
+        ImageFeeder.ImageFeederCallback,
+        AchievementsFeeder.AchievementsFeederCallback {
 
-    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
     @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
     @InjectView(R.id.achievementsLoading) ProgressBar achievementsLoading;
-    @InjectResource(R.drawable.button) Drawable background;
+
+    private List<Achievement> oldAchievementList = new ArrayList<Achievement>();
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
     private boolean achievementListChanged = false;
@@ -63,10 +75,13 @@ public class AchievementsActivity extends RoboActivity {
     // Cache for the Achievements icons.
     private LruCache<String, Bitmap> mMemoryCache;
 
+
+    // Functions -----------------------------------------------------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievements);
+        String authToken = this.getAuthToken();
 
         // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -83,237 +98,176 @@ public class AchievementsActivity extends RoboActivity {
                 }
             };
 
-            // The achievements are populated asynchronous in private class,
-            // need to pass the context of the activity for the ArrayAdapter.
-            reloadAchievementsList();
+            loadAchievementsList();
         } else {
             // Show message if there is no Internet Connection.
             Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
         }
-
-    }
-
-    public void setAllAchievements(ArrayList<Achievement> allAchievements) {
-        this.achievementList = allAchievements;
-    }
-
-    // Dummy achievements for testing purposes.
-    public List<Achievement> getAchievementsList() {
-        List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
-                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
-                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
-                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
-
-        return fakeAchievementList;
     }
 
 
-    // Server call should be performed asynchronously.
-    private class AchievementsFeeder extends AsyncTask<Void, Void, Void> {
+    /**
+     * Load all achievements from Server asynchronously.
+     * onAchievementsFeederComplete() will be called back when done.
+     */
+    private void loadAchievementsList() {
+        new AchievementsFeeder(this, getBaseContext()).execute();
+        achievementsLoading.setVisibility(View.VISIBLE);
+        oldAchievementList = achievementList;
+    }
 
-        Context context;
-        Bitmap bm;
-        BitmapFactory.Options bmOptions;
 
-        public AchievementsFeeder(Context context) {
-            this.context = context;
-            bmOptions = new BitmapFactory.Options();
-            bmOptions.inSampleSize = 1;
-        }
+    /**
+     * When achievements are received from server start loading icons.
+     */
+    public void onAchievementsFeederComplete(List<Achievement> achievementList) {
+        Log.i(this.getClass().getSimpleName(), "AchievementsFeeder callback registered.");
+        achievementsLoading.setVisibility(View.GONE);
+        this.achievementList = achievementList;
 
-        @Override
-        protected void onPreExecute() {
-            if(adapter == null) {
-                achievementsLoading.setVisibility(View.VISIBLE);
-            }
-            super.onPreExecute();
-        }
+        // Set the flag if the achievements were changed.
+        setAchievementListChanged(checkIfAchievementListChanged(oldAchievementList, achievementList));
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            loadAchievementsFromService();
-
-            if (achievementList.isEmpty()) {
-                achievementList = getAchievementsList();
-                Log.i(this.getClass().getSimpleName(), "No achievements loaded. Using fallback.");
-            }
-            loadImages();
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            if(adapter == null) {
-                adapter = new AchievementsAdapter(context, achievementList);
-                lvAchievements.setAdapter(adapter);
-            } else {
-                if(isAchievementListChanged()) {
-                    // Show message if achievements list is changed.
-                    Toast.makeText(context, "Achievements were updated!", Toast.LENGTH_LONG).show();
+        if (isAchievementListChanged()) {
+            for (Achievement achievement : achievementList) {
+                // If achievement icon is not in cache then download.
+                String imageURL = achievement.getImageUrl();
+                if (mMemoryCache.get(imageURL) == null) {
+                    // The feeder Thread will be started for each achievement and closed after the work is done automatically.
+                    new ImageFeeder(this, imageURL).execute();
+                } else {
+                    Bitmap icon = mMemoryCache.get(imageURL);
+                    achievement.setIcon(icon);
                 }
+            }
+        }
+
+        // Show achievements.
+        if(adapter == null) {
+            adapter = new AchievementsAdapter(getBaseContext(), achievementList);
+            lvAchievements.setAdapter(adapter);
+        } else {
+            if(isAchievementListChanged()) {
+                // Show message if achievements list is changed.
+                Toast.makeText(getBaseContext(), "Achievements were updated!", Toast.LENGTH_LONG).show();
                 adapter.notifyDataSetChanged();
             }
-
-            achievementsLoading.setVisibility(View.GONE);
-
-            // Define onclickListener for achievements.
-            setOnAchievementClickListener();
-
-            super.onPostExecute(result);
         }
 
+        achievementsLoading.setVisibility(View.GONE);
 
-        private void loadAchievementsFromService() {
-            try {
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(URL_ALL_ACHIEVEMENTS)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                        .build();
+        // Define onclickListener for achievements.
+        setOnAchievementClickListener();
+    }
 
-                AchievementService service = retrofit.create(AchievementService.class);
-                Call<List<Achievement>> call = service.getAllAchievements();
-                List<Achievement> oldAchievements = achievementList;
-                achievementList = call.execute().body();
-                setAchievementListChanged(checkIfAchievementListChanged(oldAchievements, achievementList));
-            } catch (IOException e) {
-                Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
+    /**
+     * When an image is returned by ImageFeeder, add it to the achievement and to the cache. Refresh an ArrayAdapter.
+     * @param key URL-address of the Bitmap
+     * @param icon Bitmap
+     */
+    public void onImageFeederComplete(String key, Bitmap icon) {
+        Log.i(this.getClass().getSimpleName(), "ImageFeeder callback registered.");
+        addBitmapToMemoryCache(key, icon);
+
+        for (Achievement achievement: achievementList) {
+            if (achievement.getImageUrl().equals(key)) {
+                achievement.setIcon(icon);
             }
         }
 
-        private boolean checkIfAchievementListChanged(List<Achievement> oldList, List<Achievement> newList) {
-            if(oldList.size() != newList.size()) {
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Function returns an authorization token which was used by SmartPlane app.
+     * No further authorization in HangarApp required.
+     * @return String or null
+     */
+    public String getAuthToken() {
+        AccountManager mgr = AccountManager.get(this);
+        Account[] acts = mgr.getAccountsByType(null);
+//        Account[] acts = mgr.getAccountsByType(AccountConstants.ACCOUNT_TYPE);
+
+        Bundle authTokenBundle;
+        String authToken = null;
+        try {
+            Account acct = acts[0];
+            AccountManagerFuture<Bundle> accountManagerFuture = mgr.getAuthToken(
+                    acct, AccountConstants.AUTHTOKEN_TYPE_READ_ONLY, null, this, null, null
+            );
+            authTokenBundle = accountManagerFuture.getResult();
+            authToken = authTokenBundle.get(AccountManager.KEY_AUTHTOKEN).toString();
+        } catch (Exception e) {
+            Log.e(this.getClass().getSimpleName(), "There are no profiles on this system.");
+        }
+
+        return authToken;
+    }
+
+
+    /**
+     *
+     */
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (mMemoryCache.get(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
+
+
+    /**
+     *
+     */
+    private boolean checkIfAchievementListChanged(List<Achievement> oldList, List<Achievement> newList) {
+        if (oldList != null && newList != null) {
+            if (oldList.size() != newList.size()) {
                 return true;
             } else {
-                for(int i = 0; i < newList.size(); i++) {
-                    if(oldList.get(i).getProgress() != newList.get(i).getProgress()) {
+                for (int i = 0; i < newList.size(); i++) {
+                    if (oldList.get(i).getProgress() != newList.get(i).getProgress()) {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
-        private void loadImages() {
-            for (Achievement achievement : achievementList) {
-                Optional<URL> url = getUrlFromString(achievement.getImageUrl());
-                if (url.isPresent()) {
-                    bm = loadImage(achievement.getImageUrl(), bmOptions);
-                    achievement.setIcon(bm);
-                }
-            }
-        }
-
-        private Optional<URL> getUrlFromString(String urlString) {
-            try {
-                return Optional.fromNullable(new URL(urlString));
-            } catch (MalformedURLException e) {
-                return Optional.absent();
-            }
-        }
-
-        /**
-         * Called by click on achievement.
-         */
-        public void setOnAchievementClickListener() {
-            lvAchievements.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapter, View view, int i, long l) {
-                    Achievement item = (Achievement) adapter.getItemAtPosition(i);
-
-                    if (ivSmartplane.isShown()) {
-                        ivSmartplane.setVisibility(View.INVISIBLE);
-                    }
-
-                    LinearLayout listItem;
-
-                    for (int j = 0; j < lvAchievements.getChildCount(); j++) {
-                        listItem = (LinearLayout) lvAchievements.getChildAt(j);
-                        if (listItem.getBackground() != null) {
-                            listItem.setBackground(null);
-                        }
-                    }
-
-                    tvDescription.setText(item.getDescription());
-                    if (view.getBackground() == null) {
-                        view.setBackgroundColor(Color.parseColor("#696969"));
-                    }
-                }
-            });
-
-        }
-
-        private Bitmap loadImage(String URL, BitmapFactory.Options options) {
-
-            Bitmap bitmap = getBitmapFromMemCache(URL);
-            if (bitmap == null) {
-                InputStream in;
-
-                try {
-                    in = openHttpConnection(URL);
-                    bitmap = BitmapFactory.decodeStream(in, null, options);
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                addBitmapToMemoryCache(URL, bitmap);
-            }
-
-            return bitmap;
-        }
-
-        private InputStream openHttpConnection(String strURL) throws IOException {
-            InputStream inputStream = null;
-            URL url = new URL(strURL);
-            URLConnection conn = url.openConnection();
-
-            try {
-                HttpURLConnection httpConn = (HttpURLConnection)conn;
-                httpConn.setRequestMethod("GET");
-                httpConn.connect();
-
-                if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    inputStream = httpConn.getInputStream();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return inputStream;
-        }
-
-        public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-            if (getBitmapFromMemCache(key) == null) {
-                mMemoryCache.put(key, bitmap);
-            }
-        }
-
-        public Bitmap getBitmapFromMemCache(String key) {
-            return mMemoryCache.get(key);
-        }
+        return false;
     }
 
-    private void reloadAchievementsList() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
 
+    /**
+     * Called by click on achievement.
+     */
+    public void setOnAchievementClickListener() {
+        lvAchievements.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new AchievementsFeeder(getApplicationContext()).execute();
+            public void onItemClick(AdapterView<?> adapter, View view, int i, long l) {
+                Achievement item = (Achievement) adapter.getItemAtPosition(i);
+
+                if (ivSmartplane.isShown()) {
+                    ivSmartplane.setVisibility(View.INVISIBLE);
+                }
+
+                LinearLayout listItem;
+
+                for (int j = 0; j < lvAchievements.getChildCount(); j++) {
+                    listItem = (LinearLayout) lvAchievements.getChildAt(j);
+                    if (listItem.getBackground() != null) {
+                        listItem.setBackground(null);
                     }
-                });
+                }
+
+                tvDescription.setText(item.getDescription());
+                if (view.getBackground() == null) {
+                    view.setBackgroundColor(Color.parseColor("#696969"));
+                }
             }
-        }, 0, 15000);
+        });
 
     }
+
 
     public void setAchievementListChanged(boolean achievementListChanged) {
         this.achievementListChanged = achievementListChanged;
@@ -322,4 +276,5 @@ public class AchievementsActivity extends RoboActivity {
     public boolean isAchievementListChanged() {
         return achievementListChanged;
     }
+
 }
