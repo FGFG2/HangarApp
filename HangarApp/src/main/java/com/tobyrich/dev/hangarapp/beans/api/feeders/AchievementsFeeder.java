@@ -28,30 +28,12 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
     private Context context;
     private String authToken;
     private Handler mHandler;
-    private AchievementsFeederCallback achievementsFeederCallback;
-
-
-    public interface AchievementsFeederCallback {
-        void onAchievementsFeederComplete(List<Achievement> achievementList);
-    }
+    private FeedersCallback achievementsFeederCallback;
 
 
     // Constructors --------------------------------------------------------------------------------
-    public AchievementsFeeder(AchievementsFeederCallback achievementsFeederCallback) {
-        this.achievementsFeederCallback = achievementsFeederCallback;
-        mHandler = new Handler();
-    }
-
-
-    public AchievementsFeeder(AchievementsFeederCallback achievementsFeederCallback, Context context) {
-        this.achievementsFeederCallback = achievementsFeederCallback;
-        this.context = context;
-        mHandler = new Handler();
-    }
-
-
     public AchievementsFeeder(
-            AchievementsFeederCallback achievementsFeederCallback,
+            FeedersCallback achievementsFeederCallback,
             Context context,
             String authToken
     ) {
@@ -105,7 +87,7 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
                     .build();
 
             AchievementService service = retrofit.create(AchievementService.class);
-            Call<List<Achievement>> call = service.getAllAchievements(authToken);
+            Call<List<Achievement>> call = service.getAllAchievements("Bearer " + authToken);
             achievementList = call.execute().body();
 
         } catch (IOException e) {

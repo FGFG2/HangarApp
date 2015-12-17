@@ -88,4 +88,15 @@ public class Achievement {
         this.Icon = icon;
     }
 
+    @Override
+    public String toString() {
+        return "Achievement{" +
+                "Icon=" + Icon +
+                ", Description='" + Description + '\'' +
+                ", Id=" + Id +
+                ", Name='" + Name + '\'' +
+                ", Progress=" + Progress +
+                ", ImageUrl='" + ImageUrl + '\'' +
+                '}';
+    }
 }

@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.LruCache;
 
+import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 
 import org.roboguice.shaded.goole.common.base.Optional;
@@ -32,31 +33,26 @@ public class ImageFeeder extends SafeAsyncTask<Bitmap> {
     private List<Achievement> achievementList;
     private Bitmap bm;
     private BitmapFactory.Options bmOptions;
-    private ImageFeederCallback imageFeederCallback;
-
-
-    public interface ImageFeederCallback {
-        void onImageFeederComplete(String key, Bitmap bm);
-    }
+    private FeedersCallback imageFeederCallback;
 
 
     // Constructors --------------------------------------------------------------------------------
-    public ImageFeeder(ImageFeederCallback imageFeederCallback, String imageURL) {
+    public ImageFeeder(FeedersCallback imageFeederCallback, String imageURL) {
         int size = (int) Runtime.getRuntime().maxMemory() / 1024 / 8;
         this.mMemoryCache = new LruCache<String, Bitmap>(size);
-        this.imageURL = imageURL;
+        this.imageURL = this.getImageURL(imageURL);
         this.imageFeederCallback = imageFeederCallback;
     }
 
 
-    public ImageFeeder(ImageFeederCallback imageFeederCallback, String imageURL, LruCache<String, Bitmap> mMemoryCache) {
-        this.imageURL = imageURL;
+    public ImageFeeder(FeedersCallback imageFeederCallback, String imageURL, LruCache<String, Bitmap> mMemoryCache) {
+        this.imageURL = this.getImageURL(imageURL);
         this.mMemoryCache = mMemoryCache;
         this.imageFeederCallback = imageFeederCallback;
     }
 
 
-    public ImageFeeder(ImageFeederCallback imageFeederCallback, List<Achievement> achievementList, LruCache<String, Bitmap> mMemoryCache) {
+    public ImageFeeder(FeedersCallback imageFeederCallback, List<Achievement> achievementList, LruCache<String, Bitmap> mMemoryCache) {
         this.mMemoryCache = mMemoryCache;
         this.achievementList = achievementList;
         this.imageFeederCallback = imageFeederCallback;
@@ -127,7 +123,7 @@ public class ImageFeeder extends SafeAsyncTask<Bitmap> {
         URLConnection conn = url.openConnection();
 
         try {
-            HttpURLConnection httpConn = (HttpURLConnection)conn;
+            HttpURLConnection httpConn = (HttpURLConnection) conn;
             httpConn.setRequestMethod("GET");
             httpConn.connect();
 
@@ -166,5 +162,14 @@ public class ImageFeeder extends SafeAsyncTask<Bitmap> {
         }
     }
 
+
+    public String getImageURL(String imageURL) {
+        if(imageURL==null||imageURL=="") {
+            Log.i(this.getClass().getSimpleName(), "No valid URL string for an icon received. Substitute to default value.");
+            return APIConstants.DEFAULT_ICON_URL;
+        } else {
+            return imageURL;
+        }
+    }
 
 }
