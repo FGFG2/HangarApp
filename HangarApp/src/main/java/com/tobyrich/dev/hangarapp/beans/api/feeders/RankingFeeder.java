@@ -114,7 +114,7 @@ public class RankingFeeder extends SafeAsyncTask<List<UserProfile>> {
      */
     public List<UserProfile> getRankingList() {
         List<UserProfile> fakeUserList = new ArrayList<UserProfile>();
-        fakeUserList.add(new UserProfile("John Jackson", 999));
+        fakeUserList.add(new UserProfile("John Jackson", 1000));
         fakeUserList.add(new UserProfile("Jack Johnson", 666));
         fakeUserList.add(new UserProfile("Professor Taugenichts", 333));
 

@@ -13,7 +13,7 @@ import java.util.List;
 public interface FeedersCallback {
     void onAchievementsFeederComplete(List<Achievement> achievementList);
     void onImageFeederComplete(String key, Bitmap bm);
-    void onTokenFeederComplete(String authToken);
+    void onTokenFeederComplete(String authToken, String accountName);
     void onRankingFeederComplete(List<UserProfile> userProfileList);
 }
 

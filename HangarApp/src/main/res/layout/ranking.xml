@@ -14,34 +14,50 @@
             android:baselineAligned="false"
             android:orientation="horizontal"
             android:clickable="false"
-            >
+            android:layout_weight="0.6">
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="0.9">
+                android:layout_weight="0.1">
+                <TextView
+                    android:id="@+id/rankingPosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="left"
+                    android:textAlignment="gravity"
+                    android:textColor="#7ca700"
+                    android:textSize="20sp" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.7">
                 <TextView
                     android:id="@+id/rankingUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_marginTop="10dp"
                     android:gravity="left"
+                    android:textAlignment="gravity"
                     android:textColor="#7ca700"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp"
+                    android:singleLine="true" />
             </RelativeLayout>
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="0.1">
+                android:layout_weight="0.2">
                 <TextView
                     android:id="@+id/rankingUserScore"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:gravity="right"
-                    android:adjustViewBounds="true"
+                    android:textAlignment="gravity"
                     android:textColor="#7ca700"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

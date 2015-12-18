@@ -35,6 +35,7 @@ public class TokenFeeder extends SafeAsyncTask<String> {
 
     private Context context;
     private FeedersCallback tokenFeederCallback;
+    private String accountName;
 
 
     // Constructors --------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ public class TokenFeeder extends SafeAsyncTask<String> {
      * Everything else (eg. onSuccess, etc.) will execute in the UI thread.
      */
     public String call() throws Exception {
+        this.accountName = getAccountName();
         return this.getAuthToken();
     }
 
@@ -64,7 +66,7 @@ public class TokenFeeder extends SafeAsyncTask<String> {
     protected void onSuccess(String authToken) {
         // do this in the UI thread if call() succeeds
         Log.i(this.getClass().getSimpleName(), "onSuccess.");
-        tokenFeederCallback.onTokenFeederComplete(authToken);
+        tokenFeederCallback.onTokenFeederComplete(authToken, accountName);
     }
 
 
@@ -102,6 +104,22 @@ public class TokenFeeder extends SafeAsyncTask<String> {
         } catch (Exception e) {
             Log.e(this.getClass().getSimpleName(), "Token was not found.", e);
             return "A Token should have been here. Sadness :(";
+        }
+    }
+
+    /**
+     * Function returns an authorization account name.
+     */
+    public String getAccountName() {
+        AccountManager mgr = AccountManager.get(this.context);
+        Account[] accounts = mgr.getAccountsByType(APIConstants.ACCOUNT_TYPE);
+
+        // There is just one account associated with TobyRich.
+        Account account = accounts.length > 0 ? accounts[0] : null;
+        if(account != null) {
+            return account.name;
+        } else {
+            return null;
         }
     }
 

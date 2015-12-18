@@ -66,6 +66,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     private AchievementsAdapter adapter;
     private boolean achievementListChanged = false;
     private String authToken;
+    private String accountName;
     private AchievementsActivity thisActivity;
     private Context thisContext;
     private Timer timer;
@@ -100,10 +101,11 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     /**
      * When the token is received we can send an achievement request to server.
      */
-    public void onTokenFeederComplete(String authToken) {
+    public void onTokenFeederComplete(String authToken, String accountName) {
         Log.i(this.getClass().getSimpleName(), "TokenFeeder callback registered.");
         Log.i(this.getClass().getSimpleName(), "Token is: " + authToken);
         this.authToken = authToken;
+        this.accountName = accountName;
 
         // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -304,7 +306,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     public String achievementListToString(List<Achievement> achievementList) {
         String returnString = "";
         for (Achievement achievement: achievementList) {
-            returnString += achievement.toString() + System.lineSeparator();;
+            returnString += achievement.toString() + System.lineSeparator();
         }
         return returnString;
     }

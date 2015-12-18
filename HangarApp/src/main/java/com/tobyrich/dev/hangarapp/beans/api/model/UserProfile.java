@@ -19,6 +19,8 @@ import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 public class UserProfile {
     private String Key;         // Username
     private int Value;          // Points
+    private int position;       // Position
+    private boolean currentUser;     // current User
 
     public UserProfile(String key, int value) {
         Key = key;
@@ -39,6 +41,22 @@ public class UserProfile {
 
     public void setKey(String key) {
         Key = key;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public boolean isCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(boolean currentUser) {
+        this.currentUser = currentUser;
     }
 
     @Override

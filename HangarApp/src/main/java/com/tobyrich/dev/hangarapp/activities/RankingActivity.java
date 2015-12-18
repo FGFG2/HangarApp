@@ -2,14 +2,17 @@ package com.tobyrich.dev.hangarapp.activities;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
@@ -48,6 +51,7 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     private RankingAdapter adapter;
     private boolean rankingListChanged = false;
     private String authToken;
+    private String accountName;
     private RankingActivity thisActivity;
     private Context thisContext;
     private Timer timer;
@@ -79,10 +83,11 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     /**
      * When the token is received we can send a ranking request to server.
      */
-    public void onTokenFeederComplete(String authToken) {
+    public void onTokenFeederComplete(String authToken, String accountName) {
         Log.i(this.getClass().getSimpleName(), "TokenFeeder callback registered.");
         Log.i(this.getClass().getSimpleName(), "Token is: " + authToken);
         this.authToken = authToken;
+        this.accountName = accountName;
 
         // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -138,6 +143,23 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
 
         // Set the flag if the ranking were changed.
         setRankingListChanged(checkIfRankingListChanged(oldRankingList, rankingList));
+
+        // Set user position in ranking list
+        for(UserProfile r: rankingList) {
+            r.setPosition(rankingList.indexOf(r) + 1);
+            // TODO dummy data remove
+            if (accountName == null) {
+                if (r.getKey().equals("Jack Johnson")) {
+                    r.setCurrentUser(true);
+                } else {
+                    r.setCurrentUser(false);
+                }
+            } else if (r.getKey().equals(accountName)) {
+                r.setCurrentUser(true);
+            } else {
+                r.setCurrentUser(false);
+            }
+        }
 
         // Show ranking.
         if(adapter == null) {

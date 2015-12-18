@@ -1,10 +1,12 @@
 package com.tobyrich.dev.hangarapp.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tobyrich.dev.hangarapp.R;
@@ -36,10 +38,21 @@ public class RankingAdapter extends ArrayAdapter<UserProfile>{
 
         TextView tvName = (TextView) convertView.findViewById(R.id.rankingUserName);
         TextView tvScore = (TextView) convertView.findViewById(R.id.rankingUserScore);
+        TextView tvPosition = (TextView) convertView.findViewById(R.id.rankingPosition);
 
         // Populate the data into the template view using the data object
         tvName.setText(ranking.getKey());
         tvScore.setText(ranking.getValue() + "");
+        tvPosition.setText(ranking.getPosition() + ".");
+
+
+        // Set background of current user
+        if(ranking.isCurrentUser()) {
+            convertView.setBackgroundColor(Color.parseColor("#696969"));
+        } else {
+            convertView.setBackground(null);
+        }
+
 
         // Return the completed view to render on the screen
         return convertView;
