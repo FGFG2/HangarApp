@@ -148,7 +148,7 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         } else {
             if(isRankingListChanged()) {
                 // Show message if achievements list is changed.
-                Toast.makeText(getBaseContext(), "Achievements were updated!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Ranking list was updated!", Toast.LENGTH_LONG).show();
                 adapter.notifyDataSetChanged();
             }
         }
@@ -156,9 +156,8 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         rankingLoading.setVisibility(View.GONE);
     }
 
-
     /**
-     *
+     * Check if Ranking list is changed.
      */
    private boolean checkIfRankingListChanged(List<UserProfile> oldList, List<UserProfile> newList) {
         if (oldList != null && newList != null) {
