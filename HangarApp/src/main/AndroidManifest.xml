@@ -55,6 +55,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tobyrich.dev.hangarapp.activities.MainMenuActivity" />
         </activity>
+        <activity
+            android:name=".activities.RankingActivity"
+            android:label="@string/title_activity_ranking"
+            android:parentActivityName=".activities.MainMenuActivity"
+            android:screenOrientation="landscape">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tobyrich.dev.hangarapp.activities.MainMenuActivity" />
+        </activity>
     </application>
 
 </manifest>

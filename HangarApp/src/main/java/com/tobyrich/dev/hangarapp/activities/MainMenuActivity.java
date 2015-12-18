@@ -111,6 +111,10 @@ public class MainMenuActivity extends RoboActivity{
                 intent = new Intent(this, AchievementsActivity.class);
                 break;
             }
+            case R.id.menu_ranking: {
+                intent = new Intent(this, RankingActivity.class);
+                break;
+            }
             case R.id.menu_exit: {
                 this.finish();
                 intent = new Intent(getApplicationContext(), MainMenuActivity.class);

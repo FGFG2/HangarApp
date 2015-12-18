@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@drawable/background"
+android:orientation="horizontal"
+tools:context="com.tobyrich.dev.hangarapp.activities.RankingActivity"> <!--style="@android:style/Widget.DeviceDefault.ListView"-->
+<RelativeLayout
+    android:layout_width="0dp"
+    android:layout_height="fill_parent"
+    android:layout_weight="0.6">
+    <ListView
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:id="@+id/rankingList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingTop="10dp">
+    </ListView>
+   <!-- <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rankingLoading"
+        style="?android:attr/progressBarStyle"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />-->
+</RelativeLayout>
+<RelativeLayout
+    android:layout_width="0dp"
+    android:layout_height="fill_parent"
+    android:layout_weight="0.4">
+    <ImageView
+        android:id="@+id/smartplaneImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/image" />
+
+</RelativeLayout>
+</LinearLayout>
