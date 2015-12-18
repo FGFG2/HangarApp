@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
+import com.tobyrich.dev.hangarapp.beans.api.model.UserProfile;
 import com.tobyrich.dev.hangarapp.beans.api.service.AchievementService;
 
 import java.io.IOException;
@@ -20,24 +21,24 @@ import retrofit.RxJavaCallAdapterFactory;
 import roboguice.util.SafeAsyncTask;
 
 /**
- * This class gets achievements from the remote Server using definite User-Token.
+ * This class gets ranking list from the remote Server using definite User-Token.
  */
-public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
+public class RankingFeeder extends SafeAsyncTask<List<UserProfile>> {
 
-    private List<Achievement> achievementList = new ArrayList<Achievement>();
+    private List<UserProfile> userList = new ArrayList<UserProfile>();
     private Context context;
     private String authToken;
     private Handler mHandler;
-    private FeedersCallback achievementsFeederCallback;
+    private FeedersCallback rankingFeederCallback;
 
 
     // Constructors --------------------------------------------------------------------------------
-    public AchievementsFeeder(
-            FeedersCallback achievementsFeederCallback,
+    public RankingFeeder(
+            FeedersCallback rankingFeederCallback,
             Context context,
             String authToken
     ) {
-        this.achievementsFeederCallback = achievementsFeederCallback;
+        this.rankingFeederCallback = rankingFeederCallback;
         this.context = context;
         this.authToken = authToken;
         mHandler = new Handler();
@@ -50,16 +51,16 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
     }
 
 
-    public List<Achievement> call() throws Exception {
-        this.achievementList = loadAchievementsFromService();
-        return achievementList;
+    public List<UserProfile> call() throws Exception {
+        this.userList = loadRankingFromService();
+        return userList;
     }
 
 
     @Override
-    protected void onSuccess(List<Achievement> result) {
+    protected void onSuccess(List<UserProfile> result) {
         Log.i(this.getClass().getSimpleName(), "onSuccess.");
-        achievementsFeederCallback.onAchievementsFeederComplete(result);
+        rankingFeederCallback.onRankingFeederComplete(result);
     }
 
 
@@ -78,7 +79,7 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
     }
 
 
-    private List<Achievement> loadAchievementsFromService() {
+    private List<UserProfile> loadRankingFromService() {
         try {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(APIConstants.SERVER_URL)
@@ -87,40 +88,37 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
                     .build();
 
             AchievementService service = retrofit.create(AchievementService.class);
-            Call<List<Achievement>> call = service.getAllAchievements("Bearer " + authToken);
-            achievementList = call.execute().body();
+            Call<List<UserProfile>> call = service.getRankingList("Bearer " + authToken);
+            userList = call.execute().body();
 
         } catch (IOException e) {
-            Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
+            Log.e(this.getClass().getSimpleName(), "Error loading ranking list.", e);
             e.printStackTrace();
             // FIXME: No fake achievements should be shown by release.
-            achievementList = getAchievementsList();
+            userList = getRankingList();
         }
 
-        if (achievementList == null) {
+        if (userList == null) {
             Log.i(this.getClass().getSimpleName(), "False token.");
             mHandler.post(new ToastRunnable("Please start the SmartPlane application and input your credentials again."));
             // FIXME: No fake achievements should be shown by release.
-            achievementList = getAchievementsList();
+            userList = getRankingList();
         }
 
-        return achievementList;
+        return userList;
     }
 
 
     /**
-     * Dummy achievements for testing purposes.
+     * Dummy ranking list for testing purposes.
      */
-    public List<Achievement> getAchievementsList() {
-        List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
-                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
-                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
-                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
+    public List<UserProfile> getRankingList() {
+        List<UserProfile> fakeUserList = new ArrayList<UserProfile>();
+        fakeUserList.add(new UserProfile("John Jackson", 999));
+        fakeUserList.add(new UserProfile("Jack Johnson", 666));
+        fakeUserList.add(new UserProfile("Professor Taugenichts", 333));
 
-        return fakeAchievementList;
+        return fakeUserList;
     }
 
 

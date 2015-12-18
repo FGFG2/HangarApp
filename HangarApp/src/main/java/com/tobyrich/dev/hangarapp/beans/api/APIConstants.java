@@ -9,7 +9,7 @@ package com.tobyrich.dev.hangarapp.beans.api;
  */
 public class APIConstants {
 
-    public static final String URL_ALL_ACHIEVEMENTS = "http://chaos-krauts.de/Achievement/";
+    public static final String SERVER_URL = "http://chaos-krauts.de/Achievement/";
     public static final String DEFAULT_ICON_URL = "http://4.bp.blogspot.com/_C5a2qH8Y_jk/StYXDpZ9-WI/AAAAAAAAAJQ/sCgPx6jfWPU/S1600-R/android.png";
 
     public static final String ACCOUNT_TYPE = "com.tobyrich.app.SmartPlane";

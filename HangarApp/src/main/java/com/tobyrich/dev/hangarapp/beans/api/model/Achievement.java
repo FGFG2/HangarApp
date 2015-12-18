@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  *
- * Example of get-response from remote server
+ * Example of GET SERVER_URL/api/AllAchievements response from remote server
     [
         {
             "Id": 1,
