@@ -8,18 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.tobyrich.dev.hangarapp.R;
-import com.tobyrich.dev.hangarapp.beans.api.model.Ranking;
+import com.tobyrich.dev.hangarapp.beans.api.model.UserProfile;
 
 import java.util.List;
 
 /**
  * Customizing of ArrayAdapter to display the ranking list.
  */
-public class RankingAdapter extends ArrayAdapter<Ranking>{
+public class RankingAdapter extends ArrayAdapter<UserProfile>{
 
-    private List<Ranking> rankingList;
+    private List<UserProfile> rankingList;
 
-    public RankingAdapter(Context context, List<Ranking> rankingList) {
+    public RankingAdapter(Context context, List<UserProfile> rankingList) {
         super(context, 0, rankingList);
         this.rankingList = rankingList;
     }
@@ -27,7 +27,7 @@ public class RankingAdapter extends ArrayAdapter<Ranking>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the ranking depending on its position in the list.
-        Ranking ranking = rankingList.get(position);
+        UserProfile ranking = rankingList.get(position);
 
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
@@ -38,15 +38,15 @@ public class RankingAdapter extends ArrayAdapter<Ranking>{
         TextView tvScore = (TextView) convertView.findViewById(R.id.rankingUserScore);
 
         // Populate the data into the template view using the data object
-        tvName.setText(ranking.getUserName());
-        tvScore.setText(ranking.getScore() + "");
+        tvName.setText(ranking.getKey());
+        tvScore.setText(ranking.getValue() + "");
 
         // Return the completed view to render on the screen
         return convertView;
     }
 
     @Override
-    public Ranking getItem(int position) {
+    public UserProfile getItem(int position) {
         return rankingList.get(position);
     }
 }

@@ -101,7 +101,7 @@ public class RankingFeeder extends SafeAsyncTask<List<UserProfile>> {
         if (userList == null) {
             Log.i(this.getClass().getSimpleName(), "False token.");
             mHandler.post(new ToastRunnable("Please start the SmartPlane application and input your credentials again."));
-            // FIXME: No fake achievements should be shown by release.
+            // FIXME: No fake ranking list should be shown by release.
             userList = getRankingList();
         }
 
