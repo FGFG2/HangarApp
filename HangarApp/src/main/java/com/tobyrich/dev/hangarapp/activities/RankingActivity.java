@@ -41,7 +41,6 @@ import roboguice.inject.InjectView;
 public class RankingActivity extends RoboActivity implements FeedersCallback{
 
     @InjectView(R.id.rankingList) ListView lvRankingList;
-    @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
     @InjectView(R.id.rankingLoading) ProgressBar rankingLoading;
 
     private List<UserProfile> oldRankingList = new ArrayList<UserProfile>();
@@ -78,7 +77,7 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     }
 
     /**
-     * When the token is received we can send an achievement request to server.
+     * When the token is received we can send a ranking request to server.
      */
     public void onTokenFeederComplete(String authToken) {
         Log.i(this.getClass().getSimpleName(), "TokenFeeder callback registered.");
@@ -111,8 +110,8 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
                         @Override
                         public void run() {
                             Log.i(getClass().getSimpleName(), "Invoke RankingFeeder.");
-                            new RankingFeeder(thisActivity, thisContext, authToken).execute();
                             oldRankingList = rankingList;
+                            new RankingFeeder(thisActivity, thisContext, authToken).execute();
                         }
                     });
                 } else {
@@ -139,7 +138,6 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
 
         // Set the flag if the ranking were changed.
         setRankingListChanged(checkIfRankingListChanged(oldRankingList, rankingList));
-
 
         // Show ranking.
         if(adapter == null) {

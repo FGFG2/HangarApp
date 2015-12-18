@@ -110,8 +110,6 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
             loadAchievementsList();
-            // FIXME: call should go to RankingActivity.
-            new RankingFeeder(thisActivity, thisContext, authToken).execute();
         } else {
             // Show message if there is no Internet Connection.
             Toast.makeText(this, "Internet Connection is required.", Toast.LENGTH_LONG).show();
@@ -133,8 +131,8 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
                         @Override
                         public void run() {
                             Log.i(getClass().getSimpleName(), "Invoke AchievementsFeeder.");
-                            new AchievementsFeeder(thisActivity, thisContext, authToken).execute();
                             oldAchievementList = achievementList;
+                            new AchievementsFeeder(thisActivity, thisContext, authToken).execute();
                         }
                     });
                 } else {
@@ -311,19 +309,8 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         return returnString;
     }
 
-
-    // FIXME: following is a testcode, should go to RankingActivity.
-    public String userListToString(List<UserProfile> userList) {
-        String returnString = "";
-        for (UserProfile userProfile: userList) {
-            returnString += userProfile.toString() + System.lineSeparator();;
-        }
-        return returnString;
-    }
-
     public void onRankingFeederComplete(List<UserProfile> userList) {
-        Log.i(this.getClass().getSimpleName(), "RankingFeeder callback registered.");
-        Log.i(this.getClass().getSimpleName(), "Ranking: " + userListToString(userList));
+        // do nothing.
     }
 
 
