@@ -74,52 +74,68 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                     UUID c = characteristic.getUuid();
                     Log.v(TAG, "Characteristic: " + c + ":");
                     if(c.equals(DATATransfer_characteristic)) {
-                        PlaneConnections.getInstance().setDatatransfer(characteristic);
-                        //NEED to get CharacteristicRead Result
-                        mConnectedGatt.setCharacteristicNotification(characteristic, true);
-                        //ENABLE Autonotify
-
-                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DATATransfer_descriptor);
-                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        mConnectedGatt.writeDescriptor(descriptor);
-
-                        mConnectedGatt.readCharacteristic(characteristic);
-                        //TODO Test
-                        //EventBus.getDefault().post(new DatatransferEvent(DatatransferEvent.SEND_PROBE_START));
-                        Log.d(TAG, "Characteristic-found: Datatransfer - " + characteristic.getUuid());
+                        handleDataTransferCharacteristic(characteristic);
                     }else if(c.equals(BATTERY_characteristic)) {
-                        PlaneConnections.getInstance().setBattery(characteristic);
-                        //NEED to get CharacteristicRead Result
-                        mConnectedGatt.setCharacteristicNotification(characteristic, true);
-                        //ENABLE Autonotify
-                        /*
-                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
-                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        mConnectedGatt.writeDescriptor(descriptor);
-                        */
-                        //TODO: Did not work
-                        //GET FIRST-Value
-                        mConnectedGatt.readCharacteristic(characteristic);
-                        /*
-                        int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                        PlaneState.getInstance().setBattery(value);
-                        EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
-                        */
-                        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": without Value ");
+                        handleBatteryCharacteristic(characteristic);
                     }else if(c.equals(SMARTPLANE_MOTOR)) {
-                        PlaneConnections.getInstance().setMotor(characteristic);
-                        //mConnectedGatt.readCharacteristic(characteristic);
-                        Log.d(TAG, "Characteristic-found: Motor - "+characteristic.getUuid());
+                        handleMotorCharacteristic(characteristic);
                     }else if(c.equals(SMARTPLANE_RUDDER)) {
-                        PlaneConnections.getInstance().setRudder(characteristic);
-                        //mConnectedGatt.readCharacteristic(characteristic);
-                        Log.d(TAG, "Characteristic-found: Rudder - " + characteristic.getUuid());
+                        handleRudderCharacteristic(characteristic);
                     }else{
                         Log.v(TAG, "onCharacteristicRead: Unknown - "+ characteristic.getUuid());
                     }
                 }
             }
         }
+    }
+
+    private void handleRudderCharacteristic(BluetoothGattCharacteristic characteristic) {
+        PlaneConnections.getInstance().setRudder(characteristic);
+        //mConnectedGatt.readCharacteristic(characteristic);
+        Log.d(TAG, "Characteristic-found: Rudder - " + characteristic.getUuid());
+    }
+
+    private void handleMotorCharacteristic(BluetoothGattCharacteristic characteristic) {
+        PlaneConnections.getInstance().setMotor(characteristic);
+        //mConnectedGatt.readCharacteristic(characteristic);
+        Log.d(TAG, "Characteristic-found: Motor - " + characteristic.getUuid());
+    }
+
+    private void handleBatteryCharacteristic(BluetoothGattCharacteristic characteristic) {
+        PlaneConnections.getInstance().setBattery(characteristic);
+        //NEED to get CharacteristicRead Result
+        mConnectedGatt.setCharacteristicNotification(characteristic, true);
+        //ENABLE Autonotify
+                        /*
+                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        mConnectedGatt.writeDescriptor(descriptor);
+                        */
+        //TODO: Did not work
+        //GET FIRST-Value
+        mConnectedGatt.readCharacteristic(characteristic);
+                        /*
+                        int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                        PlaneState.getInstance().setBattery(value);
+                        EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
+                        */
+        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid() + ": without Value ");
+    }
+
+    private void handleDataTransferCharacteristic(BluetoothGattCharacteristic characteristic) {
+        PlaneConnections.getInstance().setDatatransfer(characteristic);
+        //NEED to get CharacteristicRead Result
+        mConnectedGatt.setCharacteristicNotification(characteristic, true);
+        //ENABLE Autonotify
+
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DATATransfer_descriptor);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        mConnectedGatt.writeDescriptor(descriptor);
+
+        mConnectedGatt.readCharacteristic(characteristic);
+        //TODO Test
+        //EventBus.getDefault().post(new DatatransferEvent(DatatransferEvent.SEND_PROBE_START));
+        Log.d(TAG, "Characteristic-found: Datatransfer - " + characteristic.getUuid());
     }
 
     @Override

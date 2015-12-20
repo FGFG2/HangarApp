@@ -1,12 +1,8 @@
 package com.tobyrich.dev.hangarapp.lib.connection;
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.media.AudioManager;
 
 import com.google.inject.AbstractModule;
 import com.tobyrich.dev.hangarapp.lib.BuildConfig;
@@ -23,18 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowAudioManager;
-import org.robolectric.shadows.ShadowContextImpl;
-
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 
@@ -43,9 +30,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
-@Config(constants = BuildConfig.class, shadows = {ShadowAudioManager.class})
-@PrepareForTest(ContextWrapper.class)
+@Config(constants = BuildConfig.class)
 public class BluetoothServiceTest extends TestCase {
     @InjectMocks
     private BluetoothService bluetoothService = new BluetoothService();
@@ -75,20 +60,6 @@ public class BluetoothServiceTest extends TestCase {
         PlaneConnections.getInstance().setRudder(bluetoothGattCharacteristic);
         PlaneConnections.getInstance().setMotor(bluetoothGattCharacteristic);
     }
-
-    // TODO:
-    /*@Test
-    public void testOnEventScanEventStart() throws Exception {
-        // Given
-        Mockito.when(scanEvent.getState()).thenReturn(true);
-        Mockito.when(mBluetoothAdapter.startLeScan(bluetoothService)).thenReturn(true);
-
-        // When
-        bluetoothService.onEvent(scanEvent);
-
-        // Then
-        Mockito.verify(mBluetoothAdapter, times(1)).startLeScan(bluetoothService);
-    }*/
 
     @Test
     public void testOnEventScanEventStop() throws Exception {

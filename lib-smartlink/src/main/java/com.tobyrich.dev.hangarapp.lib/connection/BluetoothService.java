@@ -89,6 +89,7 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         PlaneConnections.getInstance().getDatatransfer().setValue(value);
         mConnectedGatt.writeCharacteristic(PlaneConnections.getInstance().getDatatransfer());
     }
+
     public void onEvent(PlaneEvent evt){
         int value = evt.getValue();
         switch (evt.getDevice()){
