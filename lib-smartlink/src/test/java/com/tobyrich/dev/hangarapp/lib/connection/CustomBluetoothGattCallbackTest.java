@@ -8,12 +8,13 @@ import android.bluetooth.BluetoothProfile;
 
 import com.google.inject.AbstractModule;
 import com.tobyrich.dev.hangarapp.lib.BuildConfig;
-import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
+import com.tobyrich.dev.hangarapp.lib.connection.events.DatatransferEvent;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -22,14 +23,14 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
-import de.greenrobot.event.EventBus;
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 
-import static org.mockito.Matchers.anyObject;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -44,11 +45,11 @@ public class CustomBluetoothGattCallbackTest {
     @InjectMocks
     private CustomBluetoothGattCallback customBluetoothGattCallback = new CustomBluetoothGattCallback();
     @Mock
-    private BluetoothGatt mConnectedGatt;
+    private BluetoothGatt bluetoothGatt;
     @Mock
     private BluetoothGattService bluetoothGattService;
     @Mock
-    private BluetoothService bluetoothService;
+    private BluetoothService bluetoothService = new BluetoothService();
     @Mock
     private BluetoothGattCharacteristic bluetoothGattCharacteristic;
     @Mock
@@ -72,10 +73,79 @@ public class CustomBluetoothGattCallbackTest {
         // Preparations
         bluetoothGattServiceList.add(bluetoothGattService);
         bluetoothGattCharacteristicList.add(bluetoothGattCharacteristic);
-        Mockito.when(mConnectedGatt.getServices()).thenReturn(bluetoothGattServiceList);
+        Mockito.when(bluetoothGatt.getServices()).thenReturn(bluetoothGattServiceList);
         Mockito.when(bluetoothGattService.getCharacteristics()).thenReturn(bluetoothGattCharacteristicList);
         Mockito.when(bluetoothGattCharacteristic.getDescriptor(DATATransfer_descriptor)).thenReturn(descriptor);
 
+    }
+
+    @Test
+    public void testSendResultEventDataTransfer() throws Exception {
+        // Given
+        uuid = DATATransfer_characteristic;
+        Mockito.when(bluetoothGattCharacteristic.getUuid()).thenReturn(uuid);
+
+        String response = "[100, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]";
+        String[] byteValues = response.substring(1, response.length() - 1).split(",");
+        byte[] bytes = new byte[byteValues.length];
+        for (int i=0, len=bytes.length; i<len; i++) {
+            bytes[i] = Byte.parseByte(byteValues[i].trim());
+        }
+        Mockito.when(bluetoothGattCharacteristic.getValue()).thenReturn(bytes);
+
+        // When
+        final int value = customBluetoothGattCallback.sendResultEvent("test", bluetoothGatt, bluetoothGattCharacteristic);
+
+        // Then
+        assertThat(value, is(equalTo(0)));
+    }
+
+    @Test
+    public void testSendResultEventRudder() throws Exception {
+        // Given
+        uuid = SMARTPLANE_RUDDER;
+        Mockito.when(bluetoothGattCharacteristic.getUuid()).thenReturn(uuid);
+
+        final int rudderValue = 1;
+        Mockito.when(bluetoothGattCharacteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0)).thenReturn(rudderValue);
+
+        // When
+        final int sendedValue = customBluetoothGattCallback.sendResultEvent("test", bluetoothGatt, bluetoothGattCharacteristic);
+
+        // Then
+        assertThat(sendedValue, is(equalTo(rudderValue)));
+    }
+
+    @Test
+    public void testSendResultEventMotor() throws Exception {
+        // Given
+        uuid = SMARTPLANE_MOTOR;
+        Mockito.when(bluetoothGattCharacteristic.getUuid()).thenReturn(uuid);
+
+        final int motorValue = 2;
+        Mockito.when(bluetoothGattCharacteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)).thenReturn(motorValue);
+
+        // When
+        final int sendedValue = customBluetoothGattCallback.sendResultEvent("test", bluetoothGatt, bluetoothGattCharacteristic);
+
+        // Then
+        assertThat(sendedValue, is(equalTo(motorValue)));
+    }
+
+    @Test
+    public void testSendResultEventBattery() throws Exception {
+        // Given
+        uuid = BATTERY_characteristic;
+        Mockito.when(bluetoothGattCharacteristic.getUuid()).thenReturn(uuid);
+
+        final int batteryValue = 3;
+        Mockito.when(bluetoothGattCharacteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0)).thenReturn(batteryValue);
+
+        // When
+        final int sendedValue = customBluetoothGattCallback.sendResultEvent("test", bluetoothGatt, bluetoothGattCharacteristic);
+
+        // Then
+        assertThat(sendedValue, is(equalTo(batteryValue)));
     }
 
     @Test
@@ -90,8 +160,8 @@ public class CustomBluetoothGattCallbackTest {
         customBluetoothGattCallback.onServicesDiscovered(null, status);
 
         // Then
-        Mockito.verify(mConnectedGatt, times(1)).writeDescriptor(descriptor);
-        Mockito.verify(mConnectedGatt, times(1)).readCharacteristic(bluetoothGattCharacteristic);
+        Mockito.verify(bluetoothGatt, times(1)).writeDescriptor(descriptor);
+        Mockito.verify(bluetoothGatt, times(1)).readCharacteristic(bluetoothGattCharacteristic);
     }
 
     @Test
@@ -106,8 +176,8 @@ public class CustomBluetoothGattCallbackTest {
         customBluetoothGattCallback.onServicesDiscovered(null, status);
 
         // Then
-        Mockito.verify(mConnectedGatt, times(1)).readCharacteristic(bluetoothGattCharacteristic);
-        Mockito.verify(mConnectedGatt, times(1)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
+        Mockito.verify(bluetoothGatt, times(1)).readCharacteristic(bluetoothGattCharacteristic);
+        Mockito.verify(bluetoothGatt, times(1)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
 
         Mockito.verify(bluetoothGattCharacteristic, times(2)).getUuid();
     }
@@ -125,7 +195,7 @@ public class CustomBluetoothGattCallbackTest {
 
         // Then
         Mockito.verify(bluetoothGattCharacteristic, times(2)).getUuid();
-        Mockito.verify(mConnectedGatt, times(0)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
+        Mockito.verify(bluetoothGatt, times(0)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
     }
 
     @Test
@@ -141,7 +211,7 @@ public class CustomBluetoothGattCallbackTest {
 
         // Then
         Mockito.verify(bluetoothGattCharacteristic, times(2)).getUuid();
-        Mockito.verify(mConnectedGatt, times(0)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
+        Mockito.verify(bluetoothGatt, times(0)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
     }
 
     @Test
@@ -151,10 +221,10 @@ public class CustomBluetoothGattCallbackTest {
         final int newState = BluetoothProfile.STATE_CONNECTED;
 
         // When
-        customBluetoothGattCallback.onConnectionStateChange(mConnectedGatt, status, newState);
+        customBluetoothGattCallback.onConnectionStateChange(bluetoothGatt, status, newState);
 
         // Then
-        Mockito.verify(mConnectedGatt, times(1)).discoverServices();
+        Mockito.verify(bluetoothGatt, times(1)).discoverServices();
     }
 
     @Test
@@ -164,11 +234,11 @@ public class CustomBluetoothGattCallbackTest {
         final int newState = BluetoothProfile.STATE_DISCONNECTED;
 
         // When
-        customBluetoothGattCallback.onConnectionStateChange(mConnectedGatt, status, newState);
+        customBluetoothGattCallback.onConnectionStateChange(bluetoothGatt, status, newState);
 
         // Then
-        Mockito.verify(mConnectedGatt, times(0)).discoverServices();
-        Mockito.verify(mConnectedGatt, times(0)).disconnect();
+        Mockito.verify(bluetoothGatt, times(0)).discoverServices();
+        Mockito.verify(bluetoothGatt, times(0)).disconnect();
     }
 
     @Test
@@ -178,21 +248,20 @@ public class CustomBluetoothGattCallbackTest {
         final int newState = BluetoothProfile.STATE_DISCONNECTED;
 
         // When
-        customBluetoothGattCallback.onConnectionStateChange(mConnectedGatt, status, newState);
+        customBluetoothGattCallback.onConnectionStateChange(bluetoothGatt, status, newState);
 
         // Then
-        Mockito.verify(mConnectedGatt, times(1)).disconnect();
+        Mockito.verify(bluetoothGatt, times(1)).disconnect();
     }
 
     private class MyTestModule extends AbstractModule {
         @Override
         protected void configure() {
             // Replace injected class with mock
-            bind(BluetoothGatt.class).toInstance(mConnectedGatt);
+            bind(BluetoothGatt.class).toInstance(bluetoothGatt);
             bind(BluetoothGattService.class).toInstance(bluetoothGattService);
             bind(BluetoothGattCharacteristic .class).toInstance(bluetoothGattCharacteristic);
             bind(BluetoothGattDescriptor.class).toInstance(descriptor);
-            bind(BluetoothService.class).toInstance(bluetoothService);
         }
     }
 }

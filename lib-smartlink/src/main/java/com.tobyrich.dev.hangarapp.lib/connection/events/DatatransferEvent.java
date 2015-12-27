@@ -13,8 +13,14 @@ public class DatatransferEvent {
     public  DatatransferEvent(byte type){
         this(type,null);
     }
+
     public  DatatransferEvent(byte[] string){
         type = string[0];
+
+        if(msg==null) {
+            this.msg = new byte[18];
+        }
+
         System.arraycopy(string, 2, msg, 0, 18);
     }
     public  DatatransferEvent(byte type, byte[] msg){
