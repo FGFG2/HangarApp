@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothProfile;
 import android.util.Log;
 
 import com.tobyrich.dev.hangarapp.lib.connection.events.ConnectResult;
-import com.tobyrich.dev.hangarapp.lib.connection.events.DatatransferEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
 import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
