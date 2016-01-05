@@ -161,7 +161,7 @@ public class CustomBluetoothGattCallbackTest {
         // Then
         Mockito.verify(bluetoothGatt, times(1)).writeDescriptor(descriptor);
         Mockito.verify(bluetoothGatt, times(1)).readCharacteristic(bluetoothGattCharacteristic);
-    }*/
+    }
 
     @Test
     public void testHandleBatteryCharacteristic() throws Exception {
@@ -179,7 +179,7 @@ public class CustomBluetoothGattCallbackTest {
         Mockito.verify(bluetoothGatt, times(1)).setCharacteristicNotification(bluetoothGattCharacteristic, true);
 
         Mockito.verify(bluetoothGattCharacteristic, times(2)).getUuid();
-    }
+    }*/
 
     @Test
     public void testHandleMotorCharacteristic() throws Exception {
