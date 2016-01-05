@@ -55,9 +55,10 @@ public class DatatransferInterpreter {
         return tmp;
     }
 
-    public static void received(byte[] string){
+    public static DatatransferInterpreter received(byte[] string){
         DatatransferInterpreter a = new DatatransferInterpreter(string);
         a.received();
+        return a;
     }
 
     public void received() {
