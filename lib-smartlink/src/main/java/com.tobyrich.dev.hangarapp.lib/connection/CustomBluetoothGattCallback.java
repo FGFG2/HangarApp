@@ -143,9 +143,9 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
         Log.v(TAG, "Remote RSSI: " + rssi);
     }
 
-    public void sendResultEvent(String s,BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){
+    public int sendResultEvent(String s,BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){
         UUID c = characteristic.getUuid();
-        int value;
+        int value = 0;
         if(c.equals(DATATransfer_characteristic)) {
             DatatransferInterpreter event =  new DatatransferInterpreter(characteristic.getValue());
             Log.d(TAG, s + ": DataService - "+event.toString());
@@ -167,6 +167,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
         }else{
             Log.v(TAG, s + ": Unknown - " + c);
         }
+        return value;
     }
 
     private String connectionState(int status) {
