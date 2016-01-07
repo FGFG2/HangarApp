@@ -57,6 +57,8 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     private Timer timer;
     private static boolean run = true;
 
+    private int currentUserPosition = 0;
+
     // Functions -----------------------------------------------------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -141,9 +143,6 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         rankingLoading.setVisibility(View.GONE);
         this.rankingList = rankingList;
 
-        // Set the flag if the ranking were changed.
-        setRankingListChanged(checkIfRankingListChanged(oldRankingList, rankingList));
-
         // Set user position in ranking list
         for(UserProfile r: rankingList) {
             r.setPosition(rankingList.indexOf(r) + 1);
@@ -151,24 +150,30 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
             if (accountName == null) {
                 if (r.getKey().equals("Jack Johnson")) {
                     r.setCurrentUser(true);
+                    currentUserPosition = r.getPosition();
                 } else {
                     r.setCurrentUser(false);
                 }
             } else if (r.getKey().equals(accountName)) {
                 r.setCurrentUser(true);
+                currentUserPosition = r.getPosition();
             } else {
                 r.setCurrentUser(false);
             }
         }
 
+        // Set the flag if the ranking were changed.
+        setRankingListChanged(checkIfRankingListChanged(oldRankingList, rankingList));
+
         // Show ranking.
         if(adapter == null) {
-            adapter = new RankingAdapter(getBaseContext(), rankingList);
+            adapter = new RankingAdapter(getBaseContext(), getSubRankingList());
             lvRankingList.setAdapter(adapter);
         } else {
             if(isRankingListChanged()) {
                 // Show message if achievements list is changed.
                 Toast.makeText(getBaseContext(), "Ranking list was updated!", Toast.LENGTH_LONG).show();
+                adapter = new RankingAdapter(getBaseContext(), getSubRankingList());
                 adapter.notifyDataSetChanged();
             }
         }
@@ -177,12 +182,49 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     }
 
     /**
+     * Restrict the range of ranking list to 20.
+     * @return restricted ranking list.
+     */
+    public List<UserProfile> getSubRankingList() {
+        if(currentUserPosition != 0 ) {
+
+            if (currentUserPosition <= 20) {
+                return rankingList;
+            } else if (currentUserPosition + 10 <= rankingList.size()) {
+                return rankingList.subList(currentUserPosition - 10, currentUserPosition + 10);
+            } else {
+                return rankingList.subList(rankingList.size() - 20, rankingList.size());
+            }
+        }
+        return rankingList;
+    }
+
+    /**
      * Check if Ranking list is changed.
      */
    private boolean checkIfRankingListChanged(List<UserProfile> oldList, List<UserProfile> newList) {
-        if (oldList != null && newList != null) {
-            if (oldList.size() != newList.size()) {
-                return true;
+        int firstPosition = 0;
+        int lastPosition = 0;
+        if (oldList != null && newList != null && oldList.size() != 0 && rankingList.size() != 0) {
+
+            if(currentUserPosition != 0 ) {
+
+                if (currentUserPosition <= 20) {
+                    firstPosition = 0;
+                    lastPosition = rankingList.size();
+                } else if (currentUserPosition + 10 <= rankingList.size()) {
+                    firstPosition = currentUserPosition - 10;
+                    lastPosition = currentUserPosition + 10;
+                } else {
+                    firstPosition = rankingList.size() - 20;
+                    lastPosition = rankingList.size();
+                }
+            }
+
+            for(int i = firstPosition; i < lastPosition; i++) {
+                if(oldList.get(i).getPosition() != newList.get(i).getPosition()) {
+                    return true;
+                }
             }
         }
 
