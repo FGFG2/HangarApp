@@ -87,6 +87,13 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         new TokenFeeder(thisActivity, thisContext).execute();
 
         // Setup cache.
+        setupCache();
+    }
+
+    /**
+     * Setup cache.
+     */
+    public void setupCache() {
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int cacheSize = maxMemory / 8;
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
@@ -123,7 +130,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
      * Load all achievements from Server asynchronously.
      * onAchievementsFeederComplete() will be called back when done.
      */
-    private void loadAchievementsList() {
+    public void loadAchievementsList() {
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -216,7 +223,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     /**
      *
      */
-    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+    private void addBitmapToMemoryCache(String key, Bitmap bitmap) {
         if (mMemoryCache.get(key) == null) {
             mMemoryCache.put(key, bitmap);
         }
@@ -248,7 +255,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     /**
      * Called by click on achievement.
      */
-    public void setOnAchievementClickListener() {
+    private void setOnAchievementClickListener() {
         lvAchievements.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int i, long l) {
