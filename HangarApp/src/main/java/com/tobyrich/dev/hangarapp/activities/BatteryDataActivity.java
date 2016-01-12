@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
@@ -12,7 +13,9 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.lib.connection.BluetoothService;
+import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneEvent;
 import com.tobyrich.dev.hangarapp.lib.connection.events.PlaneResult;
+import com.tobyrich.dev.hangarapp.lib.utils.Consts;
 import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
 import roboguice.activity.RoboActivity;
@@ -46,6 +49,8 @@ public class BatteryDataActivity extends RoboActivity {
         EventBus.getDefault().register(this);
 
         setCurrentBatteryCharge(PlaneState.getInstance().getBattery());
+        postPlaneEvent(PlaneEvent.MOTOR, Consts.MAX_MOTOR_VALUE);
+        Log.d("tr.Battery","Plane started");
     }
 
     @Override
@@ -67,6 +72,7 @@ public class BatteryDataActivity extends RoboActivity {
         batteryProgressBar.setProgress(batteryChargeInPercent);
         tvBatteryStatus.setText(Integer.toString(batteryChargeInPercent) + "%");
 
+        Log.d("tr.Battery", Integer.toString(batteryChargeInPercent));
         if(batteryChargeInPercent > PERCENTAGE_TO_CHANGE_TO_YELLOW) {
             batteryProgressBar.setProgressDrawable(greenProgressBar);
             tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_GREEN));
@@ -80,5 +86,9 @@ public class BatteryDataActivity extends RoboActivity {
 
         batteryProgressBar.setProgressDrawable(redProgressBar);
         tvBatteryStatus.setTextColor(Color.parseColor(COLOR_CODE_RED));
+    }
+
+    private void postPlaneEvent(int device, int value) {
+        EventBus.getDefault().post(new PlaneEvent(device, value));
     }
 }
