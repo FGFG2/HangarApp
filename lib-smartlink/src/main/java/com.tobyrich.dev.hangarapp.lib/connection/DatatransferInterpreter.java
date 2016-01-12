@@ -12,33 +12,58 @@ import java.nio.ByteOrder;
 import de.greenrobot.event.EventBus;
 
 /**
+ * DatatransferInterpreter is a own implementation to receive
+ * extra data from the smartplane.
+ * (For it Battery was removed, because there is only one BLE Notification possible.)
+ *
  * Created by geno on 12/1/15.
  */
 public class DatatransferInterpreter {
+    //LOG-TAG
     public static final String TAG = "tr.lib.inter";
 
+    // Data-Types of packets
     public static final byte BOOL = 10;
     public static final byte BYTE = 11;
     public static final byte INT = 12;
     public static final byte FLOAT = 13;
     public static final byte VECTOR3 = 14;
+
+    // Plane-Types of packets
     public static final byte FUSED = 30;
     public static final byte ACCEL = 31;
     public static final byte MAGNETO = 32;
     public static final byte GYRO = 33;
     public static final byte QUATERNION = 34;
     public static final byte BATTERY = 35;
+
+    // vars of cached packet
     private byte type;
     private byte[] msg;
 
+    /**
+     * DatatransferIntepreter with only type part of packet
+     * @param type packet type
+     */
     public DatatransferInterpreter(byte type){
         this(type, null);
     }
-    public DatatransferInterpreter(byte[] string){
-        type = string[0];
+
+    /**
+     * DatatransferInterpreter by setting packet
+     * @param packet full packet
+     */
+    public DatatransferInterpreter(byte[] packet){
+        type = packet[0];
         msg = new byte[18];
-        System.arraycopy(string, 2, msg, 0, 18);
+        System.arraycopy(packet, 2, msg, 0, 18);
     }
+
+    /**
+     * DatatransferInterpreter by setting parts of packet
+     * @param type packet type
+     * @param msg  packet message
+     */
     public DatatransferInterpreter(byte type, byte[] msg){
         this.type = type;
         if(msg==null) {
@@ -47,6 +72,11 @@ public class DatatransferInterpreter {
             this.msg = msg;
         }
     }
+
+    /**
+     * get the packet from cached packet
+     * @return packet full packet
+     */
     public byte[] getValue(){
         byte[] tmp = new byte[20];
         System.arraycopy(msg,0,tmp,2,20);
@@ -55,12 +85,38 @@ public class DatatransferInterpreter {
         return tmp;
     }
 
-    public static DatatransferInterpreter received(byte[] string){
-        DatatransferInterpreter a = new DatatransferInterpreter(string);
+
+    /**
+     * get message from cached packet
+     * @return msg packet message
+     */
+    public byte[] getMsg(){
+        return msg;
+    }
+
+
+    /**
+     * get type from cached packet
+     * @return type packet type
+     */
+    public byte getType(){
+        return type;
+    }
+
+    /**
+     * Interprete a packet
+     * @param packet byte array of the datatransfer-packet
+     * @return DatatransferInterpreter of the packet
+     */
+    public static DatatransferInterpreter received(byte[] packet){
+        DatatransferInterpreter a = new DatatransferInterpreter(packet);
         a.received();
         return a;
     }
 
+    /**
+     * Interprete cached packet
+     */
     public void received() {
         ByteBuffer x,y,z;
         float x_i,y_i,z_i;

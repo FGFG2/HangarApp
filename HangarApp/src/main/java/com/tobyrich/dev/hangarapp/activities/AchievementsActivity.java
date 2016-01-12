@@ -1,17 +1,10 @@
 package com.tobyrich.dev.hangarapp.activities;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
@@ -26,13 +19,11 @@ import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
-import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
-import com.tobyrich.dev.hangarapp.beans.api.feeders.ImageFeeder;
-import com.tobyrich.dev.hangarapp.beans.api.feeders.RankingFeeder;
-import com.tobyrich.dev.hangarapp.beans.api.feeders.TokenFeeder;
-import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.AchievementsFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.FeedersCallback;
+import com.tobyrich.dev.hangarapp.beans.api.feeders.ImageFeeder;
+import com.tobyrich.dev.hangarapp.beans.api.feeders.TokenFeeder;
+import com.tobyrich.dev.hangarapp.beans.api.model.Achievement;
 import com.tobyrich.dev.hangarapp.beans.api.model.UserProfile;
 
 import java.util.ArrayList;
@@ -42,7 +33,6 @@ import java.util.TimerTask;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 
 
@@ -56,11 +46,11 @@ import roboguice.inject.InjectView;
 @ContentView(R.layout.activity_achievements)
 public class AchievementsActivity extends RoboActivity implements FeedersCallback {
 
+    private static boolean run = true;
     @InjectView(R.id.achievementsList) ListView lvAchievements;
     @InjectView(R.id.achievementDescription) TextView tvDescription;
     @InjectView(R.id.smartplaneImage) ImageView ivSmartplane;
     @InjectView(R.id.achievementsLoading) ProgressBar achievementsLoading;
-
     private List<Achievement> oldAchievementList = new ArrayList<Achievement>();
     private List<Achievement> achievementList = new ArrayList<Achievement>();
     private AchievementsAdapter adapter;
@@ -70,8 +60,6 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     private AchievementsActivity thisActivity;
     private Context thisContext;
     private Timer timer;
-    private static boolean run = true;
-
     // Cache for the Achievements icons.
     private LruCache<String, Bitmap> mMemoryCache;
 
@@ -84,7 +72,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         thisContext = getBaseContext();
 
         // Get the authToken in background thread. Callback in onTokenFeederComplete.
-        new TokenFeeder(thisActivity, thisContext).execute();
+        new TokenFeeder(thisActivity).execute();
 
         // Setup cache.
         setupCache();
@@ -108,11 +96,10 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
     /**
      * When the token is received we can send an achievement request to server.
      */
-    public void onTokenFeederComplete(String authToken, String accountName) {
+    public void onTokenFeederComplete(String authToken) {
         Log.i(this.getClass().getSimpleName(), "TokenFeeder callback registered.");
         Log.i(this.getClass().getSimpleName(), "Token is: " + authToken);
         this.authToken = authToken;
-        this.accountName = accountName;
 
         // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -283,15 +270,13 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
 
     }
 
-
-    public void setAchievementListChanged(boolean achievementListChanged) {
-        this.achievementListChanged = achievementListChanged;
-    }
-
     public boolean isAchievementListChanged() {
         return achievementListChanged;
     }
 
+    public void setAchievementListChanged(boolean achievementListChanged) {
+        this.achievementListChanged = achievementListChanged;
+    }
 
     @Override
     public void onPause() {
