@@ -22,26 +22,33 @@ import com.tobyrich.dev.hangarapp.lib.utils.PlaneState;
 
 @Singleton
 public class BluetoothService extends Service implements BluetoothAdapter.LeScanCallback  {
+    //LOG-TAG
     private static final String TAG = "tr.lib.BluetoothService";
 
+    // Android bluetooth manager and devices
     private BluetoothManager manager;
-
     private BluetoothAdapter mBluetoothAdapter;
+
+    // cache for founded devices
     private ArrayList<BluetoothDevice> mDevices;
 
+    // connected gatter
     private BluetoothGatt mConnectedGatt;
+    // own Callback for bluetoothgatter - to manage smartplanes
     private CustomBluetoothGattCallback mGattCallback;
 
-    private static final int MSG_PROGRESS = 201;
-    private static final int MSG_DISMISS = 202;
-    private static final int MSG_CLEAR = 301;
-
+    /**
+     * Constructer on init BluetoothSerivce
+     */
     public BluetoothService(){
         super();
         mDevices = new ArrayList<BluetoothDevice>();
         Log.d(TAG, "Init");
     }
 
+    /**
+     * manage start of this service
+     */
     private void startService(){
         manager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
@@ -62,6 +69,10 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
     }
 
     @Override
+    /**
+     * on create this service
+     * (start it)
+     */
     public void onCreate() {
         super.onCreate();
         EventBus.getDefault().register(this);
@@ -69,6 +80,10 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         Log.d(TAG, "Create");
     }
     @Override
+    /**
+     * on destroy this service
+     * (disconnect and so on)
+     */
     public void onDestroy() {
         super.onDestroy();
         if(mConnectedGatt != null) {
@@ -80,16 +95,23 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         EventBus.getDefault().unregister(this);
         Log.d(TAG, "Destroy");
     }
-    /*
-     * Events to Handle
+
+    /**
+     * send data wiht Datatransfer to Plane
+     * @param evt Datatransver
      */
-    public void onEvent(DatatransferInterpreter evt){
+    //TODO not ready (nothing send to plane on datatransfer by now)
+    public void onEvent(DatatransferInterpreter evt) {
         byte[] value = evt.getValue();
         Log.d(TAG, "event-datatransfer: " + value);
         PlaneConnections.getInstance().getDatatransfer().setValue(value);
         mConnectedGatt.writeCharacteristic(PlaneConnections.getInstance().getDatatransfer());
     }
 
+    /**
+     * on PlaneEvent send rudder or motor value
+     * @param evt PlaneEvent
+     */
     public void onEvent(PlaneEvent evt){
         int value = evt.getValue();
         switch (evt.getDevice()){
@@ -120,6 +142,10 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
 
     }
 
+    /**
+     * on ConnectEvent connect with device
+     * @param evt ConnectEvent
+     */
     public void onEvent(ConnectEvent evt){
         Log.d(TAG, "event-connecting: " + evt.getDevice().getAddress());
         if(mGattCallback==null)
@@ -127,6 +153,11 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         mConnectedGatt = evt.getDevice().connectGatt(this, false, mGattCallback);
         mGattCallback.setConnectedGatt(mConnectedGatt);
     }
+
+    /**
+     * on ScanEvent start or stop scanning
+     * @param evt ScanEvent
+     */
     public void onEvent(ScanEvent evt){
         Log.d(TAG, "event-Scan: " + evt.getState());
         if(evt.getState()) {
@@ -144,6 +175,10 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
             }
         }
     }
+
+    /**
+     * event on end scan (after timeout)
+     */
     private Runnable mEndRunnable = new Runnable() {
         @Override
         public void run() {
@@ -153,11 +188,16 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         }
     };
 
-
+    /**
+     * Handler for asynchrone scanning
+     */
     private static Handler mHandler = new Handler() {
 
     };
     @Override
+    /**
+     * event on found asynchrone devices
+     */
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         if(mDevices.contains(device))
             return;
@@ -165,17 +205,26 @@ public class BluetoothService extends Service implements BluetoothAdapter.LeScan
         Log.d(TAG, "scan-found: " + device.getName() + " - " + device.getAddress() + " @ " + rssi);
     }
 
+    /**
+     * start scanning
+     */
     private void startScan(){
         mBluetoothAdapter.startLeScan(this);
         PlaneState.getInstance().setConnected(false);
         mHandler.postDelayed(mEndRunnable, 10000);
     }
 
+    /**
+     * stop scanning
+     */
     private void stopScan(){
         mBluetoothAdapter.stopLeScan(this);
     }
 
     @Override
+    /**
+     * Binding intent
+     */
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "Bind");
         return null;
