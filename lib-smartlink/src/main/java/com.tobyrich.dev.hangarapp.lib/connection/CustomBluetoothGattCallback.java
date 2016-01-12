@@ -77,6 +77,7 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                         //NEED to get CharacteristicRead Result
                         mConnectedGatt.setCharacteristicNotification(characteristic, true);
                         //ENABLE Autonotify
+
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DATATransfer_descriptor);
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         mConnectedGatt.writeDescriptor(descriptor);
