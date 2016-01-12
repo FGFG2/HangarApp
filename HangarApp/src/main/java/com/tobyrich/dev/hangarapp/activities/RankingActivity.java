@@ -2,17 +2,13 @@ package com.tobyrich.dev.hangarapp.activities;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
@@ -43,9 +39,9 @@ import roboguice.inject.InjectView;
 @ContentView(R.layout.activity_ranking)
 public class RankingActivity extends RoboActivity implements FeedersCallback{
 
+    private static boolean run = true;
     @InjectView(R.id.rankingList) ListView lvRankingList;
     @InjectView(R.id.rankingLoading) ProgressBar rankingLoading;
-
     private List<UserProfile> oldRankingList = new ArrayList<UserProfile>();
     private List<UserProfile> rankingList = new ArrayList<UserProfile>();
     private RankingAdapter adapter;
@@ -55,8 +51,6 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     private RankingActivity thisActivity;
     private Context thisContext;
     private Timer timer;
-    private static boolean run = true;
-
     private int currentUserPosition = 0;
 
     // Functions -----------------------------------------------------------------------------------
@@ -68,7 +62,7 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         thisContext = getBaseContext();
 
         // Get the authToken in background thread. Callback in onTokenFeederComplete.
-        new TokenFeeder(thisActivity, thisContext).execute();
+        new TokenFeeder(thisActivity).execute();
 
     }
 
@@ -85,11 +79,10 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
     /**
      * When the token is received we can send a ranking request to server.
      */
-    public void onTokenFeederComplete(String authToken, String accountName) {
+    public void onTokenFeederComplete(String authToken) {
         Log.i(this.getClass().getSimpleName(), "TokenFeeder callback registered.");
         Log.i(this.getClass().getSimpleName(), "Token is: " + authToken);
         this.authToken = authToken;
-        this.accountName = accountName;
 
         // Check if there is an Internet connection available.
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -231,15 +224,13 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         return false;
     }
 
-
-    public void setRankingListChanged(boolean rankingListChanged) {
-        this.rankingListChanged = rankingListChanged;
-    }
-
     public boolean isRankingListChanged() {
         return rankingListChanged;
     }
 
+    public void setRankingListChanged(boolean rankingListChanged) {
+        this.rankingListChanged = rankingListChanged;
+    }
 
     @Override
     public void onPause() {
