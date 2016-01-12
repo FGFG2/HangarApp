@@ -16,37 +16,37 @@ import java.util.UUID;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Own BluetoothGattCallback to manage Smartplanes
+ */
 public class CustomBluetoothGattCallback extends BluetoothGattCallback {
+    //LOG-TAG
+    private static final String TAG = "tr.lib.CBtGattCallback";
 
+    // connected Gatt
     private BluetoothGatt mConnectedGatt;
-    // MAC: 5C:31:3E:4D:33:49
-    //private static final String PLAN_PART = "TobyRich";
-    private static final UUID HANGARSERVICE = UUID.fromString("75B64E51-6000-4ED1-921A-476090D80BA7");
-    private static final UUID GET_X = UUID.fromString("75B64E51-0010-4ED1-921A-476090D80BA7");
-    private static final UUID GET_Y = UUID.fromString("75B64E51-0020-4ED1-921A-476090D80BA7");
-    private static final UUID GET_Z = UUID.fromString("75B64E51-0021-4ED1-921A-476090D80BA7");
 
-    //private static final UUID SMARTPLANESERVICE1 = UUID.fromString("75B64E51-F171-4ED1-921A-476090D80BA7");
-    //private static final UUID SMARTPLANESERVICE2 = UUID.fromString("75B64E51-E171-4ED1-921A-476090D80BA7");
+    // UUIDs of different Services and Gatt
+
+    // Default Motor-characteristic
     private static final UUID SMARTPLANE_MOTOR = UUID.fromString("75B64E51-0010-4ED1-921A-476090D80BA7");
+    // Default Rudder-characteristic
     private static final UUID SMARTPLANE_RUDDER = UUID.fromString("75B64E51-0021-4ED1-921A-476090D80BA7");
-
-    private static final UUID BATTERYSERVICE = UUID.fromString("0000180F-0000-1000-8000-00805F9B34FB");
+    // Default BATTERY-characteristic for old version of firmware on plane
     private static final UUID BATTERY_characteristic = UUID.fromString("00002A19-0000-1000-8000-00805F9B34FB");
-    private static final UUID BATTERY_descriptor = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
-
-    private static final UUID DATATransferSERVICE = UUID.fromString("75B64E51-F191-4ED1-921A-476090D80BA7");
+    // Datatransfer characteristic and descriptor
     private static final UUID DATATransfer_characteristic = UUID.fromString("75B64E51-F195-4ED1-921A-476090D80BA7");
     private static final UUID DATATransfer_descriptor = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-    private static final String TAG = "tr.lib.CBtGattCallback";
 
     public void setConnectedGatt(BluetoothGatt mConnectedGatt) {
         this.mConnectedGatt = mConnectedGatt;
     }
 
     @Override
+    /**
+     * onConnectionStateChange scan for services or disconnect
+     */
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         Log.d(TAG, "Connection State Change: " + status + " -> " + connectionState(newState));
         if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
@@ -64,6 +64,9 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
     }
 
     @Override
+    /**
+     * scan all services and characteristics and map them to placeholder/variables
+     */
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         Log.d(TAG, "Services Discovered: " + status + ":" + mConnectedGatt.getServices());
         if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -74,42 +77,18 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
                     Log.v(TAG, "Characteristic: " + c + ":");
                     if(c.equals(DATATransfer_characteristic)) {
                         PlaneConnections.getInstance().setDatatransfer(characteristic);
-                        //NEED to get CharacteristicRead Result
                         mConnectedGatt.setCharacteristicNotification(characteristic, true);
-                        //ENABLE Autonotify
-
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DATATransfer_descriptor);
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         mConnectedGatt.writeDescriptor(descriptor);
-                        //mConnectedGatt.readCharacteristic(characteristic);
-                        //TODO Test
                         Log.d(TAG, "Characteristic-found: Datatransfer - " + characteristic.getUuid());
                     }else if(c.equals(BATTERY_characteristic)) {
-                        /*PlaneConnections.getInstance().setBattery(characteristic);
-                        //NEED to get CharacteristicRead Result
-                        mConnectedGatt.setCharacteristicNotification(characteristic, true);
-                        //ENABLE Autonotify
-
-                        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BATTERY_descriptor);
-                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        mConnectedGatt.writeDescriptor(descriptor);*/
-
-                        //TODO: Did not work
-                        //GET FIRST-Value
-                        //mConnectedGatt.readCharacteristic(characteristic);
-                        /*
-                        int value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                        PlaneState.getInstance().setBattery(value);
-                        EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
-                        */
-                        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": without Value ");
-                    }else if(c.equals(SMARTPLANE_MOTOR)) {
+                        Log.d(TAG, "Characteristic-found: Battery - " + characteristic.getUuid()+": deprecated-> use DATATransfer_characteristic");
+                    }else if (c.equals(SMARTPLANE_MOTOR)) {
                         PlaneConnections.getInstance().setMotor(characteristic);
-                        //mConnectedGatt.readCharacteristic(characteristic);
                         Log.d(TAG, "Characteristic-found: Motor - "+characteristic.getUuid());
                     }else if(c.equals(SMARTPLANE_RUDDER)) {
                         PlaneConnections.getInstance().setRudder(characteristic);
-                        //mConnectedGatt.readCharacteristic(characteristic);
                         Log.d(TAG, "Characteristic-found: Rudder - " + characteristic.getUuid());
                     }else{
                         Log.v(TAG, "onCharacteristicRead: Unknown - "+ characteristic.getUuid());
@@ -120,30 +99,52 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
     }
 
     @Override
+    /**
+     * onCharacteristicRead send to sendResultEvent
+     */
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-        sendResultEvent("onCharacteristicRead",gatt,characteristic);
+        sendResultEvent("onCharacteristicRead", gatt, characteristic);
     }
 
     @Override
+    /**
+     * onCharacteristicWrite send to sendResultEvent
+     */
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-        sendResultEvent("onCharacteristicWrite",gatt,characteristic);
+        sendResultEvent("onCharacteristicWrite", gatt, characteristic);
     }
 
     @Override
+    /**
+     * onCharacteristicChanged send to sendResultEvent
+     */
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        sendResultEvent("onCharacteristicChange",gatt,characteristic);
+        sendResultEvent("onCharacteristicChange", gatt, characteristic);
     }
 
     @Override
+    /**
+     * onDescriptorWrite send to sendResultEvent
+     */
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         Log.v(TAG, "Descriptor: written");
     }
 
     @Override
+    /**
+     * Just Log (if them happen)
+     */
     public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
         Log.v(TAG, "Remote RSSI: " + rssi);
     }
 
+    /**
+     * method to manage characteristic changes on all bluetooth events
+     * @param s Prefix for Log
+     * @param gatt BluetoothGatt
+     * @param characteristic BluetoothGattCharacteristic
+     * @return fetched in value (if it was one)
+     */
     public int sendResultEvent(String s,BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){
         UUID c = characteristic.getUuid();
         int value = 0;
@@ -159,7 +160,8 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
             PlaneState.getInstance().setMotor(value);
             EventBus.getDefault().post(new PlaneResult(PlaneResult.MOTOR, value));
             Log.d(TAG, s + ": Motor - "+value);
-        }else if(c.equals(BATTERY_characteristic)) {
+        }else //If for old version of firmware on plane
+        if(c.equals(BATTERY_characteristic)) {
             value = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             PlaneState.getInstance().setBattery(value);
             EventBus.getDefault().post(new PlaneResult(PlaneResult.BATTERY, value));
@@ -170,6 +172,11 @@ public class CustomBluetoothGattCallback extends BluetoothGattCallback {
         return value;
     }
 
+    /**
+     * get string/label for status-values
+     * @param status BluetoothProfil status id
+     * @return string label of status
+     */
     private String connectionState(int status) {
         switch (status) {
             case BluetoothProfile.STATE_CONNECTED:
