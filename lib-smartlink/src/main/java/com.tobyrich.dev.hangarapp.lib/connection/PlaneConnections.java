@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class PlaneConnections {
 
-    // stpre of charactiertic
+    // store of charactiertic
     private BluetoothGattCharacteristic battery;
     private BluetoothGattCharacteristic rudder;
     private BluetoothGattCharacteristic motor;

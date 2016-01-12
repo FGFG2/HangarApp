@@ -13,7 +13,7 @@ public class ScanResult {
     private ArrayList<BluetoothDevice> result;
 
     /**
-     * Set device to connected to (by constructor as)
+     * set list of devices (by constructor as)
      * @param result
      */
     public ScanResult(ArrayList<BluetoothDevice> result) {
@@ -21,8 +21,8 @@ public class ScanResult {
     }
 
     /**
-     *
-     * @return
+     * get a list of devices
+     * @return list of devices
      */
     public ArrayList<BluetoothDevice> getResult(){
         return result;
