@@ -25,6 +25,9 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import roboguice.inject.ContextSingleton;
 
+/**
+ * Custom RajawaliRenderer which is used to render the planemodel.
+ */
 @ContextSingleton
 public class Renderer extends RajawaliRenderer implements
         IAsyncLoaderCallback {
@@ -37,6 +40,10 @@ public class Renderer extends RajawaliRenderer implements
     private float scaleFactor = 1f;
     private Object3D shownObjectOnScene;
 
+    /**
+     * Instantiates the class and sets the {@link RotationListener} up.
+     * @param context {@link Context}
+     */
     @Inject
     public Renderer(Context context) {
         super(context.getApplicationContext());
@@ -50,15 +57,20 @@ public class Renderer extends RajawaliRenderer implements
         rotatables.add(r2);
     }
 
+    /**
+     * Sets the scene up, by adding light and starting to load the model asynchronously.
+     */
     @Override
     protected void initScene() {
-        // add directional light for scene
         getCurrentScene().addLight(constructLight());
-
-        // load model asynchronously
         loadAwd(R.raw.smart_plane_mesh);
     }
 
+    /**
+     * Sets up the directional light for scene.
+     *
+     * @return the {@link ALight}
+     */
     private ALight constructLight() {
         ALight directionalLight = new DirectionalLight(1f, -0.5f, 1f);
         directionalLight.setColor(1.0f, 1.0f, 1.0f);
@@ -79,13 +91,21 @@ public class Renderer extends RajawaliRenderer implements
     }
 
     /**
-     * Asynchronous load of resource
+     * Starts the asynchronous load of resource.
+     *
+     * @param resourceId of the smart plane mesh.
      */
     private void loadAwd(int resourceId) {
         ALoader loader = new LoaderAWD(getContext().getResources(), getTextureManager(), resourceId);
         loadModel(loader, this, resourceId);
     }
 
+    /**
+     * Called, when the plane model is finished loading. Fires a new {@link RajawaliSurfaceLoad}
+     * event, which indicates the success. Also sets the parsed object.
+     *
+     * @param aLoader {@link ALoader}
+     */
     @Override
     public void onModelLoadComplete(ALoader aLoader) {
         final LoaderAWD loader = (LoaderAWD) aLoader;
@@ -93,6 +113,12 @@ public class Renderer extends RajawaliRenderer implements
         EventBus.getDefault().post(new RajawaliSurfaceLoad("Finished loading model!", true));
     }
 
+    /**
+     * Called, when there was an error while loading the plane model. Fires a new
+     * {@link RajawaliSurfaceLoad} event, which indicates the failure.
+     *
+     * @param aLoader {@link ALoader}
+     */
     @Override
     public void onModelLoadFailed(ALoader aLoader) {
         EventBus.getDefault().post(new RajawaliSurfaceLoad("Error while loading Model!", false));
@@ -129,27 +155,6 @@ public class Renderer extends RajawaliRenderer implements
         shownObjectOnScene.rotate(Vector3.Axis.Z, -deltaZ);
     }
 
-    public void onRotationUpdateDuplicate() {
-
-        float x = 0f;
-        float y = 0f;
-        float z = 0f;
-        for (RotatableComponent r : rotatables) {
-
-            x += r.x;
-            y += r.y;
-            z += r.z;
-        }
-
-        double deltaX = calculateDelta(x, shownObjectOnScene.getRotX());
-        double deltaY = calculateDelta(y, shownObjectOnScene.getRotY());
-        double deltaZ = calculateDelta(z, shownObjectOnScene.getRotZ());
-
-        shownObjectOnScene.rotate(Vector3.Axis.Y, deltaX);
-        shownObjectOnScene.rotate(Vector3.Axis.X, deltaY);
-        shownObjectOnScene.rotate(Vector3.Axis.Z, -deltaZ);
-    }
-
     private double calculateDelta(float f, double rot) {
         double result = f * 180f / (float) Math.PI - rot;
         if (result < 4 && result > -4) {
@@ -164,6 +169,11 @@ public class Renderer extends RajawaliRenderer implements
         return result;
     }
 
+    /**
+     * Getter for the 3D plane model.
+     *
+     * @return the 3D plane model.
+     */
     public Object3D getShownObjectOnScene() {
         return shownObjectOnScene;
     }

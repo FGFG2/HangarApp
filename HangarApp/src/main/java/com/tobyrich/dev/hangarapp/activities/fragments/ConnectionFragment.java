@@ -26,21 +26,54 @@ import de.greenrobot.event.EventBus;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
-
+/**
+ * A fragment which holds the connection button, which enables the app to connect and disconnect to
+ * a device.
+ */
 @ContentView(R.layout.fragment_connection)
 public class ConnectionFragment extends RoboFragment implements View.OnClickListener{
 
     private static final String TAG = "tr.fragment.connection";
 
-    //@InjectView(R.id.connect_button)
     ToggleButton tbConnect;
     ProgressBar progressBar;
 
+    /**
+     * Makes the fragment visible to the user (based on its containing activity being started).
+     * Registers the ConnectionFragment to receive events.
+     */
+    @Override
+    public void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+    }
+
+    /**
+     * fragment is no longer visible to the user either because its activity is being stopped or a
+     * fragment operation is modifying it in the activity.
+     * Unregisters the ConnectionFragment to receive events.
+     */
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    /**
+     * Creates and returns the view hierarchy associated with the fragment.
+     * Overrides the onCreateView method of the super class. Adds a {@link ToggleButton}, which will
+     * start to find BLE devices on click. Adds a {@link ProgressBar}, which will displayed when
+     * the ToggleButton gets clicked.
+     *
+     * @param inflater {@link LayoutInflater}
+     * @param container {@link ViewGroup}
+     * @param savedInstanceState {@link Bundle}
+     * @return the {@link View}
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        EventBus.getDefault().register(this);
 
         View view = inflater.inflate(
                 R.layout.fragment_connection, container, false);
@@ -55,9 +88,13 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         return view;
     }
 
-    /*
-  * TODO Test Bluetooth
-  */
+    /**
+     * Method gets called on every {@link ScanResult} event. Displays a "No Device Found" dialog, if there weren't
+     * any devices found. If there were divices found, a dialog is displayed, which shows the
+     * devices. When the user clicks on one devices, a new {@link ConnectEvent} is fired.
+     *
+     * @param evt {@link ScanResult}
+     */
     public void onEventMainThread(final ScanResult evt){
         Log.d(TAG, "receive: ScanResult");
         if(evt.getResult().size()>0) {
@@ -99,6 +136,12 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         }
     }
 
+    /**
+     * Method gets called on every {@link ConnectResult} event. Enables the tbConnect{@link ToggleButton}
+     * and sets the checked state based on the ConnectResult.
+     *
+     * @param evt {@link ConnectResult}
+     */
     public void onEventMainThread(ConnectResult evt){
         boolean bool = evt.getState();
 
@@ -109,6 +152,13 @@ public class ConnectionFragment extends RoboFragment implements View.OnClickList
         tbConnect.setChecked(bool);
     }
 
+    /**
+     * Method gets called when the tbConnect{@link ToggleButton} gets clicked. If the app is already connected
+     * to a device, it will disconnect the connection. If the app isn't connected to a device, a
+     * {@link ScanEvent} is fired.
+     *
+     * @param view {@link View}
+     */
     @Override
     public void onClick(View view) {
         switch (view.getId()) {

@@ -32,6 +32,11 @@ import de.greenrobot.event.EventBus;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
+/**
+ * A fragment which holds the RajawaliSurfaceView of the planemodel, which can be displayed and
+ * moved around in the app.
+ */
+
 public class RajawaliSurfaceFragment extends RoboFragment{
 
     private static final int FRAME_RATE = 60;
@@ -46,23 +51,45 @@ public class RajawaliSurfaceFragment extends RoboFragment{
     private double yAxis = 0;
     private double zAxis = 0;
 
+    /**
+     * Makes the fragment visible to the user (based on its containing activity being started).
+     * Registers the RajawaliSurfaceFragment to receive events.
+     */
     @Override
     public void onStart() {
         EventBus.getDefault().register(this);
         super.onStart();
     }
 
+    /**
+     * fragment is no longer visible to the user either because its activity is being stopped or a
+     * fragment operation is modifying it in the activity.
+     * Unregisters the RajawaliSurfaceFragment to receive events.
+     */
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
 
+    /**
+     *  Called to do initial creation of the fragment.
+     *
+     * @param savedInstanceState {@link Bundle}
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Creates and returns the view hierarchy associated with the fragment.
+     *
+     * @param inflater {@link LayoutInflater}
+     * @param container {@link ViewGroup}
+     * @param savedInstanceState {@link Bundle}
+     * @return the {@link View}
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -71,6 +98,14 @@ public class RajawaliSurfaceFragment extends RoboFragment{
         return inflater.inflate(R.layout.fragment_rajawali_view, container, false);
     }
 
+    /**
+     * Method gets called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned,
+     * but before any saved state has been restored in to the view.
+     * Sets up the {@link RajawaliSurfaceView}.
+     *
+     * @param view {@link View}
+     * @param savedInstanceState {@link Bundle}
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -83,6 +118,13 @@ public class RajawaliSurfaceFragment extends RoboFragment{
         new ScaleGestureDetector(view.getContext(), onScaleListener);
     }
 
+    /**
+     * Method gets called on every {@link GyroscopeResult} event. The GyroscopeResult holds the change
+     * value between the last postion and the current position in degrees. The values of the X-, Y-
+     * and Z-axis is converted into radian and is then used to rotate the plane.
+     *
+     * @param evt {@link GyroscopeResult}
+     */
     public void onEventMainThread(GyroscopeResult evt){
         double converter = Math.PI / 180;
         xAxis = converter * evt.getX();
@@ -94,6 +136,12 @@ public class RajawaliSurfaceFragment extends RoboFragment{
         renderer.getCurrentCamera().setLookAt(0, 0, 0);
     }
 
+    /**
+     * Gets called on every {@link RajawaliSurfaceLoad} event. If the RajawaliSurfaceView of the
+     * planemodel is finished loading, the {@link ProgressBar} will be set to invisible.
+     *
+     * @param event {@link RajawaliSurfaceLoad}
+     */
     public void onEventMainThread(RajawaliSurfaceLoad event){
         if (event.isSuccess()) {
             progressBar.setVisibility(View.GONE);

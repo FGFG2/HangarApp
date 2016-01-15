@@ -22,6 +22,10 @@ import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
+/**
+ * Activity to display the factory test options, like setting the rudder or motor value.
+ */
+
 @ContentView(R.layout.activity_factory_test)
 public class FactoryTestActivity extends RoboActivity {
 
@@ -34,6 +38,13 @@ public class FactoryTestActivity extends RoboActivity {
     @InjectView(R.id.rudder_right)
     ToggleButton tbRudderRight;
 
+    /**
+     * Called when the activity is first created.
+     * Starts the {@link BluetoothService}.
+     * Checks the {@link ToggleButton} for rudder and motor based on the current value.
+     *
+     * @param savedInstanceState {@link Bundle}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +69,10 @@ public class FactoryTestActivity extends RoboActivity {
 
     /**
      * Called by click on check-engine-toggle-buttons.
+     * Sets the motor value to max, when the tbCheckEngine {@link ToggleButton} is checked,
+     * otherwise the motor value is set to min value.
      *
-     * @param v view
+     * @param v {@link View}
      */
     public void onCheckEngineToggleButtonClick(View v) {
         if (tbCheckEngine.isChecked()) {
@@ -71,8 +84,10 @@ public class FactoryTestActivity extends RoboActivity {
 
     /**
      * Called by click on rudder-left-toggle-buttons.
+     * Sets the rudder value to min, when the tbRudderRight {@link ToggleButton} is checked,
+     * otherwise the motor value is set to zero value.
      *
-     * @param v view
+     * @param v {@link View}
      */
     public void onRudderLeftToggleButtonClick(View v) {
         if (tbRudderRight.isChecked() || tbRudderLeft.isChecked()) {
@@ -85,8 +100,10 @@ public class FactoryTestActivity extends RoboActivity {
 
     /**
      * Called by click on rudder-right-toggle-buttons.
+     * Sets the rudder value to max, when the tbRudderLeft {@link ToggleButton} is checked,
+     * otherwise the motor value is set to zero value.
      *
-     * @param v view
+     * @param v {@link View}
      */
     public void onRudderRightToggleButtonClick(View v) {
         if (tbRudderRight.isChecked() || tbRudderLeft.isChecked()) {
@@ -97,6 +114,13 @@ public class FactoryTestActivity extends RoboActivity {
         }
     }
 
+    /**
+     * Gets called by the onClickEvents of the {@link ToggleButton} and post a new
+     * {@link PlaneEvent}.
+     *
+     * @param device type of plane data.
+     * @param value to set.
+     */
     private void postPlaneEvent(int device, int value) {
         EventBus.getDefault().post(new PlaneEvent(device, value));
     }

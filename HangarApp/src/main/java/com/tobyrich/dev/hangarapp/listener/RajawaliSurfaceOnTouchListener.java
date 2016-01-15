@@ -8,9 +8,21 @@ import com.tobyrich.dev.hangarapp.Renderer;
 
 import org.rajawali3d.math.vector.Vector3;
 
+/**
+ * Listener, which handles the rotation of the plane model, when it gets touched.
+ */
 public class RajawaliSurfaceOnTouchListener implements View.OnTouchListener {
     @Inject Renderer renderer;
 
+    /**
+     * Handles the rotation of the plane model, when it gets touched. The plane model is rotated by
+     * the difference between the historical position (last time this event was called) and the
+     * current position.
+     *
+     * @param v {@link View}
+     * @param event The transfer object for pointer coordinates.
+     * @return whether or not the plane model has been moved.
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
