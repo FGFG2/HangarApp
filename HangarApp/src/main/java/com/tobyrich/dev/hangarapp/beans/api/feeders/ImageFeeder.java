@@ -24,7 +24,7 @@ import java.util.List;
 import roboguice.util.SafeAsyncTask;
 
 /**
- * This class loads the images from the Internet using URL.
+ * This class loads the images from the Internet using URL. The URL Achievement is relative ist
  */
 public class ImageFeeder extends SafeAsyncTask<Bitmap> {
 
@@ -109,6 +109,7 @@ public class ImageFeeder extends SafeAsyncTask<Bitmap> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
 
             addBitmapToMemoryCache(URL, bitmap);
         }

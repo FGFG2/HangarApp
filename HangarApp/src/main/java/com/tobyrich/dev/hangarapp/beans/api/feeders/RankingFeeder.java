@@ -94,15 +94,12 @@ public class RankingFeeder extends SafeAsyncTask<List<UserProfile>> {
         } catch (IOException e) {
             Log.e(this.getClass().getSimpleName(), "Error loading ranking list.", e);
             e.printStackTrace();
-            // FIXME: No fake achievements should be shown by release.
-            userList = getRankingList();
+            mHandler.post(new ToastRunnable("Error loading ranking list."));
         }
 
         if (userList == null) {
             Log.i(this.getClass().getSimpleName(), "False token.");
             mHandler.post(new ToastRunnable("Please start the SmartPlane application and input your credentials again."));
-            // FIXME: No fake ranking list should be shown by release.
-            userList = getRankingList();
         }
 
         return userList;
@@ -110,22 +107,9 @@ public class RankingFeeder extends SafeAsyncTask<List<UserProfile>> {
 
 
     /**
-     * Dummy ranking list for testing purposes.
-     */
-    public List<UserProfile> getRankingList() {
-        List<UserProfile> fakeUserList = new ArrayList<UserProfile>();
-        fakeUserList.add(new UserProfile("John Jackson", 1000));
-        fakeUserList.add(new UserProfile("Jack Johnson", 666));
-        fakeUserList.add(new UserProfile("Professor Taugenichts", 333));
-
-        return fakeUserList;
-    }
-
-
-    /**
      * We have to run makeText on the UI thread, which the Service doesn't run on. A Handler allows
      * to post a runnable to be run on the UI thread. In this case we initialize a Handler in Constructor.
-     * This way the toast will be shown in any relevant activity, where the AchievementsFeeder will be used.
+     * This way the toast will be shown in any relevant activity, where the RankingFeeder will be used.
      */
     private class ToastRunnable implements Runnable {
         String mText;

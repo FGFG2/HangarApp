@@ -93,34 +93,15 @@ public class AchievementsFeeder extends SafeAsyncTask<List<Achievement>> {
         } catch (IOException e) {
             Log.e(this.getClass().getSimpleName(), "Error loading achievements.", e);
             e.printStackTrace();
-            // FIXME: No fake achievements should be shown by release.
-            achievementList = getAchievementsList();
+            mHandler.post(new ToastRunnable("Error loading achievements."));
         }
 
         if (achievementList == null) {
             Log.i(this.getClass().getSimpleName(), "False token.");
             mHandler.post(new ToastRunnable("Please start the SmartPlane application and input your credentials again."));
-            // FIXME: No fake achievements should be shown by release.
-            achievementList = getAchievementsList();
         }
 
         return achievementList;
-    }
-
-
-    /**
-     * Dummy achievements for testing purposes.
-     */
-    public List<Achievement> getAchievementsList() {
-        List<Achievement> fakeAchievementList = new ArrayList<Achievement>();
-        fakeAchievementList.add(new Achievement("Flight duration", 100, "Flight duration ksjdh sdjkh djkshf skjdh ksjdfh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth landing and a very very long string in the same time", 35, "Smooth landing ksjdh sdjkh djkshf skjdh sdkjfhkdj."));
-        fakeAchievementList.add(new Achievement("Smooth flying", 55, "Smooth flying ksjdh sdjkh djkshf skjdh ksjdfh h hjsdfb " +
-                "lllllllllllllll dhks dshs  dshjddd djsdh sdjhfdjskhf dsjkhfskj sjdhfks jhkj jhdskj kjshdk ksjdh ksjdh jhd" +
-                "dskh kjdsh skdjh sdkjhd skjdh ksjd skjd khd hsjdbhjsb sdkjfhkdj skdhbsad hasdgsaj sajh jkshd" +
-                "jskhdf sjhfs sdhfsdk kjsdhjsh ksjhd jj jshd jjj."));
-
-        return fakeAchievementList;
     }
 
 

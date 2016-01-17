@@ -8,7 +8,9 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.AchievementsAdapter;
+import com.tobyrich.dev.hangarapp.beans.api.APIConstants;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.AchievementsFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.FeedersCallback;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.ImageFeeder;
@@ -157,14 +160,17 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
 
         if (isAchievementListChanged()) {
             for (Achievement achievement : achievementList) {
-                // If achievement icon is not in cache then download.
-                String imageURL = achievement.getImageUrl();
-                if (mMemoryCache.get(imageURL) == null) {
-                    // The feeder Thread will be started for each achievement and closed after the work is done automatically.
-                    new ImageFeeder(this, imageURL).execute();
-                } else {
-                    Bitmap icon = mMemoryCache.get(imageURL);
-                    achievement.setIcon(icon);
+                // Check if there is any icon related to this achievement.
+                if (achievement.getImageUrl().length() > 0) {
+                    // If achievement icon is not in cache then download. Relative Path of the icon is returned from Server.
+                    String imageURL = APIConstants.SERVER_URL + achievement.getImageUrl();
+                    if (mMemoryCache.get(imageURL) == null) {
+                        // The feeder Thread will be started for each achievement and closed after the work is done automatically.
+                        new ImageFeeder(this, imageURL).execute();
+                    } else {
+                        Bitmap icon = mMemoryCache.get(imageURL);
+                        achievement.setIcon(icon);
+                    }
                 }
             }
         }
@@ -185,11 +191,14 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
 
         // Define onclickListener for achievements.
         setOnAchievementClickListener();
+
+        // Define onScrollListener for achievements.
+        setOnAchievementScrollListener();
     }
 
 
     /**
-     * When an image is returned by ImageFeeder, add it to the achievement and to the cache. Refresh an ArrayAdapter.
+     * When an image is returned by ImageFeeder, add it to the achievement and to the cache. Refresh ArrayAdapter.
      * @param key URL-address of the Bitmap
      * @param icon Bitmap
      */
@@ -198,7 +207,8 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         addBitmapToMemoryCache(key, icon);
 
         for (Achievement achievement: achievementList) {
-            if (achievement.getImageUrl().equals(key)) {
+            String imagerURL = APIConstants.SERVER_URL + achievement.getImageUrl();
+            if (imagerURL.equals(key)) {
                 achievement.setIcon(icon);
             }
         }
@@ -270,6 +280,32 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
 
     }
 
+
+    /**
+     * Called by scrolling of achievementList.
+     */
+    private void setOnAchievementScrollListener() {
+        lvAchievements.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.i(getClass().getSimpleName(), "ScrollEvent registered, invoke AchievementsFeeder.");
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+                    // onAchievementsFeederComplete() will be called back when done.
+                    new AchievementsFeeder(thisActivity, thisContext, authToken).execute();
+                    achievementsLoading.setVisibility(View.VISIBLE);
+                }
+
+                oldAchievementList = achievementList;
+            }
+        });
+    }
+
+
     public boolean isAchievementListChanged() {
         return achievementListChanged;
     }
@@ -302,6 +338,7 @@ public class AchievementsActivity extends RoboActivity implements FeedersCallbac
         }
         return returnString;
     }
+
 
     public void onRankingFeederComplete(List<UserProfile> userList) {
         // do nothing.

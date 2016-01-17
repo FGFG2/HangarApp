@@ -7,12 +7,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.tobyrich.dev.hangarapp.R;
 import com.tobyrich.dev.hangarapp.adapters.RankingAdapter;
+import com.tobyrich.dev.hangarapp.beans.api.feeders.AchievementsFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.FeedersCallback;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.RankingFeeder;
 import com.tobyrich.dev.hangarapp.beans.api.feeders.TokenFeeder;
@@ -139,7 +141,7 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         // Set user position in ranking list
         for(UserProfile r: rankingList) {
             r.setPosition(rankingList.indexOf(r) + 1);
-            // TODO dummy data remove
+            // TODO: get accountName from TokenFeeder so that the users name will be selected and better seen.
             if (accountName == null) {
                 if (r.getKey().equals("Jack Johnson")) {
                     r.setCurrentUser(true);
@@ -172,6 +174,10 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
         }
 
         rankingLoading.setVisibility(View.GONE);
+
+
+        // Define onScrollListener for achievements.
+        setOnRankingScrollListener();
     }
 
     /**
@@ -255,5 +261,30 @@ public class RankingActivity extends RoboActivity implements FeedersCallback{
             returnString += ranking.toString() + System.lineSeparator();
         }
         return returnString;
+    }
+
+
+    /**
+     * Called by scrolling of achievementList.
+     */
+    private void setOnRankingScrollListener() {
+        lvRankingList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.i(getClass().getSimpleName(), "ScrollEvent registered, invoke RankingFeeder.");
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+                    // onAchievementsFeederComplete() will be called back when done.
+                    new RankingFeeder(thisActivity, thisContext, authToken).execute();
+                    rankingLoading.setVisibility(View.VISIBLE);
+                }
+
+                oldRankingList = rankingList;
+            }
+        });
     }
 }
