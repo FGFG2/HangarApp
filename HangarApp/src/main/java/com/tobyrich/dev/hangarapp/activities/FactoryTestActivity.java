@@ -76,7 +76,7 @@ public class FactoryTestActivity extends RoboActivity {
      */
     public void onCheckEngineToggleButtonClick(View v) {
         if (tbCheckEngine.isChecked()) {
-            postPlaneEvent(PlaneEvent.MOTOR, Consts.MAX_MOTOR_VALUE);
+            postPlaneEvent(PlaneEvent.MOTOR, (int)(0.4*Consts.MAX_MOTOR_VALUE));
         } else {
             postPlaneEvent(PlaneEvent.MOTOR, Consts.MIN_MOTOR_VALUE);
         }
